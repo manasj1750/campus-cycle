@@ -39,9 +39,9 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm w-full max-w-full overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm w-full max-w-full overflow-visible">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 overflow-visible">
+        <div className="flex items-center justify-between h-16 gap-2 sm:gap-4 overflow-visible">
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 group">
@@ -155,51 +155,58 @@ export default function Navbar() {
 
                   {/* Notification Dropdown */}
                   {notifOpen && (
-                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 py-3 z-50 overflow-hidden">
-                      <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Bell className="w-4 h-4 text-emerald-600" />
-                          <span className="font-semibold text-sm text-slate-800">Notifications</span>
-                        </div>
-                        <span className="text-xs text-slate-400">{notifications.length} alerts</span>
-                      </div>
-                      <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
-                        {notifications.length === 0 ? (
-                          <div className="p-6 text-center text-sm text-slate-400">
-                            No notifications yet
+                    <>
+                      <div
+                        className="fixed inset-0 z-40 bg-transparent"
+                        onClick={() => setNotifOpen(false)}
+                        aria-hidden="true"
+                      />
+                      <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 py-3 z-50 overflow-hidden">
+                        <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Bell className="w-4 h-4 text-emerald-600" />
+                            <span className="font-semibold text-sm text-slate-800">Notifications</span>
                           </div>
-                        ) : (
-                          notifications.slice(0, 6).map((n) => (
-                            <div
-                              key={n._id}
-                              onClick={() => {
-                                markAsRead(n._id);
-                                if (n.link) navigate(n.link);
-                                setNotifOpen(false);
-                              }}
-                              className={`p-3 text-xs cursor-pointer hover:bg-slate-50 transition-colors ${
-                                !n.isRead ? "bg-emerald-50/50" : ""
-                              }`}
-                            >
-                              <p className="font-semibold text-slate-900">{n.title}</p>
-                              <p className="text-slate-600 line-clamp-2 mt-0.5">{n.message}</p>
-                              <span className="text-[10px] text-slate-400 mt-1 block">
-                                {new Date(n.createdAt).toLocaleDateString()}
-                              </span>
+                          <span className="text-xs text-slate-400">{notifications.length} alerts</span>
+                        </div>
+                        <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                          {notifications.length === 0 ? (
+                            <div className="p-6 text-center text-sm text-slate-400">
+                              No notifications yet
                             </div>
-                          ))
-                        )}
+                          ) : (
+                            notifications.slice(0, 6).map((n) => (
+                              <div
+                                key={n._id}
+                                onClick={() => {
+                                  markAsRead(n._id);
+                                  if (n.link) navigate(n.link);
+                                  setNotifOpen(false);
+                                }}
+                                className={`p-3 text-xs cursor-pointer hover:bg-slate-50 transition-colors ${
+                                  !n.isRead ? "bg-emerald-50/50" : ""
+                                }`}
+                              >
+                                <p className="font-semibold text-slate-900">{n.title}</p>
+                                <p className="text-slate-600 line-clamp-2 mt-0.5">{n.message}</p>
+                                <span className="text-[10px] text-slate-400 mt-1 block">
+                                  {new Date(n.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                        <div className="px-4 pt-2 border-t border-slate-100 text-center">
+                          <Link
+                            to="/dashboard"
+                            onClick={() => setNotifOpen(false)}
+                            className="text-xs font-medium text-emerald-600 hover:text-emerald-700"
+                          >
+                            View All in Dashboard →
+                          </Link>
+                        </div>
                       </div>
-                      <div className="px-4 pt-2 border-t border-slate-100 text-center">
-                        <Link
-                          to="/dashboard"
-                          onClick={() => setNotifOpen(false)}
-                          className="text-xs font-medium text-emerald-600 hover:text-emerald-700"
-                        >
-                          View All in Dashboard →
-                        </Link>
-                      </div>
-                    </div>
+                    </>
                   )}
                 </div>
 
@@ -227,49 +234,56 @@ export default function Navbar() {
                   </button>
 
                   {userDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50">
-                      <div className="px-4 py-2 border-b border-slate-100">
-                        <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
-                        <p className="text-xs text-slate-500 truncate">{user?.college || user?.email}</p>
-                        <span className="inline-block mt-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">
-                          {user?.role === "ADMIN" ? "Administrator" : "Verified Student"}
-                        </span>
-                      </div>
-                      <Link
-                        to="/dashboard"
+                    <>
+                      <div
+                        className="fixed inset-0 z-40 bg-transparent"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        <Layers className="w-4 h-4 text-emerald-600" />
-                        My Dashboard
-                      </Link>
-                      <Link
-                        to={`/profile/${user?._id}`}
-                        onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                      >
-                        <User className="w-4 h-4 text-emerald-600" />
-                        Public Profile
-                      </Link>
-                      {isAdmin && (
+                        aria-hidden="true"
+                      />
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50">
+                        <div className="px-4 py-2 border-b border-slate-100">
+                          <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
+                          <p className="text-xs text-slate-500 truncate">{user?.college || user?.email}</p>
+                          <span className="inline-block mt-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">
+                            {user?.role === "ADMIN" ? "Administrator" : "Verified Student"}
+                          </span>
+                        </div>
                         <Link
-                          to="/admin"
+                          to="/dashboard"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-purple-700 font-medium hover:bg-purple-50 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                         >
-                          <Shield className="w-4 h-4 text-purple-600" />
-                          Admin Console
+                          <Layers className="w-4 h-4 text-emerald-600" />
+                          My Dashboard
                         </Link>
-                      )}
-                      <div className="border-t border-slate-100 my-1"></div>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                      </button>
-                    </div>
+                        <Link
+                          to={`/profile/${user?._id}`}
+                          onClick={() => setUserDropdownOpen(false)}
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                        >
+                          <User className="w-4 h-4 text-emerald-600" />
+                          Public Profile
+                        </Link>
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setUserDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 text-sm text-purple-700 font-medium hover:bg-purple-50 transition-colors"
+                          >
+                            <Shield className="w-4 h-4 text-purple-600" />
+                            Admin Console
+                          </Link>
+                        )}
+                        <div className="border-t border-slate-100 my-1"></div>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               </>
