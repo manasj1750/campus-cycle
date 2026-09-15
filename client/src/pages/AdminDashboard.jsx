@@ -16,7 +16,11 @@ import {
   Search,
   Plus,
   TrendingUp,
-  Leaf
+  Leaf,
+  KeyRound,
+  Lock,
+  Mail,
+  AlertCircle
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -33,10 +37,12 @@ import {
   Legend
 } from "recharts";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const COLORS = ["#10b981", "#06b6d4", "#f59e0b", "#8b5cf6", "#ec4899", "#64748b"];
 
 export default function AdminDashboard() {
+  const { user, refreshMe } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
 
@@ -61,6 +67,57 @@ export default function AdminDashboard() {
 
   // New Category state
   const [newCat, setNewCat] = useState({ name: "", icon: "Package", description: "", subcategories: "" });
+
+  // Admin Custom Credentials state
+  const [credForm, setCredForm] = useState({
+    email: user?.email || "",
+    password: "",
+    confirmPassword: ""
+  });
+  const [credStatus, setCredStatus] = useState({ loading: false, success: "", error: "" });
+
+  useEffect(() => {
+    if (user?.email) {
+      setCredForm((prev) => ({ ...prev, email: user.email }));
+    }
+  }, [user?.email]);
+
+  const handleUpdateCredentials = async (e) => {
+    e.preventDefault();
+    setCredStatus({ loading: true, success: "", error: "" });
+
+    if (credForm.password && credForm.password.length < 6) {
+      setCredStatus({ loading: false, success: "", error: "Password must be at least 6 characters." });
+      return;
+    }
+
+    if (credForm.password && credForm.password !== credForm.confirmPassword) {
+      setCredStatus({ loading: false, success: "", error: "New passwords do not match." });
+      return;
+    }
+
+    try {
+      const res = await api.patch("/admin/credentials", {
+        email: credForm.email,
+        password: credForm.password || undefined
+      });
+      if (res.data.success) {
+        setCredStatus({
+          loading: false,
+          success: "Admin credentials successfully updated! Please use these credentials next time you log in.",
+          error: ""
+        });
+        setCredForm((prev) => ({ ...prev, password: "", confirmPassword: "" }));
+        refreshMe();
+      }
+    } catch (err) {
+      setCredStatus({
+        loading: false,
+        success: "",
+        error: err.response?.data?.message || "Failed to update admin credentials."
+      });
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -284,7 +341,8 @@ export default function AdminDashboard() {
             { key: "products", label: `Listing Moderation (${stats?.pendingListings || 0} Pending)`, icon: Package },
             { key: "users", label: `Student Accounts (${stats?.totalUsers || 0})`, icon: Users },
             { key: "categories", label: "Campus Categories", icon: Tag },
-            { key: "reports", label: `Safety Reports (${stats?.totalReports || 0})`, icon: AlertTriangle }
+            { key: "reports", label: `Safety Reports (${stats?.totalReports || 0})`, icon: AlertTriangle },
+            { key: "security", label: "Admin Credentials", icon: KeyRound }
           ].map((t) => {
             const Icon = t.icon;
             const isSelected = activeTab === t.key;
@@ -799,6 +857,121 @@ export default function AdminDashboard() {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: ADMIN SECURITY & CREDENTIALS */}
+      {activeTab === "security" && (
+        <div
+          role="tabpanel"
+          id="tabpanel-security"
+          aria-labelledby="tab-security"
+          tabIndex={0}
+          className="space-y-6 max-w-2xl focus-visible:outline-none"
+        >
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
+              <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-900 text-base">
+                  Administrator Credentials & Security
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Customize the email and password used to access the CampusCycle Admin Portal.
+                </p>
+              </div>
+            </div>
+
+            {credStatus.error && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{credStatus.error}</span>
+              </div>
+            )}
+
+            {credStatus.success && (
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+                <span>{credStatus.success}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateCredentials} className="space-y-4">
+              <div>
+                <label htmlFor="adminCredEmail" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  Admin Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    id="adminCredEmail"
+                    type="email"
+                    required
+                    value={credForm.email}
+                    onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
+                    placeholder="e.g. admin@campuscycle.edu or your custom email"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  This email will be used when logging into the Admin Portal.
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="adminCredPassword" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  New Admin Password
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    id="adminCredPassword"
+                    type="password"
+                    value={credForm.password}
+                    onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
+                    placeholder="Leave blank to keep existing password"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Must be at least 6 characters long. Leave empty if only changing the email address.
+                </p>
+              </div>
+
+              {credForm.password && (
+                <div>
+                  <label htmlFor="adminCredConfirmPassword" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Confirm New Admin Password
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      id="adminCredConfirmPassword"
+                      type="password"
+                      required
+                      value={credForm.confirmPassword}
+                      onChange={(e) => setCredForm({ ...credForm, confirmPassword: e.target.value })}
+                      placeholder="Re-enter new password"
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={credStatus.loading}
+                  className="px-6 py-3 bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:outline-none"
+                >
+                  <KeyRound className="w-4 h-4" />
+                  <span>{credStatus.loading ? "Saving Credentials..." : "Save Administrator Credentials"}</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

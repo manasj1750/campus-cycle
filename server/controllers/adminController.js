@@ -363,3 +363,46 @@ export const updateReportStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Admin: Update admin email & password
+// @route   PATCH /api/admin/credentials
+export const updateAdminCredentials = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await User.findById(req.user._id).select("+password");
+    if (!admin || admin.role !== "ADMIN") {
+      return res.status(403).json({ success: false, message: "Unauthorized." });
+    }
+
+    if (email && email.trim().toLowerCase() !== admin.email) {
+      const emailLower = email.trim().toLowerCase();
+      const existing = await User.findOne({ email: emailLower, _id: { $ne: admin._id } });
+      if (existing) {
+        return res.status(400).json({ success: false, message: "This email address is already taken by another user." });
+      }
+      admin.email = emailLower;
+    }
+
+    if (password && password.trim()) {
+      if (password.trim().length < 6) {
+        return res.status(400).json({ success: false, message: "Password must be at least 6 characters." });
+      }
+      admin.password = password.trim();
+    }
+
+    await admin.save();
+
+    res.json({
+      success: true,
+      message: "Admin credentials successfully updated.",
+      admin: {
+        _id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

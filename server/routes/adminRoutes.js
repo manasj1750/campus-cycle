@@ -9,7 +9,8 @@ import {
   rejectProduct,
   toggleFeatureProduct,
   getAdminReports,
-  updateReportStatus
+  updateReportStatus,
+  updateAdminCredentials
 } from "../controllers/adminController.js";
 import { deleteProduct } from "../controllers/productController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
@@ -31,5 +32,6 @@ router.patch("/products/:id/feature", toggleFeatureProduct);
 
 router.get("/reports", getAdminReports);
 router.patch("/reports/:id", updateReportStatus);
+router.patch("/credentials", updateAdminCredentials);
 
 export default router;

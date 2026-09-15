@@ -147,7 +147,7 @@ export function Login({ defaultAdmin = false }) {
             <div className="flex items-center justify-between text-xs">
               <span className="font-bold text-purple-950 flex items-center gap-1">
                 <KeyRound className="w-3.5 h-3.5 text-purple-600" />
-                Default Admin Credentials
+                Admin Credentials
               </span>
               <button
                 type="button"
@@ -155,13 +155,12 @@ export function Login({ defaultAdmin = false }) {
                 className="text-[11px] font-bold text-purple-700 bg-purple-100 hover:bg-purple-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 active:scale-95"
               >
                 <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
-                Quick Fill
+                Default Fill
               </button>
             </div>
-            <div className="text-[11px] text-purple-800 font-mono bg-white/80 p-2 rounded-xl border border-purple-100 flex flex-col sm:flex-row justify-between gap-1">
-              <span><strong>Email:</strong> admin@campuscycle.edu</span>
-              <span><strong>Pass:</strong> AdminPassword123!</span>
-            </div>
+            <p className="text-[11px] text-purple-900 leading-relaxed">
+              Sign in with your administrator email & password. You can also customize your credentials at any time in the <strong>Admin Credentials</strong> tab inside the console.
+            </p>
           </div>
         )}
 
