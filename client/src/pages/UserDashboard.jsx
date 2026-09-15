@@ -22,6 +22,7 @@ import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import RatingStars from "../components/RatingStars";
 import EmptyState from "../components/EmptyState";
+import { formatProductImage, handleImageError } from "../utils/imageUtils";
 
 export default function UserDashboard() {
   const { user, updateProfile, refreshMe } = useAuth();
@@ -311,9 +312,10 @@ export default function UserDashboard() {
                 >
                   <div className="relative aspect-[16/9] bg-slate-100">
                     <img
-                      src={p.primaryImage || p.images?.[0]}
+                      src={formatProductImage(p.primaryImage || p.images?.[0], p.category)}
                       alt={p.title}
                       className="w-full h-full object-cover"
+                      onError={(e) => handleImageError(e, p.category)}
                     />
                     <span
                       className={`absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider ${

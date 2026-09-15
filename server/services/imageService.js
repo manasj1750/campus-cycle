@@ -40,10 +40,26 @@ export const uploadImage = async (file, folder = "campuscycle") => {
     }
   }
 
-  // Fallback: return accessible server URL for static uploads
-  if (file.filename) {
-    const baseUrl = process.env.SERVER_URL || `http://localhost:${process.env.PORT || 5000}`;
-    return `${baseUrl}/uploads/${file.filename}`;
+  // Fallback: If no Cloudinary, read the file into a base64 data URI
+  // This ensures images persist reliably on serverless (Vercel) and don't break
+  if (file.path && fs.existsSync(file.path)) {
+    try {
+      const fileBuffer = fs.readFileSync(file.path);
+      const mimeType = file.mimetype || "image/jpeg";
+      const base64 = fileBuffer.toString("base64");
+      // Clean up temp file
+      try {
+        fs.unlinkSync(file.path);
+      } catch (cleanErr) {}
+      return `data:${mimeType};base64,${base64}`;
+    } catch (err) {
+      console.error("[Storage] Error converting file to base64:", err.message);
+    }
+  }
+
+  // Fallback if filename exists and SERVER_URL is defined
+  if (file.filename && process.env.SERVER_URL) {
+    return `${process.env.SERVER_URL}/uploads/${file.filename}`;
   }
 
   return "";

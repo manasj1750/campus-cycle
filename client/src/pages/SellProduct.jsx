@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { compressImage } from "../utils/imageCompressor";
 
 export default function SellProduct() {
   const navigate = useNavigate();
@@ -75,8 +76,8 @@ export default function SellProduct() {
     }));
   };
 
-  // Image Upload Handling (file to base64 / blob preview)
-  const handleFileSelect = (e) => {
+  // Image Upload Handling (compress to lightweight base64 preview & storage)
+  const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
@@ -85,14 +86,25 @@ export default function SellProduct() {
       return;
     }
 
-    files.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        setImages((prev) => [...prev, uploadEvent.target.result]);
-        setImageFiles((prev) => [...prev, file]);
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploading(true);
+    try {
+      for (const file of files) {
+        try {
+          const compressed = await compressImage(file, 1200, 1200, 0.75);
+          setImages((prev) => [...prev, compressed]);
+          setImageFiles((prev) => [...prev, file]);
+        } catch (compErr) {
+          const reader = new FileReader();
+          reader.onload = (uploadEvent) => {
+            setImages((prev) => [...prev, uploadEvent.target.result]);
+            setImageFiles((prev) => [...prev, file]);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleRemoveImage = (index) => {
@@ -135,21 +147,26 @@ export default function SellProduct() {
       // Upload files to server if files exist
       let finalImages = images;
       if (imageFiles.length > 0) {
-        const uploadData = new FormData();
-        imageFiles.forEach((file) => {
-          uploadData.append("images", file);
-        });
-
         try {
+          const uploadData = new FormData();
+          imageFiles.forEach((file) => {
+            uploadData.append("images", file);
+          });
+
           const upRes = await api.post("/products/upload-images", uploadData, {
             headers: { "Content-Type": "multipart/form-data" }
           });
           if (upRes.data.success && upRes.data.urls?.length) {
-            finalImages = upRes.data.urls;
+            const hasLocalhost = upRes.data.urls.some(
+              (u) => typeof u === "string" && u.startsWith("http://localhost:")
+            );
+            if (!hasLocalhost) {
+              finalImages = upRes.data.urls;
+            }
           }
         } catch (upErr) {
           console.warn("Server image storage fallback:", upErr);
-          // Keep base64 data URLs as resilient fallback
+          // Keep compressed base64 data URLs as resilient fallback
         }
       }
 

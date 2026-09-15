@@ -21,6 +21,7 @@ import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import RatingStars from "../components/RatingStars";
 import ProductCard from "../components/ProductCard";
+import { formatProductImage, handleImageError } from "../utils/imageUtils";
 
 export default function ProductDetails() {
   const { id } = useParams();
@@ -225,9 +226,10 @@ export default function ProductDetails() {
           {/* Main Large Image */}
           <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
             <img
-              src={selectedImage || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=800&q=80"}
+              src={formatProductImage(selectedImage, product.category)}
               alt={product.title}
               className="w-full h-full object-cover"
+              onError={(e) => handleImageError(e, product.category)}
             />
             {product.status === "SOLD" && (
               <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center">
@@ -256,7 +258,12 @@ export default function ProductDetails() {
                       : "border-slate-200 opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt={`Thumb ${idx}`} className="w-full h-full object-cover" />
+                  <img
+                    src={formatProductImage(img, product.category)}
+                    alt={`Thumb ${idx}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => handleImageError(e, product.category)}
+                  />
                 </button>
               ))}
             </div>

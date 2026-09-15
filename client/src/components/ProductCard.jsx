@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Heart, MapPin, CheckCircle2, Star, Sparkles } from "lucide-react";
 import { useWishlist } from "../context/WishlistContext";
 import { useAuth } from "../context/AuthContext";
+import { formatProductImage, handleImageError } from "../utils/imageUtils";
 
 export default function ProductCard({ product }) {
   const { isInWishlist, toggleWishlist } = useWishlist();
@@ -64,8 +65,9 @@ export default function ProductCard({ product }) {
       ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
       : null;
 
-  const displayImage =
-    product.primaryImage || (product.images && product.images[0]) || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&q=80";
+  const rawImage =
+    product.primaryImage || (product.images && product.images[0]);
+  const displayImage = formatProductImage(rawImage, product.category);
 
   return (
     <div className="group relative bg-white rounded-2xl border border-slate-200/90 hover:border-emerald-300 shadow-sm hover:shadow-card transition-all duration-300 flex flex-col overflow-hidden">
@@ -86,6 +88,7 @@ export default function ProductCard({ product }) {
           alt={product.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
+          onError={(e) => handleImageError(e, product.category)}
         />
 
         {/* Wishlist Button */}
