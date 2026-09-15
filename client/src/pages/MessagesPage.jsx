@@ -144,10 +144,10 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-8 w-full max-w-full overflow-x-hidden">
       
-      <div className="mb-6">
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
           Campus Messages & Inquiries
         </h1>
         <p className="text-xs text-slate-500">
@@ -155,7 +155,7 @@ export default function MessagesPage() {
         </p>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[620px] max-h-[750px]">
+      <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 h-[calc(100vh-10rem)] md:h-[700px] min-h-[480px] w-full max-w-full">
         
         {/* Left: Conversations list (4 cols) */}
         <div className={`md:col-span-4 border-r border-slate-200 flex flex-col ${activeConvo ? "hidden md:flex" : "flex"}`}>
@@ -263,20 +263,20 @@ export default function MessagesPage() {
                 {activeConvo.product && (
                   <Link
                     to={`/products/${activeConvo.product._id}`}
-                    className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-xs max-w-xs transition-colors"
+                    className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl text-xs max-w-[125px] sm:max-w-xs transition-colors flex-shrink-0"
                   >
                     <img
                       src={activeConvo.product.primaryImage || activeConvo.product.images?.[0]}
                       alt={activeConvo.product.title}
-                      className="w-8 h-8 rounded-lg object-cover"
+                      className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg object-cover flex-shrink-0"
                     />
-                    <div className="truncate">
-                      <p className="font-bold text-slate-800 truncate">{activeConvo.product.title}</p>
-                      <p className="text-[11px] font-black text-emerald-700">
+                    <div className="truncate min-w-0">
+                      <p className="font-bold text-slate-800 truncate text-[11px] sm:text-xs">{activeConvo.product.title}</p>
+                      <p className="text-[10px] sm:text-[11px] font-black text-emerald-700">
                         ₹{activeConvo.product.price}
                       </p>
                     </div>
-                    <ExternalLink className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                    <ExternalLink className="w-3 h-3 text-slate-400 flex-shrink-0 hidden sm:block" />
                   </Link>
                 )}
               </div>
@@ -329,7 +329,7 @@ export default function MessagesPage() {
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   placeholder="Type a message (e.g. Can we meet at the library 4pm?)..."
-                  className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+                  className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white"
                 />
                 <button
                   type="submit"

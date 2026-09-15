@@ -141,10 +141,10 @@ export default function UserDashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
       
       {/* Top Banner */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <div className="bg-white rounded-3xl border border-slate-200 p-4 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-full overflow-hidden">
         <div className="flex items-center gap-4">
           {user?.profilePhoto ? (
             <img
@@ -237,7 +237,7 @@ export default function UserDashboard() {
       </div>
 
       {/* Main Navigation Tabs */}
-      <div className="flex border-b border-slate-200 gap-6 overflow-x-auto text-sm font-bold">
+      <div className="flex border-b border-slate-200 gap-4 sm:gap-6 overflow-x-auto text-sm font-bold w-full max-w-full min-w-0 no-scrollbar">
         <button
           onClick={() => handleTabChange("listings")}
           className={`pb-3.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
@@ -280,7 +280,7 @@ export default function UserDashboard() {
         <div className="space-y-6">
           
           {/* Status Subfilters */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 w-full max-w-full min-w-0 no-scrollbar">
             {["ALL", "ACTIVE", "PENDING_REVIEW", "SOLD", "REJECTED"].map((f) => (
               <button
                 key={f}

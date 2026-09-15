@@ -25,6 +25,15 @@
   }
 }
 
+/* Prevent iOS Safari auto-zooming when tapping text inputs */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 /* Custom smooth scrollbar */
 ::-webkit-scrollbar {
   width: 7px;
