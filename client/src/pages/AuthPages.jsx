@@ -28,11 +28,6 @@ export function Login() {
     }
   };
 
-  const handleDemoFill = (demoEmail) => {
-    setEmail(demoEmail);
-    setPassword("Password123!");
-  };
-
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-xl space-y-6">
@@ -48,37 +43,6 @@ export function Login() {
           <p className="text-xs text-slate-500">
             Log in to buy, sell, message peers, and manage listings
           </p>
-        </div>
-
-        {/* Demo Fast Login Buttons */}
-        <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-3.5 space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>1-Click Demo Accounts:</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <button
-              type="button"
-              onClick={() => handleDemoFill("student@campuscycle.test")}
-              className="py-1.5 px-2 bg-white hover:bg-emerald-100 rounded-lg text-emerald-900 font-semibold border border-emerald-200 transition-colors truncate"
-            >
-              Student
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoFill("seller@campuscycle.test")}
-              className="py-1.5 px-2 bg-white hover:bg-emerald-100 rounded-lg text-emerald-900 font-semibold border border-emerald-200 transition-colors truncate"
-            >
-              Seller
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDemoFill("admin@campuscycle.test")}
-              className="py-1.5 px-2 bg-purple-50 hover:bg-purple-100 rounded-lg text-purple-900 font-bold border border-purple-200 transition-colors truncate"
-            >
-              Admin
-            </button>
-          </div>
         </div>
 
         {error && (

@@ -176,12 +176,6 @@ const startServer = async () => {
   try {
     await connectDB();
 
-    const productCount = await Product.countDocuments();
-    if (productCount === 0) {
-      console.log("[CampusCycle] Initializing complete seed dataset...");
-      await runSeed(false);
-    }
-
     httpServer.listen(PORT, () => {
       console.log(`====================================================`);
       console.log(`🚀 CampusCycle Server running on port ${PORT}`);

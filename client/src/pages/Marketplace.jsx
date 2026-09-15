@@ -234,10 +234,14 @@ export default function Marketplace() {
             <ProductGridSkeleton count={9} />
           ) : products.length === 0 ? (
             <EmptyState
-              title="No items found"
-              message="No products match your selected filters. Try broadening your criteria or search query."
-              actionText="Reset All Filters"
-              actionLink="/products"
+              title={totalCount === 0 && !search && category === "All" && !condition ? "No items listed yet" : "No items found"}
+              message={
+                totalCount === 0 && !search && category === "All" && !condition
+                  ? "Be the first to list an item on campus! Give your textbooks, cycles, or electronics a second life."
+                  : "No products match your selected filters. Try broadening your criteria or search query."
+              }
+              actionText={totalCount === 0 && !search && category === "All" && !condition ? "Post an Item for Sale" : "Reset All Filters"}
+              actionLink={totalCount === 0 && !search && category === "All" && !condition ? "/sell" : "/products"}
             />
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
