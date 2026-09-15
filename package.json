@@ -1,6 +1,7 @@
 {
   "name": "campus-cycle-monorepo",
   "version": "1.0.0",
+  "type": "module",
   "description": "CampusCycle - College Second-Hand Marketplace Monorepo",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",

@@ -79,6 +79,20 @@ io.on("connection", (socket) => {
 
 app.set("trust proxy", 1);
 
+// Ensure synthetic socket object has remoteAddress in serverless environments
+app.use((req, res, next) => {
+  if (!req.socket) {
+    req.socket = {};
+  }
+  if (!req.socket.remoteAddress) {
+    req.socket.remoteAddress = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || "127.0.0.1";
+  }
+  if (typeof req.socket.destroy !== "function") {
+    req.socket.destroy = () => {};
+  }
+  next();
+});
+
 // Security & Utility Middleware
 app.use(
   helmet({
@@ -98,7 +112,7 @@ app.use(express.json({ limit: "15mb" }));
 app.use(express.urlencoded({ extended: true, limit: "15mb" }));
 app.use(cookieParser());
 
-if (process.env.NODE_ENV !== "test") {
+if (process.env.NODE_ENV !== "test" && process.env.VERCEL !== "1") {
   app.use(morgan("dev"));
 }
 
@@ -106,7 +120,10 @@ if (process.env.NODE_ENV !== "test") {
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  validate: { trustProxy: false, xForwardedForHeader: false },
+  validate: false,
+  keyGenerator: (req) => {
+    return req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.socket?.remoteAddress || "127.0.0.1";
+  },
   message: { success: false, message: "Too many requests from this IP, please try again later." }
 });
 app.use("/api", limiter);
@@ -179,7 +196,13 @@ const startServer = async () => {
   }
 };
 
-if (process.env.VERCEL !== "1") {
+const isServerless =
+  process.env.VERCEL === "1" ||
+  !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
+  !!process.env.NOW_REGION ||
+  !!process.env.VERCEL_ENV;
+
+if (!isServerless && process.env.NODE_ENV !== "test") {
   startServer();
 }
 
