@@ -1,0 +1,12 @@
+node_modules
+.env
+dist
+dist-ssr
+*.local
+.mongodb_data
+uploads/*
+!uploads/.gitkeep
+logs
+*.log
+.DS_Store
+Thumbs.db

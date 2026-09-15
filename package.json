@@ -1,0 +1,17 @@
+{
+  "name": "campus-cycle-monorepo",
+  "version": "1.0.0",
+  "description": "CampusCycle - College Second-Hand Marketplace Monorepo",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "cd client && npm run dev",
+    "server": "cd server && node server.js",
+    "seed": "cd server && npm run seed",
+    "build": "cd client && npm run build",
+    "test:e2e": "node test-e2e.mjs",
+    "install:all": "npm install concurrently && cd server && npm install && cd ../client && npm install"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
