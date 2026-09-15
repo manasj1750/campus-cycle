@@ -77,6 +77,8 @@ io.on("connection", (socket) => {
   });
 });
 
+app.set("trust proxy", 1);
+
 // Security & Utility Middleware
 app.use(
   helmet({
@@ -87,7 +89,7 @@ app.use(
 
 app.use(
   cors({
-    origin: [CLIENT_ORIGIN, "http://127.0.0.1:5173", "http://localhost:3000"],
+    origin: true,
     credentials: true
   })
 );
@@ -103,7 +105,8 @@ if (process.env.NODE_ENV !== "test") {
 // Gentle Rate Limiter for general endpoints
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: 1000,
+  validate: { trustProxy: false, xForwardedForHeader: false },
   message: { success: false, message: "Too many requests from this IP, please try again later." }
 });
 app.use("/api", limiter);
