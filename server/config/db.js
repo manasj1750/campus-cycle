@@ -11,11 +11,14 @@ const dbDir = path.join(__dirname, "../.mongodb_data");
 let mongoServer = null;
 
 export const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) {
+    return;
+  }
   const uri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/campuscycle";
   try {
     mongoose.set("strictQuery", false);
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 2000
+      serverSelectionTimeoutMS: 8000
     });
     console.log(`[Database] Connected successfully to external MongoDB at ${uri}`);
   } catch (err) {

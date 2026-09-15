@@ -4,13 +4,16 @@ import { connectDB } from "../server/config/db.js";
 let isConnected = false;
 
 export default async function handler(req, res) {
-  if (!isConnected) {
-    try {
-      await connectDB();
-      isConnected = true;
-    } catch (err) {
-      console.error("[Vercel] DB connect error:", err.message);
-    }
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error("[Vercel] DB connect error:", err.message);
   }
+
+  // If Vercel stripped /api from req.url, add it back so Express route handlers match
+  if (!req.url.startsWith("/api")) {
+    req.url = "/api" + req.url;
+  }
+
   return app(req, res);
 }
