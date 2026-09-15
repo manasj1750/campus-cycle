@@ -160,7 +160,6 @@ export function Login({ defaultAdmin = false }) {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={portalMode === "admin" ? "admin@campuscycle.edu" : "student@college.edu or gmail"}
                 className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white"
               />
             </div>
@@ -184,7 +183,6 @@ export function Login({ defaultAdmin = false }) {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
                 className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white"
               />
             </div>
