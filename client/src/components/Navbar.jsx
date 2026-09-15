@@ -39,21 +39,21 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm w-full max-w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-2 sm:gap-4">
           
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-              <Recycle className="w-6 h-6 animate-spin-slow" />
+          <Link to="/" className="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 group">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+              <Recycle className="w-5 h-5 sm:w-6 sm:h-6 animate-spin-slow" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl font-black tracking-tight text-slate-900">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900">
                   Campus<span className="text-emerald-600">Cycle</span>
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">
                   Club
                 </span>
               </div>
@@ -112,10 +112,10 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <>
-                {/* Wishlist */}
+                {/* Wishlist - hidden on mobile header, available in bottom nav / drawer */}
                 <Link
                   to="/wishlist"
-                  className="relative p-2 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="hidden sm:inline-flex relative p-2 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-xl transition-colors"
                   title="Wishlist"
                 >
                   <Heart className="w-5 h-5" />
@@ -126,10 +126,10 @@ export default function Navbar() {
                   )}
                 </Link>
 
-                {/* Messages */}
+                {/* Messages - hidden on mobile header since it's already in the bottom nav */}
                 <Link
                   to="/messages"
-                  className="relative p-2 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="hidden sm:inline-flex relative p-2 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-xl transition-colors"
                   title="Messages"
                 >
                   <MessageSquare className="w-5 h-5" />

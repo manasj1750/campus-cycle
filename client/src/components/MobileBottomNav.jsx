@@ -16,7 +16,7 @@ export default function MobileBottomNav() {
   };
 
   return (
-    <nav aria-label="Mobile navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-lg px-2 py-1 safe-area-bottom">
+    <nav aria-label="Mobile navigation" className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-lg px-2 py-1 safe-area-bottom w-full max-w-full overflow-hidden">
       <div className="flex items-center justify-around max-w-md mx-auto">
         
         {/* Home */}

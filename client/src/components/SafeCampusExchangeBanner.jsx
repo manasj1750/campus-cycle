@@ -3,7 +3,7 @@ import { ShieldAlert, MapPin, CheckCircle } from "lucide-react";
 
 export default function SafeCampusExchangeBanner() {
   return (
-    <div className="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full max-w-full overflow-hidden">
       <div className="flex items-start gap-3.5">
         <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
           <ShieldAlert className="w-5 h-5" />
@@ -17,8 +17,8 @@ export default function SafeCampusExchangeBanner() {
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-3 text-xs font-semibold text-emerald-800 bg-white border border-emerald-200 px-3 py-2 rounded-xl shadow-xs flex-shrink-0">
-        <MapPin className="w-4 h-4 text-emerald-600" />
+      <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-800 bg-white border border-emerald-200 px-3 py-2 rounded-xl shadow-xs w-full sm:w-auto">
+        <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
         <span>Designated Safe Zones: Central Library & Student Union</span>
       </div>
     </div>

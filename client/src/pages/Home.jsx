@@ -147,7 +147,7 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-16 pb-20">
+    <div className="space-y-12 sm:space-y-16 pb-20 w-full max-w-full overflow-x-hidden">
       
       {/* 1. HERO SECTION */}
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/80 via-white to-slate-50 pt-8 pb-16 md:pt-14 md:pb-20 border-b border-slate-200">
@@ -266,7 +266,7 @@ export default function Home() {
           {/* Quick Anchor Navigation Bar */}
           <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs font-bold text-slate-600">
             <span className="text-slate-400 uppercase tracking-wider hidden sm:inline whitespace-nowrap">Jump To Section:</span>
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto py-1">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto py-1 min-w-0">
               <button
                 onClick={() => scrollToSection("marketplace")}
                 className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors whitespace-nowrap"
@@ -418,7 +418,7 @@ export default function Home() {
         </div>
 
         {/* Live Filter Controls Bar */}
-        <div className="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm space-y-4 mb-6">
+        <div className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-sm space-y-4 mb-6 w-full max-w-full overflow-hidden">
           
           {/* Search + Sort + Condition Controls */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -474,7 +474,7 @@ export default function Home() {
           </div>
 
           {/* Interactive Category Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pt-1">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pt-1 w-full max-w-full min-w-0">
             <button
               onClick={() => setActiveCategory("All")}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
