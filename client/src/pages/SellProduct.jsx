@@ -41,7 +41,6 @@ export default function SellProduct() {
 
   const [images, setImages] = useState([]);
   const [primaryImageIdx, setPrimaryImageIdx] = useState(0);
-  const [imageFiles, setImageFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -90,14 +89,13 @@ export default function SellProduct() {
     try {
       for (const file of files) {
         try {
-          const compressed = await compressImage(file, 1200, 1200, 0.75);
+          const compressed = await compressImage(file, 900, 900, 0.7);
           setImages((prev) => [...prev, compressed]);
-          setImageFiles((prev) => [...prev, file]);
         } catch (compErr) {
+          console.warn("Canvas compression failed, using reader fallback:", compErr);
           const reader = new FileReader();
           reader.onload = (uploadEvent) => {
             setImages((prev) => [...prev, uploadEvent.target.result]);
-            setImageFiles((prev) => [...prev, file]);
           };
           reader.readAsDataURL(file);
         }
@@ -109,7 +107,6 @@ export default function SellProduct() {
 
   const handleRemoveImage = (index) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
     if (primaryImageIdx === index) {
       setPrimaryImageIdx(0);
     } else if (primaryImageIdx > index) {
@@ -144,39 +141,13 @@ export default function SellProduct() {
     try {
       setSubmitting(true);
 
-      // Upload files to server if files exist
-      let finalImages = images;
-      if (imageFiles.length > 0) {
-        try {
-          const uploadData = new FormData();
-          imageFiles.forEach((file) => {
-            uploadData.append("images", file);
-          });
-
-          const upRes = await api.post("/products/upload-images", uploadData, {
-            headers: { "Content-Type": "multipart/form-data" }
-          });
-          if (upRes.data.success && upRes.data.urls?.length) {
-            const hasLocalhost = upRes.data.urls.some(
-              (u) => typeof u === "string" && u.startsWith("http://localhost:")
-            );
-            if (!hasLocalhost) {
-              finalImages = upRes.data.urls;
-            }
-          }
-        } catch (upErr) {
-          console.warn("Server image storage fallback:", upErr);
-          // Keep compressed base64 data URLs as resilient fallback
-        }
-      }
-
       const payload = {
         ...formData,
         price: Number(formData.price),
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : 0,
         purchaseYear: formData.purchaseYear ? Number(formData.purchaseYear) : undefined,
-        images: finalImages,
-        primaryImage: finalImages[primaryImageIdx] || finalImages[0],
+        images: images,
+        primaryImage: images[primaryImageIdx] || images[0],
         tags: formData.tags
           ? formData.tags.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean)
           : []
@@ -190,7 +161,24 @@ export default function SellProduct() {
         }, 2200);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create listing. Please check required fields.");
+      console.error("Listing creation error:", err);
+      let errorText = "Failed to create listing.";
+      if (err.response) {
+        if (err.response.status === 413) {
+          errorText = "Photos payload is too large. Please select fewer or smaller photos.";
+        } else if (err.response.data?.message) {
+          errorText = err.response.data.message;
+        } else if (typeof err.response.data === "string" && err.response.data.includes("FUNCTION_PAYLOAD_TOO_LARGE")) {
+          errorText = "Image upload exceeded server limit. Please reduce photo count.";
+        } else {
+          errorText = `Error (${err.response.status}): ${err.response.statusText || "Server error occurred. Please check required fields."}`;
+        }
+      } else if (err.request) {
+        errorText = "Network connection timed out while uploading. Please check your internet connection.";
+      } else {
+        errorText = err.message || "Failed to create listing. Please check required fields.";
+      }
+      setError(errorText);
     } finally {
       setSubmitting(false);
     }
@@ -554,11 +542,13 @@ export default function SellProduct() {
           </button>
           <button
             type="submit"
-            disabled={submitting}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+            disabled={submitting || uploading}
+            className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
           >
-            {submitting ? (
-              <span>Submitting Listing...</span>
+            {uploading ? (
+              <span>Optimizing Photos...</span>
+            ) : submitting ? (
+              <span>Publishing Listing...</span>
             ) : (
               <>
                 <span>Publish Campus Listing</span>
