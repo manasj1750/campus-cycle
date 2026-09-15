@@ -7,7 +7,8 @@ import {
   CheckCheck,
   ExternalLink,
   MapPin,
-  Tag
+  Tag,
+  ArrowLeft
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -157,7 +158,7 @@ export default function MessagesPage() {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-12 min-h-[620px] max-h-[750px]">
         
         {/* Left: Conversations list (4 cols) */}
-        <div className="md:col-span-4 border-r border-slate-200 flex flex-col">
+        <div className={`md:col-span-4 border-r border-slate-200 flex flex-col ${activeConvo ? "hidden md:flex" : "flex"}`}>
           <div className="p-4 border-b border-slate-100 font-bold text-sm text-slate-800 flex items-center justify-between">
             <span>Conversations</span>
             <span className="text-xs text-slate-400 font-normal">{conversations.length} total</span>
@@ -220,13 +221,23 @@ export default function MessagesPage() {
         </div>
 
         {/* Right: Message Window (8 cols) */}
-        <div className="md:col-span-8 flex flex-col bg-slate-50/50">
+        <div className={`md:col-span-8 flex flex-col bg-slate-50/50 ${activeConvo ? "flex" : "hidden md:flex"}`}>
           
           {activeConvo ? (
             <>
               {/* Active Header with Product summary */}
-              <div className="p-4 bg-white border-b border-slate-200 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
+              <div className="p-3 sm:p-4 bg-white border-b border-slate-200 flex items-center justify-between gap-2 sm:gap-4">
+                <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                  <button
+                    onClick={() => {
+                      setActiveConvo(null);
+                      setSearchParams({});
+                    }}
+                    className="md:hidden p-1.5 -ml-1 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 flex-shrink-0"
+                    title="Back to all conversations"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
                   {getOtherParticipant(activeConvo)?.profilePhoto ? (
                     <img
                       src={getOtherParticipant(activeConvo).profilePhoto}

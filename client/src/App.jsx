@@ -7,6 +7,7 @@ import { SocketProvider } from "./context/SocketContext";
 import { ToastProvider } from "./context/ToastContext";
 
 import Navbar from "./components/Navbar";
+import MobileBottomNav from "./components/MobileBottomNav";
 import Footer from "./components/Footer";
 import { ProtectedRoute, AdminRoute } from "./components/RouteGuards";
 
@@ -32,7 +33,7 @@ export default function App() {
               <ToastProvider>
                 <div className="flex flex-col min-h-screen bg-[#f8fafc] text-slate-800">
                 <Navbar />
-                <main className="flex-1">
+                <main className="flex-1 pb-16 md:pb-0">
                   <Routes>
                     {/* Public Routes */}
                     <Route path="/" element={<Home />} />
@@ -79,6 +80,7 @@ export default function App() {
                   </Routes>
                 </main>
                 <Footer />
+                <MobileBottomNav />
               </div>
               </ToastProvider>
             </NotificationProvider>

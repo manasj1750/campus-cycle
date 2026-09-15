@@ -264,12 +264,12 @@ export default function Home() {
           </div>
 
           {/* Quick Anchor Navigation Bar */}
-          <div className="mt-10 pt-6 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-slate-600">
-            <span className="text-slate-400 uppercase tracking-wider">Jump To Section:</span>
-            <div className="flex flex-wrap items-center gap-2">
+          <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs font-bold text-slate-600">
+            <span className="text-slate-400 uppercase tracking-wider hidden sm:inline whitespace-nowrap">Jump To Section:</span>
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto py-1">
               <button
                 onClick={() => scrollToSection("marketplace")}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors whitespace-nowrap"
               >
                 🛍️ Live Marketplace
               </button>
@@ -506,7 +506,7 @@ export default function Home() {
         {loadingProducts ? (
           <ProductGridSkeleton count={8} />
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {filteredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}

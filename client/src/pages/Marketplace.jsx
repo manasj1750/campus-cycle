@@ -194,35 +194,35 @@ export default function Marketplace() {
 
           {/* Active Filter Chips */}
           {(category !== "All" || condition || location !== "All" || search) && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-slate-400">Active filters:</span>
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+              <span className="text-xs text-slate-400 whitespace-nowrap">Active filters:</span>
               {search && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
                   Search: "{search}"
                   <button onClick={() => updateFilter("search", "")} className="hover:text-rose-600">×</button>
                 </span>
               )}
               {category !== "All" && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
                   Category: {category}
                   <button onClick={() => updateFilter("category", "")} className="hover:text-rose-600">×</button>
                 </span>
               )}
               {condition && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
                   Condition: {condition}
                   <button onClick={() => updateFilter("condition", "")} className="hover:text-rose-600">×</button>
                 </span>
               )}
               {location !== "All" && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
                   Location: {location}
                   <button onClick={() => updateFilter("location", "")} className="hover:text-rose-600">×</button>
                 </span>
               )}
               <button
                 onClick={resetFilters}
-                className="text-xs text-rose-600 hover:underline font-medium ml-2"
+                className="text-xs text-rose-600 hover:underline font-medium ml-2 whitespace-nowrap"
               >
                 Clear all
               </button>
@@ -231,7 +231,7 @@ export default function Marketplace() {
 
           {/* Product Grid */}
           {loading ? (
-            <ProductGridSkeleton count={9} />
+            <ProductGridSkeleton count={8} />
           ) : products.length === 0 ? (
             <EmptyState
               title={totalCount === 0 && !search && category === "All" && !condition ? "No items listed yet" : "No items found"}
@@ -244,7 +244,7 @@ export default function Marketplace() {
               actionLink={totalCount === 0 && !search && category === "All" && !condition ? "/sell" : "/products"}
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {products.map((product) => (
                 <ProductCard key={product._id} product={product} />
               ))}

@@ -125,7 +125,7 @@ export default function UserProfile() {
         {activeProducts?.length === 0 ? (
           <p className="text-xs text-slate-400 italic">No active listings currently available.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {activeProducts.map((p) => (
               <ProductCard key={p._id} product={p} />
             ))}
