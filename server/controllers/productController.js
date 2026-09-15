@@ -32,7 +32,7 @@ export const getProducts = async (req, res, next) => {
     if (status) {
       query.status = status;
     } else {
-      query.status = { $in: ["APPROVED", "AVAILABLE", "RESERVED", "SOLD"] };
+      query.status = { $in: ["AVAILABLE", "APPROVED", "RESERVED", "SOLD", "PENDING_REVIEW"] };
     }
 
     if (seller) {
@@ -220,7 +220,7 @@ export const createProduct = async (req, res, next) => {
       tags: Array.isArray(tags) ? tags : (tags ? tags.split(",").map(t => t.trim()) : []),
       isNegotiable: isNegotiable !== undefined ? isNegotiable : true,
       contactPreference: contactPreference || "In-App Chat",
-      status: req.user.role === "ADMIN" ? "AVAILABLE" : "PENDING_REVIEW"
+      status: "AVAILABLE"
     });
 
     // Notify admins if pending review
