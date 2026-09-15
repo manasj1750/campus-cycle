@@ -126,6 +126,17 @@ export default function AdminDashboard() {
     if (activeTab === "reports") fetchReports();
   }, [activeTab, productFilter, userSearch]);
 
+  // Modal Escape key accessibility listener
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && rejectModal.open) {
+        setRejectModal({ open: false, productId: null, reason: "" });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [rejectModal.open]);
+
   // Product Actions
   const handleApproveProduct = async (id) => {
     try {
@@ -262,61 +273,79 @@ export default function AdminDashboard() {
       </div>
 
       {/* Admin Navigation Tabs */}
-      <div className="flex border-b border-slate-200 gap-4 sm:gap-6 overflow-x-auto text-sm font-bold">
-        {[
-          { key: "overview", label: "Analytics & Overview", icon: BarChart3 },
-          { key: "products", label: `Listing Moderation (${stats?.pendingListings || 0} Pending)`, icon: Package },
-          { key: "users", label: `Student Accounts (${stats?.totalUsers || 0})`, icon: Users },
-          { key: "categories", label: "Campus Categories", icon: Tag },
-          { key: "reports", label: `Safety Reports (${stats?.totalReports || 0})`, icon: AlertTriangle }
-        ].map((t) => {
-          const Icon = t.icon;
-          return (
-            <button
-              key={t.key}
-              onClick={() => setSearchParams({ tab: t.key })}
-              className={`pb-3.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
-                activeTab === t.key
-                  ? "border-emerald-600 text-emerald-700"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <nav aria-label="Admin console sections" className="border-b border-slate-200">
+        <div
+          role="tablist"
+          aria-label="Admin sections"
+          className="flex gap-4 sm:gap-6 overflow-x-auto text-sm font-bold no-scrollbar py-0.5"
+        >
+          {[
+            { key: "overview", label: "Analytics & Overview", icon: BarChart3 },
+            { key: "products", label: `Listing Moderation (${stats?.pendingListings || 0} Pending)`, icon: Package },
+            { key: "users", label: `Student Accounts (${stats?.totalUsers || 0})`, icon: Users },
+            { key: "categories", label: "Campus Categories", icon: Tag },
+            { key: "reports", label: `Safety Reports (${stats?.totalReports || 0})`, icon: AlertTriangle }
+          ].map((t) => {
+            const Icon = t.icon;
+            const isSelected = activeTab === t.key;
+            return (
+              <button
+                key={t.key}
+                role="tab"
+                id={`tab-${t.key}`}
+                aria-selected={isSelected}
+                aria-controls={`tabpanel-${t.key}`}
+                tabIndex={isSelected ? 0 : -1}
+                onClick={() => setSearchParams({ tab: t.key })}
+                className={`pb-3.5 border-b-2 transition-all whitespace-nowrap flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-t-lg ${
+                  isSelected
+                    ? "border-emerald-600 text-emerald-700"
+                    : "border-transparent text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <Icon className="w-4 h-4" aria-hidden="true" />
+                <span>{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* TAB 1: OVERVIEW & RECHARTS */}
       {activeTab === "overview" && (
-        <div className="space-y-8">
+        <div
+          role="tabpanel"
+          id="tabpanel-overview"
+          aria-labelledby="tab-overview"
+          tabIndex={0}
+          className="space-y-8 focus-visible:outline-none"
+        >
           
           {/* Top Metric Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-400 uppercase">Total Students</span>
+              <span className="text-xs font-bold text-slate-600 uppercase">Total Students</span>
               <div className="text-2xl font-black text-slate-900 mt-1">{stats?.totalUsers || 0}</div>
-              <span className="text-[11px] text-emerald-600 font-semibold">Active campus peers</span>
+              <span className="text-[11px] text-emerald-700 font-semibold">Active campus peers</span>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-400 uppercase">Active Listings</span>
+              <span className="text-xs font-bold text-slate-600 uppercase">Active Listings</span>
               <div className="text-2xl font-black text-slate-900 mt-1">{stats?.activeListings || 0}</div>
-              <span className="text-[11px] text-slate-500">Live on marketplace</span>
+              <span className="text-[11px] text-slate-600">Live on marketplace</span>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-400 uppercase">Pending Review</span>
-              <div className="text-2xl font-black text-amber-600 mt-1">{stats?.pendingListings || 0}</div>
-              <span className="text-[11px] text-amber-600 font-semibold">Awaiting club approval</span>
+              <span className="text-xs font-bold text-slate-600 uppercase">Pending Review</span>
+              <div className="text-2xl font-black text-amber-700 mt-1">{stats?.pendingListings || 0}</div>
+              <span className="text-[11px] text-amber-700 font-semibold">Awaiting club approval</span>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-400 uppercase">Items Reused (Sold)</span>
-              <div className="text-2xl font-black text-emerald-600 mt-1">{stats?.itemsReused || 0}</div>
-              <span className="text-[11px] text-emerald-700 font-semibold">Diverted from waste</span>
+              <span className="text-xs font-bold text-slate-600 uppercase">Items Reused (Sold)</span>
+              <div className="text-2xl font-black text-emerald-700 mt-1">{stats?.itemsReused || 0}</div>
+              <span className="text-[11px] text-emerald-800 font-semibold">Diverted from waste</span>
             </div>
 
           </div>
@@ -325,15 +354,34 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* Timeline Trends Chart */}
-            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4" role="region" aria-label="Campus Activity Timeline">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-slate-900 text-sm sm:text-base">
                   Campus Platform Activity (Last 7 Days)
                 </h3>
-                <span className="text-xs text-slate-400">Listings vs Registrations</span>
+                <span className="text-xs text-slate-600">Listings vs Registrations</span>
               </div>
 
-              <div className="h-72 w-full">
+              {/* Screen reader accessible summary table */}
+              <div className="sr-only">
+                <table>
+                  <caption>7-day platform activity summary</caption>
+                  <thead>
+                    <tr><th scope="col">Day</th><th scope="col">New Listings</th><th scope="col">New Students</th></tr>
+                  </thead>
+                  <tbody>
+                    {timeline.map((item) => (
+                      <tr key={item.name}>
+                        <td>{item.name} ({item.date})</td>
+                        <td>{item.listings} listings</td>
+                        <td>{item.users} new students</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="h-72 w-full min-w-0" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={timeline}>
                     <defs>
@@ -346,8 +394,8 @@ export default function AdminDashboard() {
                         <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
-                    <YAxis stroke="#94a3b8" fontSize={11} />
+                    <XAxis dataKey="name" stroke="#64748b" fontSize={11} />
+                    <YAxis stroke="#64748b" fontSize={11} />
                     <Tooltip />
                     <Legend />
                     <Area type="monotone" dataKey="listings" name="New Listings" stroke="#10b981" fillOpacity={1} fill="url(#colorListings)" />
@@ -358,15 +406,25 @@ export default function AdminDashboard() {
             </div>
 
             {/* Popular Categories Bar Chart */}
-            <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4">
+            <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4" role="region" aria-label="Popular Campus Categories">
               <h3 className="font-bold text-slate-900 text-sm sm:text-base">
                 Popular Campus Categories
               </h3>
-              <div className="h-72 w-full">
+
+              {/* Screen reader accessible summary */}
+              <div className="sr-only">
+                <ul>
+                  {categoryStats.map((c) => (
+                    <li key={c.name}>{c.name}: {c.count} items</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="h-72 w-full min-w-0" aria-hidden="true">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={categoryStats}>
-                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} interval={0} angle={-25} textAnchor="end" height={60} />
-                    <YAxis stroke="#94a3b8" fontSize={11} />
+                    <XAxis dataKey="name" stroke="#64748b" fontSize={10} interval={0} angle={-25} textAnchor="end" height={60} />
+                    <YAxis stroke="#64748b" fontSize={11} />
                     <Tooltip />
                     <Bar dataKey="count" name="Items" fill="#059669" radius={[6, 6, 0, 0]} />
                   </BarChart>
@@ -377,11 +435,21 @@ export default function AdminDashboard() {
           </div>
 
           {/* Condition Distribution Pie Chart */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs max-w-xl">
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs max-w-xl" role="region" aria-label="Item Conditions Distribution">
             <h3 className="font-bold text-slate-900 text-sm sm:text-base mb-2">
               Item Conditions Distribution
             </h3>
-            <div className="h-64 w-full">
+
+            {/* Screen reader accessible summary */}
+            <div className="sr-only">
+              <ul>
+                {conditionStats.map((cond) => (
+                  <li key={cond.name}>{cond.name}: {cond.count} listings</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="h-64 w-full min-w-0" aria-hidden="true">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -409,17 +477,24 @@ export default function AdminDashboard() {
 
       {/* TAB 2: LISTING MODERATION */}
       {activeTab === "products" && (
-        <div className="space-y-6">
+        <div
+          role="tabpanel"
+          id="tabpanel-products"
+          aria-labelledby="tab-products"
+          tabIndex={0}
+          className="space-y-6 focus-visible:outline-none"
+        >
           
-          <div className="flex items-center gap-2">
+          <div role="group" aria-label="Filter listings by status" className="flex items-center gap-2 overflow-x-auto pb-1">
             {["PENDING_REVIEW", "AVAILABLE", "SOLD", "REJECTED", "ALL"].map((st) => (
               <button
                 key={st}
+                aria-pressed={productFilter === st}
                 onClick={() => setProductFilter(st)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                className={`px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
                   productFilter === st
                     ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
                 {st.replace("_", " ")}
@@ -429,7 +504,7 @@ export default function AdminDashboard() {
 
           <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100">
             {products.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-400">
+              <div className="p-8 text-center text-xs text-slate-500">
                 No products found under status "{productFilter}".
               </div>
             ) : (
@@ -443,10 +518,10 @@ export default function AdminDashboard() {
                     />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                           {p.category}
                         </span>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[10px] text-slate-600">
                           by {p.seller?.name} ({p.seller?.college})
                         </span>
                       </div>
@@ -457,42 +532,46 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+                  <div className="flex items-center gap-2 w-full md:w-auto justify-end flex-wrap">
                     {p.status === "PENDING_REVIEW" && (
                       <>
                         <button
                           onClick={() => handleApproveProduct(p._id)}
-                          className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1"
+                          aria-label={`Approve listing for ${p.title}`}
+                          className="px-3.5 py-2 min-h-[40px] bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none active:scale-95"
                         >
-                          <Check className="w-3.5 h-3.5" /> Approve
+                          <Check className="w-3.5 h-3.5" aria-hidden="true" /> Approve
                         </button>
                         <button
                           onClick={() => setRejectModal({ open: true, productId: p._id, reason: "" })}
-                          className="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl flex items-center gap-1"
+                          aria-label={`Reject listing for ${p.title}`}
+                          className="px-3.5 py-2 min-h-[40px] bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 text-xs font-bold rounded-xl flex items-center gap-1 focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none active:scale-95"
                         >
-                          <X className="w-3.5 h-3.5" /> Reject
+                          <X className="w-3.5 h-3.5" aria-hidden="true" /> Reject
                         </button>
                       </>
                     )}
 
                     <button
                       onClick={() => handleToggleFeature(p._id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                      aria-label={p.isFeatured ? `Remove ${p.title} from featured` : `Feature ${p.title} on homepage`}
+                      className={`px-3 py-2 min-h-[40px] rounded-xl text-xs font-bold border transition-colors focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none ${
                         p.isFeatured
                           ? "bg-amber-100 text-amber-900 border-amber-300"
-                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
-                      <Sparkles className="w-3.5 h-3.5 inline mr-1" />
+                      <Sparkles className="w-3.5 h-3.5 inline mr-1" aria-hidden="true" />
                       {p.isFeatured ? "Featured" : "Feature"}
                     </button>
 
                     <button
                       onClick={() => handleDeleteProduct(p._id)}
-                      className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl"
+                      aria-label={`Permanently delete listing ${p.title}`}
+                      className="p-2 min-w-[40px] min-h-[40px] text-rose-600 hover:bg-rose-50 rounded-xl flex items-center justify-center focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                       title="Delete Product"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -505,22 +584,41 @@ export default function AdminDashboard() {
 
       {/* TAB 3: USER MANAGEMENT */}
       {activeTab === "users" && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 max-w-md">
+        <div
+          role="tabpanel"
+          id="tabpanel-users"
+          aria-labelledby="tab-users"
+          tabIndex={0}
+          className="space-y-6 focus-visible:outline-none"
+        >
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              fetchUsers();
+            }}
+            role="search"
+            aria-label="Student accounts search"
+            className="flex items-center gap-2 max-w-md"
+          >
+            <label htmlFor="adminUserSearchInput" className="sr-only">
+              Search students by name, email, or student roll number
+            </label>
             <input
+              id="adminUserSearchInput"
               type="text"
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
               placeholder="Search students by name, email, roll no..."
-              className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm"
+              className="w-full px-4 py-2.5 min-h-[44px] bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
             />
             <button
-              onClick={fetchUsers}
-              className="px-4 py-2 bg-slate-900 text-white font-bold text-xs rounded-xl"
+              type="submit"
+              aria-label="Search student accounts"
+              className="px-4 py-2.5 min-h-[44px] bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
             >
               Search
             </button>
-          </div>
+          </form>
 
           <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100">
             {users.map((u) => (
@@ -543,8 +641,8 @@ export default function AdminDashboard() {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500">{u.email} • {u.college}</p>
-                    <p className="text-[11px] text-slate-400">{u.department} • {u.year}</p>
+                    <p className="text-xs text-slate-600">{u.email} • {u.college}</p>
+                    <p className="text-[11px] text-slate-500">{u.department} • {u.year}</p>
                   </div>
                 </div>
 
@@ -552,7 +650,8 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleToggleSuspendUser(u._id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                      aria-label={u.isSuspended ? `Unsuspend student account for ${u.name}` : `Suspend student account for ${u.name}`}
+                      className={`px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-bold border transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none ${
                         u.isSuspended
                           ? "bg-emerald-50 text-emerald-800 border-emerald-200"
                           : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
@@ -563,10 +662,11 @@ export default function AdminDashboard() {
 
                     <button
                       onClick={() => handleDeleteUser(u._id)}
-                      className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl"
+                      aria-label={`Permanently delete student account for ${u.name}`}
+                      className="p-2.5 min-w-[40px] min-h-[40px] text-rose-600 hover:bg-rose-50 rounded-xl flex items-center justify-center focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                       title="Delete User"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-4 h-4" aria-hidden="true" />
                     </button>
                   </div>
                 )}
@@ -578,35 +678,47 @@ export default function AdminDashboard() {
 
       {/* TAB 4: CATEGORY MANAGEMENT */}
       {activeTab === "categories" && (
-        <div className="space-y-8">
+        <div
+          role="tabpanel"
+          id="tabpanel-categories"
+          aria-labelledby="tab-categories"
+          tabIndex={0}
+          className="space-y-8 focus-visible:outline-none"
+        >
           {/* Add Category Form */}
           <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4 max-w-xl">
             <h3 className="font-bold text-slate-900 text-sm sm:text-base">Add New Campus Category</h3>
             <form onSubmit={handleCreateCategory} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Category Name</label>
+                <label htmlFor="adminNewCatName" className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                  Category Name
+                </label>
                 <input
+                  id="adminNewCatName"
                   type="text"
                   required
                   value={newCat.name}
                   onChange={(e) => setNewCat({ ...newCat, name: e.target.value })}
                   placeholder="e.g. Lab Equipment"
-                  className="w-full px-3.5 py-2 border rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 min-h-[40px] border border-slate-300 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-600 mb-1">Subcategories (Comma separated)</label>
+                <label htmlFor="adminNewCatSubcats" className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                  Subcategories (Comma separated)
+                </label>
                 <input
+                  id="adminNewCatSubcats"
                   type="text"
                   value={newCat.subcategories}
                   onChange={(e) => setNewCat({ ...newCat, subcategories: e.target.value })}
                   placeholder="e.g. Microscopes, Pipettes, Aprons"
-                  className="w-full px-3.5 py-2 border rounded-xl text-xs"
+                  className="w-full px-3.5 py-2.5 min-h-[40px] border border-slate-300 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                 />
               </div>
               <button
                 type="submit"
-                className="px-5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-xs"
+                className="px-5 py-2.5 min-h-[40px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none transition-colors"
               >
                 Create Category
               </button>
@@ -619,13 +731,14 @@ export default function AdminDashboard() {
               <div key={c._id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
                 <div>
                   <h4 className="font-bold text-slate-900 text-sm">{c.name}</h4>
-                  <span className="text-xs text-slate-400">{c.productCount || 0} items active</span>
+                  <span className="text-xs text-slate-500">{c.productCount || 0} items active</span>
                 </div>
                 <button
                   onClick={() => handleDeleteCategory(c._id)}
-                  className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg"
+                  aria-label={`Delete category ${c.name}`}
+                  className="p-2 min-w-[36px] min-h-[36px] text-rose-600 hover:bg-rose-50 rounded-lg flex items-center justify-center focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
             ))}
@@ -635,10 +748,16 @@ export default function AdminDashboard() {
 
       {/* TAB 5: SAFETY REPORTS */}
       {activeTab === "reports" && (
-        <div className="space-y-4">
+        <div
+          role="tabpanel"
+          id="tabpanel-reports"
+          aria-labelledby="tab-reports"
+          tabIndex={0}
+          className="space-y-4 focus-visible:outline-none"
+        >
           <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100">
             {reports.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-400">
+              <div className="p-8 text-center text-xs text-slate-500">
                 No safety reports currently pending review.
               </div>
             ) : (
@@ -646,17 +765,17 @@ export default function AdminDashboard() {
                 <div key={rep._id} className="p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">
+                      <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
                         {rep.reason}
                       </span>
-                      <span className="text-xs text-slate-500">
-                        Status: <span className="font-bold">{rep.status}</span>
+                      <span className="text-xs text-slate-600">
+                        Status: <span className="font-bold text-slate-900">{rep.status}</span>
                       </span>
                     </div>
-                    <p className="text-xs text-slate-800 font-semibold mt-1">
+                    <p className="text-xs text-slate-900 font-semibold mt-1">
                       {rep.description}
                     </p>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-[11px] text-slate-500 mt-1">
                       Reported by: {rep.reporter?.name} ({rep.reporter?.email})
                     </p>
                   </div>
@@ -664,13 +783,15 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleUpdateReportStatus(rep._id, "Resolved")}
-                      className="px-3 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-bold"
+                      aria-label={`Mark report from ${rep.reporter?.name || "student"} as resolved`}
+                      className="px-3.5 py-2 min-h-[38px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                     >
                       Resolve
                     </button>
                     <button
                       onClick={() => handleUpdateReportStatus(rep._id, "Dismissed")}
-                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold"
+                      aria-label={`Dismiss report from ${rep.reporter?.name || "student"}`}
+                      className="px-3.5 py-2 min-h-[38px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
                     >
                       Dismiss
                     </button>
@@ -684,34 +805,52 @@ export default function AdminDashboard() {
 
       {/* Reject Modal */}
       {rejectModal.open && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="rejectModalTitle"
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
+        >
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4">
-            <h3 className="font-bold text-slate-900 text-base">Reject Listing</h3>
+            <div className="flex items-center justify-between">
+              <h3 id="rejectModalTitle" className="font-bold text-slate-900 text-base">
+                Reject Listing
+              </h3>
+              <button
+                type="button"
+                onClick={() => setRejectModal({ open: false, productId: null, reason: "" })}
+                aria-label="Close rejection dialog"
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
+              >
+                <X className="w-5 h-5" aria-hidden="true" />
+              </button>
+            </div>
             <form onSubmit={handleRejectProduct} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1">
+                <label htmlFor="rejectReasonTextarea" className="block text-xs font-bold text-slate-700 mb-1">
                   Reason for student feedback
                 </label>
                 <textarea
+                  id="rejectReasonTextarea"
                   rows="3"
                   required
                   value={rejectModal.reason}
                   onChange={(e) => setRejectModal({ ...rejectModal, reason: e.target.value })}
                   placeholder="e.g. Please upload clear photos showing condition."
-                  className="w-full px-3 py-2 border rounded-xl text-xs"
+                  className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                 ></textarea>
               </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setRejectModal({ open: false, productId: null, reason: "" })}
-                  className="px-3.5 py-1.5 border rounded-xl text-xs font-semibold"
+                  className="px-4 py-2 min-h-[40px] border border-slate-200 hover:bg-slate-50 rounded-xl text-xs font-semibold focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-bold"
+                  className="px-4 py-2 min-h-[40px] bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                 >
                   Confirm Rejection
                 </button>
