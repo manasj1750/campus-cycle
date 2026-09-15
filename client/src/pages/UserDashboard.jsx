@@ -16,7 +16,9 @@ import {
   ExternalLink,
   Trash2,
   Edit,
-  Eye
+  Eye,
+  Shield,
+  ArrowRight
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -143,6 +145,38 @@ export default function UserDashboard() {
   return (
     <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 w-full max-w-full overflow-x-hidden">
       
+      {/* Administrator Elevated Privileges Banner */}
+      {user?.role === "ADMIN" && (
+        <div className="bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-md border border-purple-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-300 flex-shrink-0">
+              <Shield className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-purple-300">
+                  Platform Administrator Privileges
+                </span>
+                <span className="bg-purple-500/30 text-purple-200 text-[10px] px-2 py-0.5 rounded-full font-bold border border-purple-400/30">
+                  Full Site Access
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1">
+                You have special administrative access to review listings, monitor campus activity, manage student accounts, and view analytics.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/admin"
+            className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+          >
+            <Shield className="w-4 h-4" />
+            <span>Open Admin Console</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
       {/* Top Banner */}
       <div className="bg-white rounded-3xl border border-slate-200 p-4 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-full overflow-hidden">
         <div className="flex items-center gap-4">
@@ -160,8 +194,10 @@ export default function UserDashboard() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-black text-slate-900">{user?.name}</h1>
-              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                Verified Student
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                user?.role === "ADMIN" ? "text-purple-800 bg-purple-100 border border-purple-200" : "text-emerald-700 bg-emerald-50"
+              }`}>
+                {user?.role === "ADMIN" ? "Platform Administrator" : "Verified Student"}
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">

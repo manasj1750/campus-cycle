@@ -14,7 +14,11 @@ import {
   DollarSign,
   AlertTriangle,
   ArrowLeft,
-  X
+  X,
+  Shield,
+  Trash2,
+  Sparkles,
+  Check
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -26,7 +30,7 @@ import { formatProductImage, handleImageError } from "../utils/imageUtils";
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useAuth();
   const { isInWishlist, toggleWishlist } = useWishlist();
 
   const [product, setProduct] = useState(null);
@@ -199,14 +203,109 @@ export default function ProductDetails() {
     showToast("Product link copied to clipboard!");
   };
 
+  // Admin Actions
+  const handleAdminApprove = async () => {
+    try {
+      await api.patch(`/admin/products/${product._id}/approve`);
+      setProduct((prev) => ({ ...prev, status: "AVAILABLE" }));
+      showToast("Listing approved & published to marketplace!");
+    } catch (err) {
+      showToast("Failed to approve listing.");
+    }
+  };
+
+  const handleAdminFeature = async () => {
+    try {
+      const res = await api.patch(`/admin/products/${product._id}/feature`);
+      setProduct((prev) => ({ ...prev, isFeatured: res.data.isFeatured }));
+      showToast(res.data.isFeatured ? "Marked as featured on homepage!" : "Removed from featured.");
+    } catch (err) {
+      showToast("Failed to update featured status.");
+    }
+  };
+
+  const handleAdminDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this listing as administrator?")) return;
+    try {
+      await api.delete(`/admin/products/${product._id}`);
+      alert("Listing successfully deleted by administrator.");
+      navigate("/products");
+    } catch (err) {
+      alert("Failed to delete listing.");
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       
       {/* Toast Alert */}
       {toastMsg && (
         <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-xl animate-fade-in flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{toastMsg}</span>
+        </div>
+      )}
+
+      {/* Admin Moderation Bar */}
+      {isAdmin && (
+        <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-purple-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/20 border border-purple-400/30 flex items-center justify-center text-purple-300 flex-shrink-0">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs font-bold uppercase tracking-wider text-purple-300">
+                  Admin Moderation
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                  Status: {product.status}
+                </span>
+                {product.isFeatured && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                    ★ Featured
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Seller: {product.seller?.name} • College: {product.seller?.college || "N/A"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {product.status !== "AVAILABLE" && (
+              <button
+                onClick={handleAdminApprove}
+                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-all active:scale-95"
+              >
+                <Check className="w-3.5 h-3.5" /> Approve
+              </button>
+            )}
+            <button
+              onClick={handleAdminFeature}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all active:scale-95 flex items-center gap-1 ${
+                product.isFeatured
+                  ? "bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30"
+                  : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              {product.isFeatured ? "Unfeature" : "Feature"}
+            </button>
+            <button
+              onClick={handleAdminDelete}
+              className="px-3 py-1.5 bg-rose-900/60 hover:bg-rose-900 text-rose-200 border border-rose-700 text-xs font-bold rounded-xl flex items-center gap-1 transition-all active:scale-95"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete
+            </button>
+            <Link
+              to="/admin"
+              className="px-3 py-1.5 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-xs font-bold rounded-xl flex items-center gap-1"
+            >
+              Console →
+            </Link>
+          </div>
         </div>
       )}
 

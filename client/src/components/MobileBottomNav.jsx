@@ -1,11 +1,11 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Search, Plus, MessageSquare, User } from "lucide-react";
+import { Home, Search, Plus, MessageSquare, User, Shield } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNotifications } from "../context/NotificationContext";
 
 export default function MobileBottomNav() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
   const { unreadCount } = useNotifications();
   const location = useLocation();
 
@@ -73,18 +73,32 @@ export default function MobileBottomNav() {
           <span className="text-[10px] mt-0.5">Chats</span>
         </Link>
 
-        {/* Account / Dashboard */}
-        <Link
-          to={isAuthenticated ? "/dashboard" : "/login"}
-          className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
-            isActive("/dashboard") || isActive("/login") || isActive("/register")
-              ? "text-emerald-600 font-bold"
-              : "text-slate-500 hover:text-slate-900 font-medium"
-          }`}
-        >
-          <User className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">{isAuthenticated ? "Account" : "Log In"}</span>
-        </Link>
+        {/* Admin or Account / Dashboard */}
+        {isAdmin ? (
+          <Link
+            to="/admin"
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
+              isActive("/admin")
+                ? "text-purple-600 font-bold"
+                : "text-slate-500 hover:text-slate-900 font-medium"
+            }`}
+          >
+            <Shield className="w-5 h-5 text-purple-600" />
+            <span className="text-[10px] mt-0.5 text-purple-700 font-bold">Admin</span>
+          </Link>
+        ) : (
+          <Link
+            to={isAuthenticated ? "/dashboard" : "/login"}
+            className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition-all ${
+              isActive("/dashboard") || isActive("/login") || isActive("/register")
+                ? "text-emerald-600 font-bold"
+                : "text-slate-500 hover:text-slate-900 font-medium"
+            }`}
+          >
+            <User className="w-5 h-5" />
+            <span className="text-[10px] mt-0.5">{isAuthenticated ? "Account" : "Log In"}</span>
+          </Link>
+        )}
 
       </div>
     </nav>

@@ -1,49 +1,169 @@
-import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Recycle, Mail, Lock, ArrowRight, AlertCircle, Sparkles, UserCheck } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import { Recycle, Mail, Lock, ArrowRight, AlertCircle, Sparkles, UserCheck, Shield, KeyRound, CheckCircle, Zap } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-export function Login() {
+export function Login({ defaultAdmin = false }) {
+  const [searchParams] = useSearchParams();
+  const isAdminParam = searchParams.get("mode") === "admin" || defaultAdmin;
+  const [portalMode, setPortalMode] = useState(isAdminParam ? "admin" : "student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const redirectPath = location.state?.from || "/dashboard";
+  useEffect(() => {
+    if (isAdminParam) {
+      setPortalMode("admin");
+    }
+  }, [isAdminParam]);
+
+  // If already logged in as admin and on admin login page, redirect to /admin
+  useEffect(() => {
+    if (isAuthenticated && isAdmin && portalMode === "admin") {
+      navigate("/admin");
+    }
+  }, [isAuthenticated, isAdmin, portalMode, navigate]);
+
+  const handleFillAdminDemo = () => {
+    setEmail("admin@campuscycle.edu");
+    setPassword("AdminPassword123!");
+    setError("");
+    setInfo("Demo administrator credentials loaded. Click 'Log In to Admin Console' below.");
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     try {
       setSubmitting(true);
-      await login(email, password);
-      navigate(redirectPath);
+      const res = await login(email, password);
+      const userRole = res?.user?.role;
+
+      if (portalMode === "admin") {
+        if (userRole === "ADMIN") {
+          navigate("/admin");
+        } else {
+          setInfo("Logged in as student account. Redirecting to your student dashboard...");
+          setTimeout(() => {
+            navigate(location.state?.from || "/dashboard");
+          }, 1200);
+        }
+      } else {
+        if (userRole === "ADMIN") {
+          // If admin logged in via student form, take them to admin or dashboard
+          navigate("/admin");
+        } else {
+          navigate(location.state?.from || "/dashboard");
+        }
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid login credentials.");
+      setError(err.response?.data?.message || "Invalid email or password. Please verify credentials.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-xl space-y-6">
+    <div className="min-h-[85vh] flex items-center justify-center py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xl space-y-6">
         
-        {/* Brand */}
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center mx-auto shadow-md shadow-emerald-600/30">
-            <Recycle className="w-7 h-7" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Welcome to CampusCycle
-          </h2>
-          <p className="text-xs text-slate-500">
-            Log in to buy, sell, message peers, and manage listings
-          </p>
+        {/* Tab Switcher: Student vs Admin */}
+        <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-2xl text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => {
+              setPortalMode("student");
+              setError("");
+              setInfo("");
+            }}
+            className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              portalMode === "student"
+                ? "bg-white text-emerald-700 shadow-sm"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <Recycle className="w-3.5 h-3.5" />
+            <span>Student Login</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setPortalMode("admin");
+              setError("");
+              setInfo("");
+            }}
+            className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+              portalMode === "admin"
+                ? "bg-slate-900 text-purple-300 shadow-sm"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <Shield className="w-3.5 h-3.5 text-purple-400" />
+            <span>Admin Portal</span>
+          </button>
         </div>
+
+        {/* Brand / Header */}
+        {portalMode === "admin" ? (
+          <div className="text-center space-y-2 bg-gradient-to-b from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-inner border border-slate-700">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center mx-auto shadow-md shadow-purple-600/30">
+              <Shield className="w-6 h-6 text-purple-100" />
+            </div>
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded-full border border-purple-800">
+                Staff & Club Access
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Admin Moderation Portal
+            </h2>
+            <p className="text-xs text-slate-300">
+              Access platform data, verify student listings, and manage campus activity.
+            </p>
+          </div>
+        ) : (
+          <div className="text-center space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center mx-auto shadow-md shadow-emerald-600/30">
+              <Recycle className="w-7 h-7" />
+            </div>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+              Welcome to CampusCycle
+            </h2>
+            <p className="text-xs text-slate-500">
+              Log in to buy, sell, message peers, and manage campus listings
+            </p>
+          </div>
+        )}
+
+        {/* Demo Credentials Quick-Fill for Admins */}
+        {portalMode === "admin" && (
+          <div className="p-3.5 bg-purple-50/80 border border-purple-200 rounded-2xl space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-purple-950 flex items-center gap-1">
+                <KeyRound className="w-3.5 h-3.5 text-purple-600" />
+                Default Admin Credentials
+              </span>
+              <button
+                type="button"
+                onClick={handleFillAdminDemo}
+                className="text-[11px] font-bold text-purple-700 bg-purple-100 hover:bg-purple-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 active:scale-95"
+              >
+                <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+                Quick Fill
+              </button>
+            </div>
+            <div className="text-[11px] text-purple-800 font-mono bg-white/80 p-2 rounded-xl border border-purple-100 flex flex-col sm:flex-row justify-between gap-1">
+              <span><strong>Email:</strong> admin@campuscycle.edu</span>
+              <span><strong>Pass:</strong> AdminPassword123!</span>
+            </div>
+          </div>
+        )}
 
         {error && (
           <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
@@ -52,10 +172,17 @@ export function Login() {
           </div>
         )}
 
+        {info && (
+          <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+            <span>{info}</span>
+          </div>
+        )}
+
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-              Email Address
+              {portalMode === "admin" ? "Admin Email Address" : "Email Address"}
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -64,7 +191,7 @@ export function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. name@gmail.com or student@college.edu"
+                placeholder={portalMode === "admin" ? "admin@campuscycle.edu" : "student@college.edu or gmail"}
                 className="w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white"
               />
             </div>
@@ -75,9 +202,11 @@ export function Login() {
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
                 Password
               </label>
-              <Link to="/forgot-password" className="text-xs text-emerald-600 hover:underline">
-                Forgot?
-              </Link>
+              {portalMode === "student" && (
+                <Link to="/forgot-password" className="text-xs text-emerald-600 hover:underline">
+                  Forgot?
+                </Link>
+              )}
             </div>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -95,18 +224,67 @@ export function Login() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+            className={`w-full py-3 text-white font-bold text-sm rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-md ${
+              portalMode === "admin"
+                ? "bg-slate-900 hover:bg-slate-800 shadow-slate-900/30"
+                : "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30"
+            }`}
           >
-            {submitting ? "Signing In..." : "Log In to CampusCycle"}
+            {submitting ? (
+              <span>Authenticating...</span>
+            ) : portalMode === "admin" ? (
+              <>
+                <Shield className="w-4 h-4 text-purple-400" />
+                <span>Log In to Admin Console</span>
+              </>
+            ) : (
+              <>
+                <span>Log In to CampusCycle</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </form>
 
-        <p className="text-center text-xs text-slate-500">
-          New to CampusCycle?{" "}
-          <Link to="/register" className="font-bold text-emerald-600 hover:underline">
-            Create an Account
-          </Link>
-        </p>
+        {portalMode === "student" ? (
+          <div className="space-y-3 pt-2 border-t border-slate-100 text-center text-xs">
+            <p className="text-slate-500">
+              New to CampusCycle?{" "}
+              <Link to="/register" className="font-bold text-emerald-600 hover:underline">
+                Create an Account
+              </Link>
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setPortalMode("admin");
+                setError("");
+                setInfo("");
+              }}
+              className="inline-flex items-center gap-1.5 font-semibold text-purple-700 hover:text-purple-900 transition-colors"
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Campus Staff or Club Administrator? Switch to Admin Portal →</span>
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-2 pt-2 border-t border-slate-100 text-center text-xs text-slate-500">
+            <p>
+              Looking for student shopping or selling?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setPortalMode("student");
+                  setError("");
+                  setInfo("");
+                }}
+                className="font-bold text-emerald-600 hover:underline"
+              >
+                Switch to Student Login
+              </button>
+            </p>
+          </div>
+        )}
 
       </div>
     </div>
