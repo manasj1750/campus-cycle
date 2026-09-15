@@ -29,13 +29,6 @@ export function Login({ defaultAdmin = false }) {
     }
   }, [isAuthenticated, isAdmin, portalMode, navigate]);
 
-  const handleFillAdminDemo = () => {
-    setEmail("admin@campuscycle.edu");
-    setPassword("AdminPassword123!");
-    setError("");
-    setInfo("Demo administrator credentials loaded. Click 'Log In to Admin Console' below.");
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
@@ -137,29 +130,6 @@ export function Login({ defaultAdmin = false }) {
             </h2>
             <p className="text-xs text-slate-500">
               Log in to buy, sell, message peers, and manage campus listings
-            </p>
-          </div>
-        )}
-
-        {/* Demo Credentials Quick-Fill for Admins */}
-        {portalMode === "admin" && (
-          <div className="p-3.5 bg-purple-50/80 border border-purple-200 rounded-2xl space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-purple-950 flex items-center gap-1">
-                <KeyRound className="w-3.5 h-3.5 text-purple-600" />
-                Admin Credentials
-              </span>
-              <button
-                type="button"
-                onClick={handleFillAdminDemo}
-                className="text-[11px] font-bold text-purple-700 bg-purple-100 hover:bg-purple-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1 active:scale-95"
-              >
-                <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
-                Default Fill
-              </button>
-            </div>
-            <p className="text-[11px] text-purple-900 leading-relaxed">
-              Sign in with your administrator email & password. You can also customize your credentials at any time in the <strong>Admin Credentials</strong> tab inside the console.
             </p>
           </div>
         )}
