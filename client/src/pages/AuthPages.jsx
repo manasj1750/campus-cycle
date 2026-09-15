@@ -264,9 +264,9 @@ export function Register() {
     email: "",
     password: "",
     confirmPassword: "",
-    college: "National Institute of Technology",
+    college: "Asian School of Business",
     studentId: "",
-    department: "Computer Science & Engineering",
+    department: "",
     year: "1st Year"
   });
   const [error, setError] = useState("");
@@ -289,7 +289,7 @@ export function Register() {
 
     try {
       setSubmitting(true);
-      await register(formData);
+      await register({ ...formData, college: "Asian School of Business" });
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please check your details.");
@@ -333,7 +333,6 @@ export function Register() {
                 required
                 value={formData.name}
                 onChange={handleInputChange}
-                placeholder="Aarav Sharma"
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -347,7 +346,6 @@ export function Register() {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="e.g. name@gmail.com or student@college.edu"
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -356,16 +354,14 @@ export function Register() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                College / Institution *
+                College / Institution
               </label>
               <input
                 type="text"
                 name="college"
-                required
-                value={formData.college}
-                onChange={handleInputChange}
-                placeholder="National Institute of Technology"
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                readOnly
+                value="Asian School of Business"
+                className="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium cursor-not-allowed select-none focus:outline-none"
               />
             </div>
             <div>
@@ -377,7 +373,6 @@ export function Register() {
                 name="studentId"
                 value={formData.studentId}
                 onChange={handleInputChange}
-                placeholder="NIT-23-CS-084"
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -393,7 +388,6 @@ export function Register() {
                 name="department"
                 value={formData.department}
                 onChange={handleInputChange}
-                placeholder="Computer Science"
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -428,7 +422,6 @@ export function Register() {
                 minLength={6}
                 value={formData.password}
                 onChange={handleInputChange}
-                placeholder="••••••••"
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -442,7 +435,6 @@ export function Register() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                placeholder="••••••••"
                 className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
               />
             </div>
