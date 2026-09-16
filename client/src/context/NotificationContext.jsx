@@ -25,7 +25,28 @@ export const NotificationProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     fetchNotifications();
+
+    // Auto-poll notifications every 12 seconds when page is visible
+    const interval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchNotifications();
+      }
+    }, 12000);
+
+    const handleFocus = () => {
+      fetchNotifications();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleFocus);
+    };
   }, [isAuthenticated]);
 
   useEffect(() => {

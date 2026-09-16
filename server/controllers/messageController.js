@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Conversation } from "../models/Conversation.js";
 import { Message } from "../models/Message.js";
 import { Product } from "../models/Product.js";
@@ -13,11 +14,47 @@ export const getConversations = async (req, res, next) => {
       .populate("participants", "name email profilePhoto college department")
       .populate("product", "title price originalPrice primaryImage images status seller")
       .populate("lastMessage.sender", "name")
-      .sort({ updatedAt: -1 });
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    // Aggregate unread message counts for current user per conversation
+    const userObjId = mongoose.Types.ObjectId.isValid(req.user._id)
+      ? new mongoose.Types.ObjectId(String(req.user._id))
+      : req.user._id;
+
+    const convoIds = conversations.map((c) =>
+      mongoose.Types.ObjectId.isValid(c._id) ? new mongoose.Types.ObjectId(String(c._id)) : c._id
+    );
+
+    const unreadAgg = await Message.aggregate([
+      {
+        $match: {
+          conversation: { $in: convoIds },
+          receiver: userObjId,
+          isRead: false
+        }
+      },
+      {
+        $group: {
+          _id: "$conversation",
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const unreadMap = {};
+    unreadAgg.forEach((u) => {
+      unreadMap[String(u._id)] = u.count;
+    });
+
+    const enrichedConversations = conversations.map((c) => ({
+      ...c,
+      unreadCount: unreadMap[String(c._id)] || 0
+    }));
 
     res.json({
       success: true,
-      conversations
+      conversations: enrichedConversations
     });
   } catch (error) {
     next(error);
@@ -44,6 +81,17 @@ export const getMessages = async (req, res, next) => {
       { conversation: conversationId, receiver: req.user._id, isRead: false },
       { isRead: true }
     );
+
+    // Also mark related notifications from other participant as read
+    const otherParticipant = conversation.participants.find(
+      (p) => String(p) !== String(req.user._id)
+    );
+    if (otherParticipant) {
+      await Notification.updateMany(
+        { recipient: req.user._id, sender: otherParticipant, type: "MESSAGE", isRead: false },
+        { isRead: true }
+      );
+    }
 
     const messages = await Message.find({ conversation: conversationId })
       .populate("sender", "name profilePhoto")
