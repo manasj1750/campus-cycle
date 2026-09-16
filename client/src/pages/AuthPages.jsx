@@ -4,6 +4,21 @@ import { Recycle, Mail, Lock, ArrowRight, AlertCircle, Sparkles, UserCheck, Shie
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 
+export const COLLEGE_DEPARTMENTS = [
+  { value: "BCA", label: "BCA (Bachelor of Computer Applications)" },
+  { value: "BBA", label: "BBA (Bachelor of Business Administration)" },
+  { value: "BCOM", label: "BCOM (Bachelor of Commerce)" },
+  { value: "MBA", label: "MBA (Master of Business Administration)" },
+  { value: "MCA", label: "MCA (Master of Computer Applications)" },
+  { value: "B.Tech", label: "B.Tech (Bachelor of Technology)" },
+  { value: "M.Tech", label: "M.Tech (Master of Technology)" },
+  { value: "B.Sc", label: "B.Sc (Bachelor of Science)" },
+  { value: "M.Sc", label: "M.Sc (Master of Science)" },
+  { value: "BA", label: "BA (Bachelor of Arts)" },
+  { value: "MA", label: "MA (Master of Arts)" },
+  { value: "Other", label: "Other Department / Course" }
+];
+
 export function Login({ defaultAdmin = false }) {
   const [searchParams] = useSearchParams();
   const isAdminParam = searchParams.get("mode") === "admin" || defaultAdmin;
@@ -275,9 +290,10 @@ export function Register() {
     confirmPassword: "",
     college: "Asian School of Business",
     studentId: "",
-    department: "",
+    department: "BCA",
     year: "1st Year"
   });
+  const [customDepartment, setCustomDepartment] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -313,6 +329,11 @@ export function Register() {
 
     if (!formData.email.trim()) {
       setError("Please enter your email address.");
+      return;
+    }
+
+    if (formData.department === "Other" && !customDepartment.trim()) {
+      setError("Please enter your department / course name.");
       return;
     }
 
@@ -382,8 +403,14 @@ export function Register() {
 
     try {
       setSubmitting(true);
+      const finalDepartment =
+        formData.department === "Other" && customDepartment.trim()
+          ? customDepartment.trim()
+          : (formData.department || "BCA");
+
       await register({
         ...formData,
+        department: finalDepartment,
         college: "Asian School of Business",
         verificationCode: verificationCode.trim()
       });
@@ -480,15 +507,35 @@ export function Register() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                    Department
+                    Department / Course *
                   </label>
-                  <input
-                    type="text"
+                  <select
                     name="department"
                     value={formData.department}
-                    onChange={handleInputChange}
-                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-                  />
+                    onChange={(e) => {
+                      handleInputChange(e);
+                      if (e.target.value !== "Other") {
+                        setCustomDepartment("");
+                      }
+                    }}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 font-medium text-slate-800"
+                  >
+                    {COLLEGE_DEPARTMENTS.map((dept) => (
+                      <option key={dept.value} value={dept.value}>
+                        {dept.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  {formData.department === "Other" && (
+                    <input
+                      type="text"
+                      placeholder="Specify your department / course"
+                      value={customDepartment}
+                      onChange={(e) => setCustomDepartment(e.target.value)}
+                      className="mt-2 w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                    />
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">

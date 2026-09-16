@@ -27,6 +27,7 @@ import { useAuth } from "../context/AuthContext";
 import RatingStars from "../components/RatingStars";
 import EmptyState from "../components/EmptyState";
 import { formatProductImage, handleImageError } from "../utils/imageUtils";
+import { COLLEGE_DEPARTMENTS } from "./AuthPages";
 
 export default function UserDashboard() {
   const { user, updateProfile, refreshMe, logout } = useAuth();
@@ -577,26 +578,39 @@ export default function UserDashboard() {
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-                Department
+                Department / Course
               </label>
-              <input
-                type="text"
+              <select
                 value={settingsForm.department}
                 onChange={(e) => setSettingsForm({ ...settingsForm, department: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm"
-              />
+                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm font-medium"
+              >
+                {settingsForm.department && !COLLEGE_DEPARTMENTS.some((d) => d.value === settingsForm.department) && (
+                  <option value={settingsForm.department}>{settingsForm.department}</option>
+                )}
+                {COLLEGE_DEPARTMENTS.map((dept) => (
+                  <option key={dept.value} value={dept.value}>
+                    {dept.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
-                Year
+                Current Year
               </label>
-              <input
-                type="text"
+              <select
                 value={settingsForm.year}
                 onChange={(e) => setSettingsForm({ ...settingsForm, year: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm"
-              />
+                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm font-medium"
+              >
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+                <option value="Postgraduate">Postgraduate</option>
+              </select>
             </div>
 
             <div>
