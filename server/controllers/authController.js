@@ -55,12 +55,17 @@ export const sendVerificationCode = async (req, res, next) => {
       code
     });
 
+    const isDelivered = emailRes.sent === true;
+    const responseMessage = isDelivered
+      ? `A 6-digit verification code has been dispatched to ${cleanEmail}.`
+      : `Email service (SMTP) is not yet configured. Your verification code is: ${code}`;
+
     res.json({
       success: true,
-      message: `A 6-digit verification code has been dispatched to ${cleanEmail}.`,
-      expiresIn: "10 minutes",
-      // Include devCode in development mode for easy testing
-      ...(process.env.NODE_ENV !== "production" && emailRes.devCode ? { devCode: emailRes.devCode } : {})
+      emailSent: isDelivered,
+      message: responseMessage,
+      devCode: !isDelivered ? code : undefined,
+      expiresIn: "10 minutes"
     });
   } catch (error) {
     next(error);

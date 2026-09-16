@@ -329,7 +329,12 @@ export function Register() {
       if (res.data.success) {
         setStep("VERIFY");
         setResendCooldown(60);
-        setInfo(`A 6-digit verification code has been dispatched to ${formData.email}.`);
+        if (res.data.devCode) {
+          setVerificationCode(res.data.devCode);
+          setInfo(`Verification code: ${res.data.devCode} (Note: Set EMAIL_USER & EMAIL_PASS in Vercel to send directly to your inbox)`);
+        } else {
+          setInfo(`A 6-digit verification code has been dispatched to ${formData.email}. Please check your inbox and spam folder.`);
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send verification code. Please check your email.");
@@ -351,7 +356,12 @@ export function Register() {
       });
       if (res.data.success) {
         setResendCooldown(60);
-        setInfo(`A fresh verification code has been sent to ${formData.email}.`);
+        if (res.data.devCode) {
+          setVerificationCode(res.data.devCode);
+          setInfo(`New verification code: ${res.data.devCode}`);
+        } else {
+          setInfo(`A fresh verification code has been sent to ${formData.email}.`);
+        }
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to resend code.");
