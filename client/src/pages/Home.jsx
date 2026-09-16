@@ -24,7 +24,11 @@ import {
   Info,
   Clock,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Flame,
+  Zap
 } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
@@ -34,6 +38,119 @@ import { ProductGridSkeleton } from "../components/LoadingSkeleton";
 import SafeCampusExchangeBanner from "../components/SafeCampusExchangeBanner";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import { formatProductImage, handleImageError } from "../utils/imageUtils";
+
+// Campus Resale Valuation Matrix
+const VALUATION_DATA = {
+  Bicycles: {
+    icon: "🚲",
+    label: "Bicycles",
+    min: 2200,
+    max: 4800,
+    avgDays: "1-2 days",
+    demand: "High Demand 🔥",
+    demandColor: "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800",
+    popularExamples: "Hero, Btwin, Roadeo, Montra",
+    tips: "Cycles with functioning gear shifters & brakes sell fastest on campus."
+  },
+  "Laptops & Tech": {
+    icon: "💻",
+    label: "Laptops & Tech",
+    min: 16000,
+    max: 42000,
+    avgDays: "2-3 days",
+    demand: "Surging Demand ⚡",
+    demandColor: "text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800",
+    popularExamples: "HP Victus, ThinkPad, Dell, MacBooks, iPads",
+    tips: "Provide charger condition & battery cycle info to get quick offers."
+  },
+  "Textbooks": {
+    icon: "📚",
+    label: "Textbooks",
+    min: 250,
+    max: 750,
+    avgDays: "24 Hours 🚀",
+    demand: "Peak Season 📈",
+    demandColor: "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800",
+    popularExamples: "Sem 1-8 guides, GATE prep, standard authors",
+    tips: "Bundles of 2-3 semester subjects sell within 24 hours."
+  },
+  "Hostel & Room": {
+    icon: "🛋️",
+    label: "Hostel & Room",
+    min: 450,
+    max: 2000,
+    avgDays: "2-4 days",
+    demand: "Steady 👍",
+    demandColor: "text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 border-purple-200 dark:border-purple-800",
+    popularExamples: "Electric kettle, study table/chair, mattress, table lamp",
+    tips: "Clean hostel appliances get snapped up by juniors immediately."
+  },
+  "Calculators & Lab": {
+    icon: "🔬",
+    label: "Lab & Calc",
+    min: 500,
+    max: 1800,
+    avgDays: "1 day ⚡",
+    demand: "High Demand 🔥",
+    demandColor: "text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 border-teal-200 dark:border-teal-800",
+    popularExamples: "Casio fx-991EX, Arduino kits, drafter, lab coat",
+    tips: "Scientific calculators are in 100% active demand before midterms."
+  }
+};
+
+const CONDITION_MULTIPLIER = {
+  "Like New": 1.0,
+  Good: 0.82,
+  Fair: 0.65
+};
+
+const FALLBACK_SPOTLIGHT_ITEMS = [
+  {
+    _id: "demo-1",
+    title: "Hercules Roadeo A21 Gear Cycle (Recently Serviced)",
+    price: 3200,
+    originalPrice: 7999,
+    category: "Bicycles & Mobility",
+    condition: "Like New",
+    location: "Hostel Block C",
+    seller: { name: "Aarav Sharma" },
+    primaryImage: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=800&q=80"
+  },
+  {
+    _id: "demo-2",
+    title: "HP Victus Gaming Laptop (Ryzen 5, 16GB RAM, RTX 3050)",
+    price: 48000,
+    originalPrice: 72000,
+    category: "Electronics",
+    condition: "Excellent",
+    location: "Tech Campus Block B",
+    seller: { name: "Rohan Patel" },
+    primaryImage: "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=800&q=80"
+  },
+  {
+    _id: "demo-3",
+    title: "Casio fx-991EX Classwiz Scientific Calculator",
+    price: 850,
+    originalPrice: 1600,
+    category: "Electronics",
+    condition: "Like New",
+    location: "Tech Campus Cafeteria",
+    seller: { name: "Rohan Nair" },
+    primaryImage: "https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=800&q=80"
+  },
+  {
+    _id: "demo-4",
+    title: "Engineering Mathematics Sem 3 & 4 (H.K. Dass)",
+    price: 450,
+    originalPrice: 1100,
+    category: "Books & Education",
+    condition: "Good",
+    location: "Central Library Desk",
+    seller: { name: "Pooja Verma" },
+    primaryImage: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&q=80"
+  }
+];
 
 export default function Home() {
   const { user, isAuthenticated, login } = useAuth();
@@ -48,6 +165,13 @@ export default function Home() {
     estimatedSavings: 8750,
     wasteAvoidedKg: 24
   });
+
+  // Hero Interactive Widget State
+  const [heroTab, setHeroTab] = useState("spotlight"); // 'spotlight' | 'valuator'
+  const [spotlightIndex, setSpotlightIndex] = useState(0);
+  const [isHeroHovered, setIsHeroHovered] = useState(false);
+  const [valuatorCategory, setValuatorCategory] = useState("Bicycles");
+  const [valuatorCondition, setValuatorCondition] = useState("Good");
 
   // All-in-one Catalog States
   const [allProducts, setAllProducts] = useState([]);
@@ -149,6 +273,50 @@ export default function Home() {
     }
   };
 
+  // Hero Spotlight Auto-Timer & Interaction
+  const liveSpotlightItems = allProducts.length > 0 ? allProducts.slice(0, 8) : FALLBACK_SPOTLIGHT_ITEMS;
+  const currentSpotlight = liveSpotlightItems[spotlightIndex % liveSpotlightItems.length] || liveSpotlightItems[0];
+
+  useEffect(() => {
+    if (heroTab !== "spotlight" || isHeroHovered || liveSpotlightItems.length <= 1) return;
+    const timer = setInterval(() => {
+      setSpotlightIndex((prev) => (prev + 1) % liveSpotlightItems.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [heroTab, isHeroHovered, liveSpotlightItems.length]);
+
+  const handlePrevSpotlight = (e) => {
+    e?.stopPropagation();
+    setSpotlightIndex((prev) => (prev === 0 ? liveSpotlightItems.length - 1 : prev - 1));
+  };
+
+  const handleNextSpotlight = (e) => {
+    e?.stopPropagation();
+    setSpotlightIndex((prev) => (prev + 1) % liveSpotlightItems.length);
+  };
+
+  const handleSpotlightClick = () => {
+    if (currentSpotlight?._id && !String(currentSpotlight._id).startsWith("demo")) {
+      navigate(`/products/${currentSpotlight._id}`);
+    } else {
+      scrollToSection("marketplace");
+    }
+  };
+
+  // Resale Valuator Calculations
+  const currentValuation = VALUATION_DATA[valuatorCategory] || VALUATION_DATA["Bicycles"];
+  const valMultiplier = CONDITION_MULTIPLIER[valuatorCondition] || 0.82;
+  const estimatedMin = Math.round(currentValuation.min * valMultiplier);
+  const estimatedMax = Math.round(currentValuation.max * valMultiplier);
+
+  const handleValuatorListCTA = () => {
+    if (isAuthenticated) {
+      navigate("/sell");
+    } else {
+      navigate("/login?redirect=/sell");
+    }
+  };
+
   return (
     <div className="space-y-12 sm:space-y-16 pb-20 w-full max-w-full overflow-x-hidden">
       
@@ -216,51 +384,325 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Hero Visual */}
+            {/* Right Hero Visual: Interactive Campus Model */}
             <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md lg:max-w-none">
+              <div className="relative mx-auto max-w-lg lg:max-w-none">
                 
-                {/* Impact Stat Badge */}
-                <div className="absolute -top-5 -left-5 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-xl border border-slate-100 hidden sm:flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                    <Recycle className="w-5 h-5" />
-                  </div>
+                {/* Live Pulse Indicator Badge */}
+                <div className="absolute -top-3.5 -left-2 sm:-left-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl px-3 sm:px-3.5 py-2 shadow-xl border border-slate-200/90 dark:border-slate-800 flex items-center gap-2 sm:gap-2.5">
+                  <span className="relative flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  </span>
                   <div>
-                    <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Campus Reused</p>
-                    <p className="text-sm font-black text-slate-900">{stats.itemsReused}+ Items Diverted</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider leading-none">Live Campus Deals</p>
+                    <p className="text-xs font-black text-slate-900 dark:text-white mt-0.5">
+                      {allProducts.length > 0 ? `${allProducts.length} Listings Active` : `${stats.itemsReused}+ Campus Drops`}
+                    </p>
                   </div>
                 </div>
 
-                {/* Hero Photo Card */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/3] bg-gradient-to-tr from-emerald-800 to-teal-900">
-                  <img
-                    src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80"
-                    alt="Campus Cycle Students"
-                    className="w-full h-full object-cover mix-blend-multiply opacity-90"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent flex flex-col justify-end p-6 text-white">
-                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-                      Student Second-Life Community
-                    </span>
-                    <p className="text-base sm:text-lg font-bold">
-                      "Sold my cycle in 1 day and bought semester textbooks for ₹400!"
-                    </p>
-                    <p className="text-xs text-slate-300 mt-1">
-                      — Rohit Patel, 3rd Year CSE
-                    </p>
+                {/* Main Interactive Card */}
+                <div
+                  className="relative rounded-3xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col transition-all"
+                  onMouseEnter={() => setIsHeroHovered(true)}
+                  onMouseLeave={() => setIsHeroHovered(false)}
+                >
+                  {/* Header Mode Switcher Tabs */}
+                  <div className="p-2 sm:p-2.5 bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-slate-800 flex items-center gap-1.5 sm:gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setHeroTab("spotlight")}
+                      className={`flex-1 py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                        heroTab === "spotlight"
+                          ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/50"
+                      }`}
+                    >
+                      <Flame className="w-3.5 h-3.5" />
+                      <span className="truncate">Live Campus Drops</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setHeroTab("valuator")}
+                      className={`flex-1 py-2 px-2 sm:px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                        heroTab === "valuator"
+                          ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/50"
+                      }`}
+                    >
+                      <Zap className="w-3.5 h-3.5" />
+                      <span className="truncate">Resale Valuator</span>
+                    </button>
                   </div>
+
+                  {/* TAB 1: SPOTLIGHT */}
+                  {heroTab === "spotlight" && (
+                    <div className="flex flex-col">
+                      {/* Spotlight Subheader */}
+                      <div className="px-4 py-2 flex items-center justify-between text-xs border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/40">
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-md">
+                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+                            Live Spotlight
+                          </span>
+                          <span className="text-[11px] font-semibold text-slate-400">
+                            {(spotlightIndex % liveSpotlightItems.length) + 1} of {liveSpotlightItems.length}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={handlePrevSpotlight}
+                            aria-label="Previous Spotlight Item"
+                            className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/60 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleNextSpotlight}
+                            aria-label="Next Spotlight Item"
+                            className="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950/60 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-colors"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Image Display */}
+                      <div
+                        onClick={handleSpotlightClick}
+                        className="relative h-48 sm:h-52 bg-slate-900 overflow-hidden cursor-pointer group"
+                      >
+                        <img
+                          src={formatProductImage(
+                            currentSpotlight.primaryImage || (currentSpotlight.images && currentSpotlight.images[0]),
+                            typeof currentSpotlight.category === "object" ? currentSpotlight.category?.name : currentSpotlight.category
+                          )}
+                          alt={currentSpotlight.title}
+                          onError={(e) =>
+                            handleImageError(
+                              e,
+                              typeof currentSpotlight.category === "object" ? currentSpotlight.category?.name : currentSpotlight.category
+                            )
+                          }
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-95"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent pointer-events-none" />
+
+                        {/* Category & Condition Tags */}
+                        <div className="absolute top-3 left-3 flex flex-wrap items-center gap-1.5">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/95 dark:bg-slate-900/95 text-slate-800 dark:text-slate-100 backdrop-blur-md shadow-xs">
+                            {typeof currentSpotlight.category === "object" ? currentSpotlight.category?.name : currentSpotlight.category}
+                          </span>
+                          {currentSpotlight.condition && (
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-emerald-600/90 text-white backdrop-blur-md">
+                              {currentSpotlight.condition}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Price & Discount on bottom of image */}
+                        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+                          <div className="text-white drop-shadow-md">
+                            <p className="text-[10px] uppercase tracking-wider text-emerald-300 font-bold">Campus Asking Price</p>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-xl sm:text-2xl font-black text-white">
+                                ₹{Number(currentSpotlight.price || 0).toLocaleString("en-IN")}
+                              </span>
+                              {currentSpotlight.originalPrice > currentSpotlight.price && (
+                                <span className="text-xs text-slate-300 line-through">
+                                  ₹{Number(currentSpotlight.originalPrice).toLocaleString("en-IN")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {currentSpotlight.originalPrice > currentSpotlight.price && (
+                            <span className="text-[10px] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-md shadow-xs">
+                              {Math.round(((currentSpotlight.originalPrice - currentSpotlight.price) / currentSpotlight.originalPrice) * 100)}% OFF
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Item Details and Actions */}
+                      <div className="p-4 space-y-3 bg-white dark:bg-slate-900">
+                        <div>
+                          <h3
+                            onClick={handleSpotlightClick}
+                            className="font-bold text-slate-900 dark:text-white text-sm sm:text-base leading-snug line-clamp-1 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer transition-colors"
+                          >
+                            {currentSpotlight.title}
+                          </h3>
+                          <div className="mt-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <div className="flex items-center gap-1 truncate max-w-[160px]">
+                              <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span className="truncate">{currentSpotlight.location || "Campus Handover"}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>{currentSpotlight.seller?.name || "Verified Peer"}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* CTA Buttons */}
+                        <div className="flex items-center gap-2 pt-0.5">
+                          <button
+                            type="button"
+                            onClick={handleSpotlightClick}
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            <span>View Deal & Chat</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => scrollToSection("marketplace")}
+                            className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-colors whitespace-nowrap"
+                            title="Browse full marketplace catalog"
+                          >
+                            Browse All
+                          </button>
+                        </div>
+
+                        {/* Carousel Dots */}
+                        <div className="flex items-center justify-center gap-1 pt-0.5">
+                          {liveSpotlightItems.map((_, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setSpotlightIndex(idx)}
+                              aria-label={`Go to item ${idx + 1}`}
+                              className={`h-1.5 rounded-full transition-all ${
+                                spotlightIndex % liveSpotlightItems.length === idx
+                                  ? "w-5 bg-emerald-600"
+                                  : "w-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 2: VALUATOR */}
+                  {heroTab === "valuator" && (
+                    <div className="p-4 sm:p-5 flex flex-col space-y-3 bg-white dark:bg-slate-900">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1">
+                            <Zap className="w-3 h-3" /> Quick Resale Valuator
+                          </span>
+                          <span className="text-[11px] font-semibold text-slate-400">Zero Commission</span>
+                        </div>
+                        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                          Check realistic campus resale value before listing:
+                        </p>
+                      </div>
+
+                      {/* Category Selection Pills */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {Object.keys(VALUATION_DATA).map((catKey) => {
+                          const item = VALUATION_DATA[catKey];
+                          const isSelected = valuatorCategory === catKey;
+                          return (
+                            <button
+                              key={catKey}
+                              type="button"
+                              onClick={() => setValuatorCategory(catKey)}
+                              className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                                isSelected
+                                  ? "bg-slate-900 text-white dark:bg-emerald-600 shadow-xs"
+                                  : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                              }`}
+                            >
+                              <span>{item.icon}</span>
+                              <span>{item.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Condition Selector */}
+                      <div className="flex items-center justify-between pt-0.5">
+                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Condition:</span>
+                        <div className="inline-flex rounded-lg p-0.5 bg-slate-100 dark:bg-slate-800 text-xs font-medium">
+                          {["Like New", "Good", "Fair"].map((cond) => (
+                            <button
+                              key={cond}
+                              type="button"
+                              onClick={() => setValuatorCondition(cond)}
+                              className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+                                valuatorCondition === cond
+                                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs"
+                                  : "text-slate-500 hover:text-slate-900 dark:text-slate-400"
+                              }`}
+                            >
+                              {cond}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Dynamic Value Display Box */}
+                      <div className="rounded-2xl p-3.5 bg-gradient-to-br from-emerald-50 via-teal-50/50 to-slate-50 dark:from-slate-800 dark:via-slate-800/80 dark:to-slate-800 border border-emerald-200/80 dark:border-slate-700">
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">Estimated Campus Value:</span>
+                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${currentValuation.demandColor}`}>
+                            {currentValuation.demand}
+                          </span>
+                        </div>
+                        <div className="mt-1 flex items-baseline gap-2">
+                          <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                            ₹{estimatedMin.toLocaleString("en-IN")} – ₹{estimatedMax.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+
+                        {/* Quick Metrics */}
+                        <div className="mt-2.5 pt-2 border-t border-emerald-200/60 dark:border-slate-700/80 grid grid-cols-2 gap-2 text-[11px]">
+                          <div className="text-slate-600 dark:text-slate-400">
+                            <span className="font-semibold text-slate-900 dark:text-white">⏱️ Resale Time:</span>
+                            <p>{currentValuation.avgDays}</p>
+                          </div>
+                          <div className="text-slate-600 dark:text-slate-400">
+                            <span className="font-semibold text-slate-900 dark:text-white">💰 Direct Payout:</span>
+                            <p className="text-emerald-600 dark:text-emerald-400 font-bold">100% to You (₹0 cut)</p>
+                          </div>
+                        </div>
+
+                        <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 italic">
+                          💡 {currentValuation.tips}
+                        </p>
+                      </div>
+
+                      {/* List CTA Button */}
+                      <button
+                        type="button"
+                        onClick={handleValuatorListCTA}
+                        className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all flex items-center justify-center gap-1.5 active:scale-[0.99]"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span>List My Item for Free in 30s</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Savings Stat Badge */}
-                <div className="absolute -bottom-5 -right-5 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-xl border border-slate-100 hidden sm:flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
-                    <TrendingDown className="w-5 h-5" />
+                <div className="absolute -bottom-3.5 -right-2 sm:-right-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl px-3 sm:px-3.5 py-2 shadow-xl border border-slate-200/90 dark:border-slate-800 hidden xs:flex items-center gap-2 sm:gap-2.5">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center">
+                    <TrendingDown className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider">Student Savings</p>
-                    <p className="text-sm font-black text-slate-900">₹{stats.estimatedSavings.toLocaleString("en-IN")}+</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider leading-none">Student Savings</p>
+                    <p className="text-xs font-black text-slate-900 dark:text-white mt-0.5">₹{stats.estimatedSavings.toLocaleString("en-IN")}+</p>
                   </div>
                 </div>
+
               </div>
             </div>
 
