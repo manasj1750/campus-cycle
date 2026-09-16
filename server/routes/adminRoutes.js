@@ -10,7 +10,8 @@ import {
   toggleFeatureProduct,
   getAdminReports,
   updateReportStatus,
-  updateAdminCredentials
+  updateAdminCredentials,
+  autoCategorizeAllProducts
 } from "../controllers/adminController.js";
 import { deleteProduct } from "../controllers/productController.js";
 import { protect, adminOnly } from "../middleware/authMiddleware.js";
@@ -25,6 +26,7 @@ router.patch("/users/:id/suspend", toggleSuspendUser);
 router.delete("/users/:id", deleteUser);
 
 router.get("/products", getAdminProducts);
+router.post("/products/auto-categorize-all", autoCategorizeAllProducts);
 router.delete("/products/:id", deleteProduct);
 router.patch("/products/:id/approve", approveProduct);
 router.patch("/products/:id/reject", rejectProduct);

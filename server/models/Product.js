@@ -99,6 +99,14 @@ const productSchema = new mongoose.Schema(
     isFeatured: {
       type: Boolean,
       default: false
+    },
+    autoFiltered: {
+      type: Boolean,
+      default: false
+    },
+    originalCategory: {
+      type: String,
+      default: ""
     }
   },
   {

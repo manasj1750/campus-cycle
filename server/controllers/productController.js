@@ -3,6 +3,7 @@ import { User } from "../models/User.js";
 import { Review } from "../models/Review.js";
 import { Notification } from "../models/Notification.js";
 import { uploadImage } from "../services/imageService.js";
+import { classifyProduct } from "../utils/categoryClassifier.js";
 
 // @desc    Get all public products with rich filters, sorting, search, and pagination
 // @route   GET /api/products
@@ -202,13 +203,39 @@ export const createProduct = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "At least one image is required for the listing." });
     }
 
+    // Automatic Category Filter: verify and correct if wrong category was selected
+    let finalCategory = category.trim();
+    let finalSubcategory = subcategory ? subcategory.trim() : "";
+    let wasAutoFiltered = false;
+    let origCategory = "";
+
+    const { forceCategory } = req.body;
+    if (!forceCategory) {
+      const classification = classifyProduct({
+        title,
+        description,
+        brand,
+        tags,
+        currentCategory: category
+      });
+
+      if (classification.isMismatch && classification.confidence >= 0.35 && classification.category) {
+        origCategory = finalCategory;
+        finalCategory = classification.category;
+        finalSubcategory = classification.subcategory || finalSubcategory;
+        wasAutoFiltered = true;
+      }
+    }
+
     const product = await Product.create({
       title: title.trim(),
       description: description.trim(),
       price: Number(price),
       originalPrice: originalPrice ? Number(originalPrice) : 0,
-      category: category.trim(),
-      subcategory: subcategory ? subcategory.trim() : "",
+      category: finalCategory,
+      subcategory: finalSubcategory,
+      autoFiltered: wasAutoFiltered,
+      originalCategory: origCategory,
       condition,
       brand: brand ? brand.trim() : "",
       model: model ? model.trim() : "",
@@ -238,11 +265,17 @@ export const createProduct = async (req, res, next) => {
       }
     }
 
+    let statusMsg = product.status === "AVAILABLE"
+      ? "Listing published immediately."
+      : "Listing submitted for campus verification! It will appear publicly once approved by moderation.";
+    if (wasAutoFiltered) {
+      statusMsg += ` (Auto-Filtered category to "${finalCategory}")`;
+    }
+
     res.status(201).json({
       success: true,
-      message: product.status === "AVAILABLE"
-        ? "Listing published immediately (Admin bypass)."
-        : "Listing submitted for campus verification! It will appear publicly once approved by moderation.",
+      message: statusMsg,
+      autoFiltered: wasAutoFiltered,
       product
     });
   } catch (error) {
@@ -275,12 +308,58 @@ export const updateProduct = async (req, res, next) => {
       }
     });
 
+    // Automatic Category Filter check on update if title/description changed and not forced
+    let wasAutoFiltered = false;
+    if (!req.body.forceCategory && (req.body.title || req.body.description || req.body.category)) {
+      const classification = classifyProduct({
+        title: product.title,
+        description: product.description,
+        brand: product.brand,
+        tags: product.tags,
+        currentCategory: product.category
+      });
+      if (classification.isMismatch && classification.confidence >= 0.35 && classification.category) {
+        product.originalCategory = product.category;
+        product.category = classification.category;
+        if (classification.subcategory) product.subcategory = classification.subcategory;
+        product.autoFiltered = true;
+        wasAutoFiltered = true;
+      }
+    }
+
     await product.save();
+
+    let updateMsg = "Listing updated successfully.";
+    if (wasAutoFiltered) {
+      updateMsg += ` (Auto-Filtered category to "${product.category}")`;
+    }
 
     res.json({
       success: true,
-      message: "Listing updated successfully.",
+      message: updateMsg,
+      autoFiltered: wasAutoFiltered,
       product
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Classify product text for real-time category detection
+// @route   POST /api/products/classify
+export const classifyProductEndpoint = async (req, res, next) => {
+  try {
+    const { title, description, brand, tags, currentCategory } = req.body;
+    const result = classifyProduct({
+      title: title || "",
+      description: description || "",
+      brand: brand || "",
+      tags: tags || [],
+      currentCategory: currentCategory || ""
+    });
+    res.json({
+      success: true,
+      ...result
     });
   } catch (error) {
     next(error);

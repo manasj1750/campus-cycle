@@ -14,6 +14,7 @@ import {
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { compressImage } from "../utils/imageCompressor";
+import { classifyProduct } from "../utils/categoryClassifier";
 
 export default function SellProduct() {
   const navigate = useNavigate();
@@ -46,6 +47,13 @@ export default function SellProduct() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Category Auto-Filter & Smart Recommendation State
+  const [hasManuallyChangedCategory, setHasManuallyChangedCategory] = useState(false);
+  const [autoFilterMessage, setAutoFilterMessage] = useState("");
+  const [mismatchWarning, setMismatchWarning] = useState(null);
+  const [keepUserCategory, setKeepUserCategory] = useState(false);
+  const [autoFilterEnabled, setAutoFilterEnabled] = useState(true);
+
   useEffect(() => {
     api.get("/categories").then((res) => {
       if (res.data.success && res.data.categories.length > 0) {
@@ -56,15 +64,86 @@ export default function SellProduct() {
     });
   }, []);
 
+  // Real-time automatic category classification as user enters title / description
+  useEffect(() => {
+    if (!autoFilterEnabled || categories.length === 0) return;
+    if (!formData.title.trim() && !formData.description.trim()) {
+      setMismatchWarning(null);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      const result = classifyProduct({
+        title: formData.title,
+        description: formData.description,
+        brand: formData.brand,
+        tags: formData.tags,
+        currentCategory: formData.category
+      });
+
+      if (!result.category || result.confidence < 0.35) {
+        setMismatchWarning(null);
+        return;
+      }
+
+      // If user hasn't explicitly locked in a category, auto-sync to detected category!
+      if (!hasManuallyChangedCategory) {
+        if (result.category.toLowerCase() !== (formData.category || "").toLowerCase()) {
+          const foundCat = categories.find((c) => c.name.toLowerCase() === result.category.toLowerCase());
+          if (foundCat) {
+            setSelectedCategoryObj(foundCat);
+            setFormData((prev) => ({
+              ...prev,
+              category: foundCat.name,
+              subcategory: result.subcategory || foundCat.subcategories?.[0] || ""
+            }));
+            setAutoFilterMessage(`✨ Auto-filtered to "${foundCat.name} → ${result.subcategory}"`);
+            setMismatchWarning(null);
+          }
+        }
+      } else {
+        // User manually chose a category, but it clashes with detected category
+        if (!keepUserCategory && result.isMismatch) {
+          setMismatchWarning(result);
+        } else {
+          setMismatchWarning(null);
+        }
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [formData.title, formData.description, formData.brand, formData.tags, hasManuallyChangedCategory, keepUserCategory, autoFilterEnabled, categories]);
+
   const handleCategoryChange = (e) => {
     const catName = e.target.value;
     const catObj = categories.find((c) => c.name === catName);
     setSelectedCategoryObj(catObj);
+    setHasManuallyChangedCategory(true);
+    setKeepUserCategory(true);
+    setMismatchWarning(null);
+    setAutoFilterMessage("");
     setFormData((prev) => ({
       ...prev,
       category: catName,
       subcategory: catObj?.subcategories?.[0] || ""
     }));
+  };
+
+  const handleApplyAutoFilter = () => {
+    if (!mismatchWarning || !mismatchWarning.category) return;
+    const foundCat = categories.find((c) => c.name.toLowerCase() === mismatchWarning.category.toLowerCase());
+    if (foundCat) {
+      setSelectedCategoryObj(foundCat);
+      setFormData((prev) => ({
+        ...prev,
+        category: foundCat.name,
+        subcategory: mismatchWarning.subcategory || foundCat.subcategories?.[0] || ""
+      }));
+      setHasManuallyChangedCategory(false);
+      setKeepUserCategory(false);
+      setMismatchWarning(null);
+      setAutoFilterMessage(`✓ Auto-switched to "${foundCat.name} → ${mismatchWarning.subcategory}"`);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -148,6 +227,7 @@ export default function SellProduct() {
         purchaseYear: formData.purchaseYear ? Number(formData.purchaseYear) : undefined,
         images: images,
         primaryImage: images[primaryImageIdx] || images[0],
+        forceCategory: keepUserCategory,
         tags: formData.tags
           ? formData.tags.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean)
           : []
@@ -311,44 +391,113 @@ export default function SellProduct() {
           </div>
 
           {/* Category & Subcategory */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Category *
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleCategoryChange}
-                required
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 font-medium"
-              >
-                {categories.map((cat) => (
-                  <option key={cat._id || cat.name} value={cat.name}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    Category *
+                  </label>
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={autoFilterEnabled}
+                      onChange={(e) => setAutoFilterEnabled(e.target.checked)}
+                      className="w-3.5 h-3.5 text-emerald-600 rounded focus:ring-emerald-500 border-slate-300"
+                    />
+                    <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-emerald-600" />
+                      Auto-Filter
+                    </span>
+                  </label>
+                </div>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleCategoryChange}
+                  required
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 font-medium"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat._id || cat.name} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                  Subcategory
+                </label>
+                <select
+                  name="subcategory"
+                  value={formData.subcategory}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 font-medium"
+                >
+                  <option value="">General</option>
+                  {selectedCategoryObj?.subcategories?.map((sc) => (
+                    <option key={sc} value={sc}>
+                      {sc}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Subcategory
-              </label>
-              <select
-                name="subcategory"
-                value={formData.subcategory}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 font-medium"
-              >
-                <option value="">General</option>
-                {selectedCategoryObj?.subcategories?.map((sc) => (
-                  <option key={sc} value={sc}>
-                    {sc}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Live Auto-Filter Notice */}
+            {autoFilterMessage && (
+              <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>{autoFilterMessage}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAutoFilterMessage("")}
+                  className="text-emerald-600 hover:text-emerald-900 text-xs font-bold px-1"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
+            {/* Mismatch Recommendation Alert */}
+            {mismatchWarning && (
+              <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
+                <div className="flex items-start sm:items-center gap-2.5">
+                  <div className="p-1.5 bg-amber-100 rounded-lg text-amber-700 flex-shrink-0 mt-0.5 sm:mt-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-amber-900">
+                      Auto-Filter Recommendation: This item looks like <span className="underline decoration-amber-400 font-black">{mismatchWarning.category}</span> {mismatchWarning.subcategory ? `(${mismatchWarning.subcategory})` : ""}
+                    </p>
+                    <p className="text-amber-700 text-[11px] mt-0.5">
+                      You currently selected <strong>"{formData.category}"</strong>. Matched keywords: {mismatchWarning.matchedKeywords?.join(", ")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0 self-end sm:self-center">
+                  <button
+                    type="button"
+                    onClick={handleApplyAutoFilter}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-xs transition-all active:scale-95 flex items-center gap-1"
+                  >
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>Auto-Correct Category</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setKeepUserCategory(true)}
+                    className="px-2.5 py-1.5 text-slate-500 hover:text-slate-700 font-semibold text-xs"
+                  >
+                    Keep Mine
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Condition */}

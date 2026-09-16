@@ -4,6 +4,7 @@ import { Transaction } from "../models/Transaction.js";
 import { Report } from "../models/Report.js";
 import { Notification } from "../models/Notification.js";
 import { AdminAction } from "../models/ExtraModels.js";
+import { classifyProduct } from "../utils/categoryClassifier.js";
 
 // @desc    Get overall admin stats & analytics for Recharts
 // @route   GET /api/admin/stats
@@ -401,6 +402,57 @@ export const updateAdminCredentials = async (req, res, next) => {
         email: admin.email,
         role: admin.role
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Admin: Run automatic category filter on all products in database
+// @route   POST /api/admin/products/auto-categorize-all
+export const autoCategorizeAllProducts = async (req, res, next) => {
+  try {
+    const products = await Product.find({});
+    let updatedCount = 0;
+    const reclassifiedItems = [];
+
+    for (const p of products) {
+      const classification = classifyProduct({
+        title: p.title,
+        description: p.description,
+        brand: p.brand,
+        tags: p.tags,
+        currentCategory: p.category
+      });
+
+      if (classification.isMismatch && classification.confidence >= 0.35 && classification.category) {
+        const oldCat = p.category;
+        p.originalCategory = oldCat;
+        p.category = classification.category;
+        if (classification.subcategory) {
+          p.subcategory = classification.subcategory;
+        }
+        p.autoFiltered = true;
+        await p.save();
+
+        updatedCount++;
+        reclassifiedItems.push({
+          id: p._id,
+          title: p.title,
+          fromCategory: oldCat,
+          toCategory: classification.category,
+          subcategory: classification.subcategory,
+          confidence: classification.confidence
+        });
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Automatic category filter completed. ${updatedCount} out of ${products.length} products reclassified.`,
+      totalScanned: products.length,
+      updatedCount,
+      reclassifiedItems
     });
   } catch (error) {
     next(error);
