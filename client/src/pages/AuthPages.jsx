@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import { Recycle, Mail, Lock, ArrowRight, AlertCircle, Sparkles, UserCheck, Shield, KeyRound, CheckCircle, Zap, Send } from "lucide-react";
+import { Recycle, Mail, Lock, ArrowRight, AlertCircle, Sparkles, UserCheck, Shield, KeyRound, CheckCircle, Zap, Send, Info } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 
@@ -532,6 +532,13 @@ export function Register() {
                 </div>
               </div>
 
+              <div className="p-3 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start sm:items-center gap-2.5 text-xs text-amber-900">
+                <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5 sm:mt-0" />
+                <span>
+                  <strong>Note:</strong> A 6-digit verification code will be sent to your email. Please <strong>check your spam folder in email</strong> to see the verification code if it doesn't appear in your primary inbox.
+                </span>
+              </div>
+
               <button
                 type="submit"
                 disabled={sendingCode}
@@ -580,6 +587,13 @@ export function Register() {
               </div>
             )}
 
+            <div className="p-3 bg-amber-50 border border-amber-200/80 rounded-xl flex items-start sm:items-center gap-2.5 text-xs text-amber-900">
+              <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5 sm:mt-0" />
+              <span>
+                <strong>Note:</strong> Please <strong>check your spam folder in email</strong> to see the verification code if you don't see it in your inbox.
+              </span>
+            </div>
+
             {error && (
               <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -602,8 +616,8 @@ export function Register() {
                   placeholder="••••••"
                   className="w-full text-center text-3xl font-mono font-black tracking-[0.4em] py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none"
                 />
-                <p className="text-[11px] text-slate-400 text-center mt-2">
-                  Check your inbox and spam folder. Code expires in 10 minutes.
+                <p className="text-[11px] text-slate-500 text-center mt-2 font-medium">
+                  Can't find the email? Please <strong>check your spam folder in email</strong>. Code expires in 10 minutes.
                 </p>
               </div>
 
