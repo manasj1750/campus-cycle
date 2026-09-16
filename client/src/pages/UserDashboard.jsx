@@ -18,7 +18,8 @@ import {
   Edit,
   Eye,
   Shield,
-  ArrowRight
+  ArrowRight,
+  LogOut
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -608,10 +609,37 @@ export default function UserDashboard() {
             </button>
           </form>
 
-          {/* Danger Zone: Delete Account */}
-          {user?.role !== "ADMIN" && (
-            <div className="mt-8 pt-6 border-t border-slate-200">
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-5 space-y-3">
+          {/* Account Actions: Sign Out & Delete Account */}
+          <div className="mt-8 pt-6 border-t border-slate-200 space-y-4">
+            <h4 className="text-sm font-black text-slate-900">Account Session & Security</h4>
+
+            {/* Sign Out Option */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+              <div>
+                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <LogOut className="w-3.5 h-3.5 text-slate-600" />
+                  <span>Sign Out</span>
+                </p>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Log out of CampusCycle safely on this browser.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={async () => {
+                  await logout();
+                  navigate("/login");
+                }}
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95 flex-shrink-0"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+
+            {/* Delete Account Option right below Sign Out */}
+            {user?.role !== "ADMIN" && (
+              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 sm:p-5 space-y-3">
                 <div className="flex items-center gap-2 text-rose-800">
                   <Trash2 className="w-4 h-4 text-rose-600 flex-shrink-0" />
                   <h4 className="text-sm font-black tracking-tight">Danger Zone • Delete Account</h4>
@@ -632,8 +660,8 @@ export default function UserDashboard() {
                   <span>Delete My Account</span>
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
 

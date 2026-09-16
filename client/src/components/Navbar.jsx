@@ -17,8 +17,11 @@ import {
   X,
   Sparkles,
   Layers,
-  ChevronDown
+  ChevronDown,
+  Trash2,
+  AlertCircle
 } from "lucide-react";
+import api from "../services/api";
 
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -34,6 +37,31 @@ export default function Navbar() {
     await logout();
     setUserDropdownOpen(false);
     navigate("/");
+  };
+
+  // Delete account state and handler from Navbar
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText.trim() !== "DELETE") return;
+    try {
+      setDeletingAccount(true);
+      setDeleteError("");
+      const res = await api.delete("/users/me");
+      if (res.data.success) {
+        setShowDeleteModal(false);
+        setUserDropdownOpen(false);
+        await logout();
+        navigate("/login", { state: { info: "Your CampusCycle account and all listings have been permanently deleted." } });
+      }
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || "Failed to delete account. Please try again.");
+    } finally {
+      setDeletingAccount(false);
+    }
   };
 
   const isActive = (path) => location.pathname === path;
@@ -277,11 +305,25 @@ export default function Navbar() {
                         <div className="border-t border-slate-100 my-1"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
                         >
-                          <LogOut className="w-4 h-4" />
+                          <LogOut className="w-4 h-4 text-slate-500" />
                           Sign Out
                         </button>
+                        {!isAdmin && (
+                          <button
+                            onClick={() => {
+                              setUserDropdownOpen(false);
+                              setDeleteConfirmText("");
+                              setDeleteError("");
+                              setShowDeleteModal(true);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left font-medium"
+                          >
+                            <Trash2 className="w-4 h-4 text-rose-500" />
+                            Delete Account
+                          </button>
+                        )}
                       </div>
                     </>
                   )}
@@ -376,12 +418,106 @@ export default function Navbar() {
                   handleLogout();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-rose-600 hover:bg-rose-50"
+                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-2"
               >
+                <LogOut className="w-4 h-4 text-slate-500" />
                 Sign Out
               </button>
+              {!isAdmin && (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setDeleteConfirmText("");
+                    setDeleteError("");
+                    setShowDeleteModal(true);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4 text-rose-500" />
+                  Delete Account
+                </button>
+              )}
             </>
           )}
+        </div>
+      )}
+
+      {/* Delete Account Safety Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4 border border-slate-200">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-1">
+              <h3 className="font-black text-slate-900 text-lg">
+                Permanently Delete Account?
+              </h3>
+              <p className="text-xs text-slate-500">
+                Are you sure you want to delete your CampusCycle account?
+              </p>
+            </div>
+
+            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3.5 text-xs text-rose-800 space-y-1.5">
+              <p className="font-bold">What will happen:</p>
+              <ul className="list-disc list-inside space-y-1 text-[11px] text-rose-700">
+                <li>Your student profile and ratings will be erased.</li>
+                <li>All your active and sold product listings will be deleted.</li>
+                <li>Your active offers and saved wishlist items will be removed.</li>
+              </ul>
+            </div>
+
+            {deleteError && (
+              <div className="p-3 bg-rose-100 border border-rose-300 text-rose-800 rounded-xl text-xs font-semibold">
+                {deleteError}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                Type <span className="font-mono text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 font-bold">DELETE</span> to confirm:
+              </label>
+              <input
+                type="text"
+                autoFocus
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="Type DELETE"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-rose-500 focus:bg-white"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                disabled={deletingAccount}
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteConfirmText("");
+                  setDeleteError("");
+                }}
+                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingAccount || deleteConfirmText.trim() !== "DELETE"}
+                onClick={handleDeleteAccount}
+                className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-rose-600/30 flex items-center gap-1.5 active:scale-95"
+              >
+                {deletingAccount ? (
+                  <span>Deleting...</span>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete My Account</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </header>
