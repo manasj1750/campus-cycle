@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
+import { Link, useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Package,
   CheckCircle2,
@@ -30,8 +31,10 @@ import { formatProductImage, handleImageError } from "../utils/imageUtils";
 export default function UserDashboard() {
   const { user, updateProfile, refreshMe, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get("tab") || "listings";
+  const isSettingsPath = location.pathname.endsWith("/settings");
+  const activeTab = searchParams.get("tab") || (isSettingsPath ? "settings" : "listings");
 
   const [summary, setSummary] = useState(null);
   const [myListings, setMyListings] = useState([]);
@@ -541,54 +544,54 @@ export default function UserDashboard() {
 
       {/* TAB 3: SETTINGS */}
       {activeTab === "settings" && (
-        <div className="max-w-xl bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs">
-          <h3 className="text-lg font-bold text-slate-900 mb-4">Profile & Campus Settings</h3>
+        <div className="max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Profile & Campus Settings</h3>
 
           {settingsSuccess && (
-            <div className="p-3.5 bg-emerald-50 text-emerald-800 text-xs font-bold rounded-xl mb-4">
+            <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl mb-4">
               ✓ {settingsSuccess}
             </div>
           )}
 
           <form onSubmit={handleSettingsSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                 Name
               </label>
               <input
                 type="text"
                 value={settingsForm.name}
                 onChange={(e) => setSettingsForm({ ...settingsForm, name: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                 Department
               </label>
               <input
                 type="text"
                 value={settingsForm.department}
                 onChange={(e) => setSettingsForm({ ...settingsForm, department: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                 Year
               </label>
               <input
                 type="text"
                 value={settingsForm.year}
                 onChange={(e) => setSettingsForm({ ...settingsForm, year: e.target.value })}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                 Bio
               </label>
               <textarea
@@ -596,7 +599,7 @@ export default function UserDashboard() {
                 value={settingsForm.bio}
                 onChange={(e) => setSettingsForm({ ...settingsForm, bio: e.target.value })}
                 placeholder="Share a short intro with your peers..."
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm"
               ></textarea>
             </div>
 
@@ -610,17 +613,17 @@ export default function UserDashboard() {
           </form>
 
           {/* Account Actions: Sign Out & Delete Account */}
-          <div className="mt-8 pt-6 border-t border-slate-200 space-y-4">
-            <h4 className="text-sm font-black text-slate-900">Account Session & Security</h4>
+          <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
+            <h4 className="text-sm font-black text-slate-900 dark:text-white">Account Session & Security</h4>
 
             {/* Sign Out Option */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl">
               <div>
-                <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                  <LogOut className="w-3.5 h-3.5 text-slate-600" />
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <LogOut className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
                   <span>Sign Out</span>
                 </p>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                   Log out of CampusCycle safely on this browser.
                 </p>
               </div>
@@ -630,7 +633,7 @@ export default function UserDashboard() {
                   await logout();
                   navigate("/login");
                 }}
-                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95 flex-shrink-0"
+                className="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all active:scale-95 flex-shrink-0"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>
@@ -639,12 +642,12 @@ export default function UserDashboard() {
 
             {/* Delete Account Option right below Sign Out */}
             {user?.role !== "ADMIN" && (
-              <div className="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 sm:p-5 space-y-3">
-                <div className="flex items-center gap-2 text-rose-800">
-                  <Trash2 className="w-4 h-4 text-rose-600 flex-shrink-0" />
+              <div className="bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl p-4 sm:p-5 space-y-3">
+                <div className="flex items-center gap-2 text-rose-800 dark:text-rose-300">
+                  <Trash2 className="w-4 h-4 text-rose-600 dark:text-rose-400 flex-shrink-0" />
                   <h4 className="text-sm font-black tracking-tight">Danger Zone • Delete Account</h4>
                 </div>
-                <p className="text-xs text-rose-700 leading-relaxed">
+                <p className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
                   Permanently delete your CampusCycle account, student profile, all your active and past product listings, and saved wishlist items. <strong>This action cannot be undone.</strong>
                 </p>
                 <button
@@ -666,19 +669,19 @@ export default function UserDashboard() {
       )}
 
       {/* Counter Offer Modal */}
-      {counterModal.open && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4">
-            <h3 className="font-bold text-slate-900 text-base">Make a Counter Offer</h3>
+      {counterModal.open && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base">Make a Counter Offer</h3>
             <div>
-              <label className="block text-xs font-bold text-slate-600 mb-1">
+              <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
                 Counter Amount (₹)
               </label>
               <input
                 type="number"
                 value={counterModal.amount}
                 onChange={(e) => setCounterModal({ ...counterModal, amount: e.target.value })}
-                className="w-full px-3.5 py-2 border border-slate-200 rounded-xl font-bold text-base text-slate-900"
+                className="w-full px-3.5 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl font-bold text-base text-slate-900 dark:text-white"
               />
             </div>
             <div className="flex justify-end gap-2">
@@ -698,29 +701,30 @@ export default function UserDashboard() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Delete Account Safety Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4 border border-slate-200">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+      {showDeleteModal && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6" />
             </div>
 
             <div className="text-center space-y-1">
-              <h3 className="font-black text-slate-900 text-lg">
+              <h3 className="font-black text-slate-900 dark:text-white text-lg">
                 Permanently Delete Account?
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Are you sure you want to delete your CampusCycle account?
               </p>
             </div>
 
-            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3.5 text-xs text-rose-800 space-y-1.5">
+            <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl p-3.5 text-xs text-rose-800 dark:text-rose-300 space-y-1.5">
               <p className="font-bold">What will happen:</p>
-              <ul className="list-disc list-inside space-y-1 text-[11px] text-rose-700">
+              <ul className="list-disc list-inside space-y-1 text-[11px] text-rose-700 dark:text-rose-400">
                 <li>Your student profile and reviews will be erased.</li>
                 <li>All your active and sold product listings will be deleted.</li>
                 <li>Your active offers and saved wishlist items will be removed.</li>
@@ -734,8 +738,8 @@ export default function UserDashboard() {
             )}
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Type <span className="font-mono text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 font-bold">DELETE</span> to confirm:
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                Type <span className="font-mono text-rose-600 bg-rose-50 dark:bg-rose-950/50 px-1.5 py-0.5 rounded border border-rose-200 dark:border-rose-800 font-bold">DELETE</span> to confirm:
               </label>
               <input
                 type="text"
@@ -743,7 +747,7 @@ export default function UserDashboard() {
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="Type DELETE"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-rose-500 focus:bg-white"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-rose-500 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-white"
               />
             </div>
 
@@ -756,7 +760,7 @@ export default function UserDashboard() {
                   setDeleteConfirmText("");
                   setDeleteError("");
                 }}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all"
+                className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all"
               >
                 Cancel
               </button>
@@ -777,7 +781,8 @@ export default function UserDashboard() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
     </div>

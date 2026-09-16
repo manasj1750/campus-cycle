@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
@@ -373,25 +374,25 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-5 space-y-2">
+        <div className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 pt-3 pb-5 space-y-2">
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100"
+            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             Home
           </Link>
           <Link
             to="/products"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100"
+            className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             Browse Products
           </Link>
           <Link
             to="/sell"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-3 py-2 rounded-lg text-base font-semibold text-emerald-700 bg-emerald-50"
+            className="block px-3 py-2 rounded-lg text-base font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50"
           >
             + Sell an Item
           </Link>
@@ -400,21 +401,21 @@ export default function Navbar() {
               <Link
                 to="/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100"
+                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 My Dashboard
               </Link>
               <Link
                 to="/messages"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100"
+                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 Messages
               </Link>
               <Link
                 to="/wishlist"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100"
+                className="block px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 Wishlist ({wishlist.length})
               </Link>
@@ -422,7 +423,7 @@ export default function Navbar() {
                 <Link
                   to="/admin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-base font-semibold text-purple-700 bg-purple-50"
+                  className="block px-3 py-2 rounded-lg text-base font-semibold text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50"
                 >
                   Admin Console
                 </Link>
@@ -433,9 +434,9 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   setSettingsModalOpen(true);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-2"
+                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
               >
-                <Settings className="w-4 h-4 text-emerald-600" />
+                <Settings className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 Settings
               </button>
               <button
@@ -443,9 +444,9 @@ export default function Navbar() {
                   handleLogout();
                   setMobileMenuOpen(false);
                 }}
-                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-2"
+                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
               >
-                <LogOut className="w-4 h-4 text-slate-500" />
+                <LogOut className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 Sign Out
               </button>
               {!isAdmin && (
@@ -456,9 +457,9 @@ export default function Navbar() {
                     setDeleteError("");
                     setShowDeleteModal(true);
                   }}
-                  className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2"
+                  className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2"
                 >
-                  <Trash2 className="w-4 h-4 text-rose-500" />
+                  <Trash2 className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                   Delete Account
                 </button>
               )}
@@ -468,25 +469,25 @@ export default function Navbar() {
       )}
 
       {/* Delete Account Safety Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4 border border-slate-200">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+      {showDeleteModal && createPortal(
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6" />
             </div>
 
             <div className="text-center space-y-1">
-              <h3 className="font-black text-slate-900 text-lg">
+              <h3 className="font-black text-slate-900 dark:text-white text-lg">
                 Permanently Delete Account?
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Are you sure you want to delete your CampusCycle account?
               </p>
             </div>
 
-            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3.5 text-xs text-rose-800 space-y-1.5">
+            <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 rounded-2xl p-3.5 text-xs text-rose-800 dark:text-rose-300 space-y-1.5">
               <p className="font-bold">What will happen:</p>
-              <ul className="list-disc list-inside space-y-1 text-[11px] text-rose-700">
+              <ul className="list-disc list-inside space-y-1 text-[11px] text-rose-700 dark:text-rose-400">
                 <li>Your student profile and ratings will be erased.</li>
                 <li>All your active and sold product listings will be deleted.</li>
                 <li>Your active offers and saved wishlist items will be removed.</li>
@@ -494,14 +495,14 @@ export default function Navbar() {
             </div>
 
             {deleteError && (
-              <div className="p-3 bg-rose-100 border border-rose-300 text-rose-800 rounded-xl text-xs font-semibold">
+              <div className="p-3 bg-rose-100 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-850 text-rose-800 dark:text-rose-300 rounded-xl text-xs font-semibold">
                 {deleteError}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                Type <span className="font-mono text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 font-bold">DELETE</span> to confirm:
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
+                Type <span className="font-mono text-rose-600 bg-rose-50 dark:bg-rose-950/50 px-1.5 py-0.5 rounded border border-rose-200 dark:border-rose-800 font-bold">DELETE</span> to confirm:
               </label>
               <input
                 type="text"
@@ -509,7 +510,7 @@ export default function Navbar() {
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="Type DELETE"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-rose-500 focus:bg-white"
+                className="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-rose-500 focus:bg-white dark:focus:bg-slate-800 text-slate-900 dark:text-white"
               />
             </div>
 
@@ -522,7 +523,7 @@ export default function Navbar() {
                   setDeleteConfirmText("");
                   setDeleteError("");
                 }}
-                className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all"
+                className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all"
               >
                 Cancel
               </button>
@@ -543,7 +544,8 @@ export default function Navbar() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Settings Modal (Theme, Edit Password, Delete Account) */}
@@ -552,6 +554,7 @@ export default function Navbar() {
         onClose={() => setSettingsModalOpen(false)}
         user={user}
         onRequestDeleteAccount={() => {
+          setSettingsModalOpen(false);
           setDeleteConfirmText("");
           setDeleteError("");
           setShowDeleteModal(true);

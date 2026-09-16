@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Settings,
@@ -71,8 +72,8 @@ export default function SettingsModal({ isOpen, onClose, user, onRequestDeleteAc
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-6 my-8 max-h-[90vh] overflow-y-auto transition-colors">
         
         {/* Header */}
@@ -277,6 +278,7 @@ export default function SettingsModal({ isOpen, onClose, user, onRequestDeleteAc
         )}
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

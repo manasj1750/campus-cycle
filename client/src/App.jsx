@@ -66,6 +66,7 @@ export default function App() {
                       <Route path="/wishlist" element={<WishlistPage />} />
                       <Route path="/messages" element={<MessagesPage />} />
                       <Route path="/notifications" element={<UserDashboard />} />
+                      <Route path="/settings" element={<Navigate to="/dashboard?tab=settings" replace />} />
                     </Route>
 
                     {/* Admin Only Routes */}
