@@ -388,8 +388,8 @@ export default function Home() {
             <div className="lg:col-span-5 relative">
               <div className="relative mx-auto max-w-lg lg:max-w-none">
                 
-                {/* Live Pulse Indicator Badge */}
-                <div className="absolute -top-3.5 -left-2 sm:-left-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl px-3 sm:px-3.5 py-2 shadow-xl border border-slate-200/90 dark:border-slate-800 flex items-center gap-2 sm:gap-2.5">
+                {/* Live Pulse Indicator Badge - Top Right Corner */}
+                <div className="absolute -top-3.5 -right-2 sm:-right-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl px-3 sm:px-3.5 py-2 shadow-xl border border-slate-200/90 dark:border-slate-800 flex items-center gap-2 sm:gap-2.5">
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
@@ -692,8 +692,8 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Savings Stat Badge */}
-                <div className="absolute -bottom-3.5 -right-2 sm:-right-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl px-3 sm:px-3.5 py-2 shadow-xl border border-slate-200/90 dark:border-slate-800 hidden xs:flex items-center gap-2 sm:gap-2.5">
+                {/* Savings Stat Badge - Bottom Left Corner */}
+                <div className="absolute -bottom-3.5 -left-2 sm:-left-4 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl px-3 sm:px-3.5 py-2 shadow-xl border border-slate-200/90 dark:border-slate-800 hidden xs:flex items-center gap-2 sm:gap-2.5">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 flex items-center justify-center">
                     <TrendingDown className="w-4 h-4" />
                   </div>
