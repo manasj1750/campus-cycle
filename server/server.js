@@ -26,6 +26,7 @@ import userRoutes from "./routes/userRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import { Product } from "./models/Product.js";
 import { runSeed } from "./utils/seed.js";
+import { isSupabaseConfigured, checkSupabaseConnection } from "./config/supabase.js";
 
 dotenv.config();
 
@@ -132,11 +133,17 @@ app.use("/api", limiter);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Health Check
-app.get("/api/health", (req, res) => {
+app.get("/api/health", async (req, res) => {
+  const supabaseStatus = isSupabaseConfigured
+    ? await checkSupabaseConnection()
+    : { ok: false, message: "Supabase credentials not configured in environment." };
+
   res.json({
     status: "healthy",
     service: "CampusCycle API",
     tagline: "Give Your Things a Second Life",
+    activeDatabase: isSupabaseConfigured ? "Supabase (PostgreSQL)" : "MongoDB Atlas",
+    supabase: supabaseStatus,
     timestamp: new Date().toISOString()
   });
 });
