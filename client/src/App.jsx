@@ -58,6 +58,8 @@ export default function App() {
                     {/* Protected Student Routes */}
                     <Route element={<ProtectedRoute />}>
                       <Route path="/sell" element={<SellProduct />} />
+                      <Route path="/edit-product/:id" element={<SellProduct />} />
+                      <Route path="/products/:id/edit" element={<SellProduct />} />
                       <Route path="/dashboard" element={<UserDashboard />} />
                       <Route path="/dashboard/listings" element={<UserDashboard />} />
                       <Route path="/dashboard/offers" element={<UserDashboard />} />

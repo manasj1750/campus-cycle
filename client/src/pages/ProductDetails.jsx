@@ -19,7 +19,8 @@ import {
   Trash2,
   Sparkles,
   Check,
-  Clock
+  Clock,
+  Edit
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -115,6 +116,7 @@ export default function ProductDetails() {
 
   const isSaved = isInWishlist(product._id);
   const isSeller = user && String(user._id) === String(product.seller?._id);
+  const canEdit = isSeller || isAdmin;
 
   const discount =
     product.originalPrice && product.originalPrice > product.price
@@ -491,6 +493,22 @@ export default function ProductDetails() {
               {product.status === "SOLD" ? (
                 <div className="w-full py-3.5 bg-slate-100 text-slate-500 font-bold text-center rounded-2xl text-sm">
                   This item has already been sold
+                </div>
+              ) : canEdit ? (
+                <div className="space-y-2">
+                  <Link
+                    to={`/edit-product/${product._id}`}
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-2xl shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Edit Listing Details</span>
+                  </Link>
+                  <Link
+                    to="/dashboard"
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all"
+                  >
+                    <span>Manage in My Dashboard</span>
+                  </Link>
                 </div>
               ) : (
                 <>

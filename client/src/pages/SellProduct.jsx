@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   UploadCloud,
   Image as ImageIcon,
@@ -9,7 +9,8 @@ import {
   HelpCircle,
   Sparkles,
   ArrowRight,
-  ShieldAlert
+  ShieldAlert,
+  Edit
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -18,10 +19,13 @@ import { classifyProduct } from "../utils/categoryClassifier";
 
 export default function SellProduct() {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
   const { user } = useAuth();
 
   const [categories, setCategories] = useState([]);
   const [selectedCategoryObj, setSelectedCategoryObj] = useState(null);
+  const [loadingInitialProduct, setLoadingInitialProduct] = useState(isEditMode);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -54,15 +58,66 @@ export default function SellProduct() {
   const [keepUserCategory, setKeepUserCategory] = useState(false);
   const [autoFilterEnabled, setAutoFilterEnabled] = useState(true);
 
+  // Load categories
   useEffect(() => {
     api.get("/categories").then((res) => {
       if (res.data.success && res.data.categories.length > 0) {
         setCategories(res.data.categories);
-        setFormData((prev) => ({ ...prev, category: res.data.categories[0].name }));
-        setSelectedCategoryObj(res.data.categories[0]);
+        if (!isEditMode) {
+          setFormData((prev) => ({ ...prev, category: res.data.categories[0].name }));
+          setSelectedCategoryObj(res.data.categories[0]);
+        }
       }
     });
-  }, []);
+  }, [isEditMode]);
+
+  // If edit mode, prefetch existing listing details
+  useEffect(() => {
+    if (!isEditMode || !id) return;
+    setLoadingInitialProduct(true);
+    api.get(`/products/${id}`)
+      .then((res) => {
+        if (res.data.success && res.data.product) {
+          const p = res.data.product;
+          const sellerId = p.seller?._id || p.seller;
+          if (user && String(sellerId) !== String(user._id) && user.role !== "ADMIN") {
+            setError("You are not authorized to edit this listing.");
+            return;
+          }
+          const catName = typeof p.category === "object" ? p.category?.name : (p.category || "");
+          setFormData({
+            title: p.title || "",
+            description: p.description || "",
+            category: catName,
+            subcategory: p.subcategory || "",
+            price: p.price !== undefined ? String(p.price) : "",
+            originalPrice: p.originalPrice !== undefined ? String(p.originalPrice) : "",
+            condition: p.condition || "Good",
+            brand: p.brand || "",
+            model: p.model || "",
+            purchaseYear: p.purchaseYear || new Date().getFullYear() - 1,
+            location: p.location || "Main Campus",
+            tags: Array.isArray(p.tags) ? p.tags.join(", ") : (p.tags || ""),
+            isNegotiable: p.isNegotiable !== undefined ? p.isNegotiable : true,
+            contactPreference: p.contactPreference || "In-App Chat"
+          });
+          if (Array.isArray(p.images) && p.images.length > 0) {
+            setImages(p.images);
+            const pIdx = p.images.indexOf(p.primaryImage);
+            setPrimaryImageIdx(pIdx >= 0 ? pIdx : 0);
+          }
+          setHasManuallyChangedCategory(true);
+          setKeepUserCategory(true);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load product details for editing:", err);
+        setError("Failed to load product details for editing.");
+      })
+      .finally(() => {
+        setLoadingInitialProduct(false);
+      });
+  }, [id, isEditMode, user]);
 
   // Real-time automatic category classification as user enters title / description
   useEffect(() => {
@@ -233,16 +288,22 @@ export default function SellProduct() {
           : []
       };
 
-      const res = await api.post("/products", payload);
+      let res;
+      if (isEditMode) {
+        res = await api.put(`/products/${id}`, payload);
+      } else {
+        res = await api.post("/products", payload);
+      }
+
       if (res.data.success) {
-        setSuccessMessage(res.data.message);
+        setSuccessMessage(res.data.message || (isEditMode ? "Listing updated successfully!" : "Listing created successfully!"));
         setTimeout(() => {
-          navigate("/dashboard");
-        }, 2200);
+          navigate(isEditMode ? `/products/${id}` : "/dashboard");
+        }, 1800);
       }
     } catch (err) {
-      console.error("Listing creation error:", err);
-      let errorText = "Failed to create listing.";
+      console.error("Listing submission error:", err);
+      let errorText = isEditMode ? "Failed to update listing." : "Failed to create listing.";
       if (err.response) {
         if (err.response.status === 413) {
           errorText = "Photos payload is too large. Please select fewer or smaller photos.";
@@ -256,7 +317,7 @@ export default function SellProduct() {
       } else if (err.request) {
         errorText = "Network connection timed out while uploading. Please check your internet connection.";
       } else {
-        errorText = err.message || "Failed to create listing. Please check required fields.";
+        errorText = err.message || (isEditMode ? "Failed to update listing." : "Failed to create listing.");
       }
       setError(errorText);
     } finally {
@@ -264,19 +325,30 @@ export default function SellProduct() {
     }
   };
 
+  if (loadingInitialProduct) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 flex flex-col items-center justify-center min-h-[50vh]">
+        <div className="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs text-slate-500 mt-3 font-semibold">Loading listing details for editing...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       
       {/* Header */}
       <div className="mb-8">
         <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-          Sell to Campus Community
+          {isEditMode ? "Update Listing" : "Sell to Campus Community"}
         </span>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight mt-2">
-          Create a New Listing
+          {isEditMode ? "Edit Listing Details" : "Create a New Listing"}
         </h1>
         <p className="text-sm text-slate-500 mt-1">
-          Give unused textbooks, electronics, cycles, and hostel items a second life.
+          {isEditMode
+            ? "Update price, condition, description, category, or photos for your item."
+            : "Give unused textbooks, electronics, cycles, and hostel items a second life."}
         </p>
       </div>
 
@@ -285,7 +357,9 @@ export default function SellProduct() {
         <ShieldAlert className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
         <div className="text-xs text-slate-600 leading-relaxed">
           <span className="font-bold text-slate-900">Campus Verification Policy:</span>{" "}
-          To keep our college marketplace clean and scam-free, listings are automatically reviewed by the Social Responsibility Club moderation team before becoming publicly visible.
+          {isEditMode
+            ? "Your edits will be updated immediately. Keep details accurate, honest, and genuine."
+            : "To keep our college marketplace clean and scam-free, listings are automatically reviewed by the Social Responsibility Club moderation team before becoming publicly visible."}
         </div>
       </div>
 
@@ -684,7 +758,7 @@ export default function SellProduct() {
         <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate(isEditMode ? `/products/${id}` : "/dashboard")}
             className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors"
           >
             Cancel
@@ -697,10 +771,10 @@ export default function SellProduct() {
             {uploading ? (
               <span>Optimizing Photos...</span>
             ) : submitting ? (
-              <span>Publishing Listing...</span>
+              <span>{isEditMode ? "Saving Changes..." : "Publishing Listing..."}</span>
             ) : (
               <>
-                <span>Publish Campus Listing</span>
+                <span>{isEditMode ? "Save Changes & Update" : "Publish Campus Listing"}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}

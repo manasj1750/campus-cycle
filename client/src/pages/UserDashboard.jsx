@@ -420,14 +420,25 @@ export default function UserDashboard() {
                     )}
 
                     <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap">
-                      <Link
-                        to={`/products/${p._id}`}
-                        className="px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl flex items-center gap-1.5 transition-all"
-                        title="View Public Page"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View</span>
-                      </Link>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Link
+                          to={`/products/${p._id}`}
+                          className="px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 rounded-xl flex items-center gap-1.5 transition-all"
+                          title="View Public Page"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View</span>
+                        </Link>
+
+                        <Link
+                          to={`/edit-product/${p._id}`}
+                          className="px-3 py-1.5 text-xs font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-xl flex items-center gap-1.5 transition-all"
+                          title="Edit Listing Details"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </Link>
+                      </div>
 
                       {p.status !== "SOLD" && (
                         <button
