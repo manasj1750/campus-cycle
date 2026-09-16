@@ -133,14 +133,18 @@ export const getProductById = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Product not found." });
     }
 
-    // Increment views
-    product.views += 1;
-    await product.save();
+    // Increment views safely without triggering full document schema validation
+    await Product.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }).catch(() => {});
 
-    // Fetch seller reviews & stats
+    // Fetch seller reviews & stats safely
+    const sellerId = product.seller?._id || product.seller;
     const [sellerListingsCount, sellerReviews, similarProducts] = await Promise.all([
-      Product.countDocuments({ seller: product.seller._id, status: { $in: ["AVAILABLE", "APPROVED"] } }),
-      Review.find({ seller: product.seller._id }),
+      sellerId
+        ? Product.countDocuments({ seller: sellerId, status: { $in: ["AVAILABLE", "APPROVED"] } })
+        : 0,
+      sellerId
+        ? Review.find({ seller: sellerId })
+        : [],
       Product.find({
         category: product.category,
         _id: { $ne: product._id },
@@ -150,20 +154,35 @@ export const getProductById = async (req, res, next) => {
         .populate("seller", "name college")
     ]);
 
-    const avgRating = sellerReviews.length
+    const avgRating = sellerReviews && sellerReviews.length
       ? Number((sellerReviews.reduce((acc, r) => acc + r.rating, 0) / sellerReviews.length).toFixed(1))
       : 5.0;
+
+    const sellerObj = product.seller
+      ? {
+          ...(typeof product.seller.toObject === "function" ? product.seller.toObject() : product.seller),
+          listingCount: sellerListingsCount,
+          totalReviews: (sellerReviews && sellerReviews.length) || 0,
+          avgRating
+        }
+      : {
+          _id: null,
+          name: "Campus Student",
+          college: "Campus",
+          department: "Student",
+          year: "",
+          profilePhoto: "",
+          listingCount: 0,
+          totalReviews: 0,
+          avgRating: 5.0
+        };
 
     res.json({
       success: true,
       product: {
         ...product.toObject(),
-        seller: {
-          ...product.seller.toObject(),
-          listingCount: sellerListingsCount,
-          totalReviews: sellerReviews.length,
-          avgRating
-        }
+        views: (product.views || 0) + 1,
+        seller: sellerObj
       },
       similarProducts
     });

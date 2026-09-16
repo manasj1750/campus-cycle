@@ -70,26 +70,28 @@ export default function ProductCard({ product }) {
   const displayImage = formatProductImage(rawImage, product.category);
 
   return (
-    <div className="group relative bg-white rounded-2xl border border-slate-200/90 hover:border-emerald-300 shadow-sm hover:shadow-card transition-all duration-300 flex flex-col overflow-hidden">
+    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-500/50 shadow-sm hover:shadow-card transition-all duration-300 flex flex-col overflow-hidden">
       
       {/* Top Image Container */}
-      <div className="relative aspect-square sm:aspect-[4/3] bg-slate-100 overflow-hidden">
+      <div className="relative aspect-square sm:aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden">
         {getStatusBadge(product.status)}
 
         {/* Featured ribbon */}
         {product.isFeatured && (
-          <span className="absolute bottom-2 left-2 z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs">
+          <span className="absolute bottom-2 left-2 z-10 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-md flex items-center gap-1 shadow-xs pointer-events-none">
             <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> Featured
           </span>
         )}
 
-        <img
-          src={displayImage}
-          alt={product.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          loading="lazy"
-          onError={(e) => handleImageError(e, product.category)}
-        />
+        <Link to={`/products/${product._id}`} className="block w-full h-full cursor-pointer">
+          <img
+            src={displayImage}
+            alt={product.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+            onError={(e) => handleImageError(e, product.category)}
+          />
+        </Link>
 
         {/* Wishlist Button */}
         <button
@@ -98,7 +100,7 @@ export default function ProductCard({ product }) {
           className={`absolute top-2 right-2 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
             isSaved
               ? "bg-rose-50 text-rose-500 shadow-xs"
-              : "bg-white/85 backdrop-blur-md text-slate-500 hover:text-rose-500 hover:bg-white"
+              : "bg-white/85 dark:bg-slate-900/80 backdrop-blur-md text-slate-500 dark:text-slate-300 hover:text-rose-500 hover:bg-white dark:hover:bg-slate-800"
           }`}
         >
           <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isSaved ? "fill-current text-rose-500" : ""}`} />
@@ -110,7 +112,7 @@ export default function ProductCard({ product }) {
         
         {/* Badges row */}
         <div className="flex items-center justify-between gap-1 sm:gap-2 mb-1.5 sm:mb-2">
-          <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 sm:px-2 py-0.5 rounded-md truncate max-w-[90px] sm:max-w-[130px]">
+          <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 sm:px-2 py-0.5 rounded-md truncate max-w-[90px] sm:max-w-[130px]">
             {product.category}
           </span>
           <span className={`text-[9px] sm:text-[10px] font-medium border px-1 sm:px-1.5 py-0.5 rounded-md whitespace-nowrap ${getConditionBadge(product.condition)}`}>
@@ -120,30 +122,32 @@ export default function ProductCard({ product }) {
 
         {/* Product Title */}
         <Link to={`/products/${product._id}`} className="block">
-          <h3 className="font-semibold text-slate-900 text-xs sm:text-sm leading-snug line-clamp-2 hover:text-emerald-600 transition-colors">
+          <h3 className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm leading-snug line-clamp-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
             {product.title}
           </h3>
         </Link>
 
         {/* Pricing */}
-        <div className="mt-2 sm:mt-3 flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
-          <span className="text-sm sm:text-base md:text-lg font-black text-slate-900">
-            ₹{product.price.toLocaleString("en-IN")}
-          </span>
-          {product.originalPrice > product.price && (
-            <span className="text-[10px] sm:text-xs text-slate-400 line-through">
-              ₹{product.originalPrice.toLocaleString("en-IN")}
+        <Link to={`/products/${product._id}`} className="block mt-2 sm:mt-3">
+          <div className="flex items-baseline gap-1.5 sm:gap-2 flex-wrap">
+            <span className="text-sm sm:text-base md:text-lg font-black text-slate-900 dark:text-white">
+              ₹{product.price.toLocaleString("en-IN")}
             </span>
-          )}
-          {discount && (
-            <span className="text-[9px] sm:text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1 sm:px-1.5 py-0.5 rounded">
-              {discount}% OFF
-            </span>
-          )}
-        </div>
+            {product.originalPrice > product.price && (
+              <span className="text-[10px] sm:text-xs text-slate-400 line-through">
+                ₹{product.originalPrice.toLocaleString("en-IN")}
+              </span>
+            )}
+            {discount && (
+              <span className="text-[9px] sm:text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-1 sm:px-1.5 py-0.5 rounded">
+                {discount}% OFF
+              </span>
+            )}
+          </div>
+        </Link>
 
         {/* Footer info: Campus Location & Seller */}
-        <div className="mt-auto pt-2 sm:pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-xs text-slate-500">
+        <div className="mt-auto pt-2 sm:pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-1 truncate max-w-[75px] sm:max-w-[120px]">
             <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 flex-shrink-0" />
             <span className="truncate">{product.location || "Campus"}</span>

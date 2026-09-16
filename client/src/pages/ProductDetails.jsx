@@ -18,7 +18,8 @@ import {
   Shield,
   Trash2,
   Sparkles,
-  Check
+  Check,
+  Clock
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -312,10 +313,23 @@ export default function ProductDetails() {
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Back to listings
       </button>
+
+      {/* Seller Pending Review Notice */}
+      {isSeller && product.status === "PENDING_REVIEW" && (
+        <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-4 text-amber-800 dark:text-amber-300 flex items-center gap-3">
+          <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+          <div className="text-xs">
+            <p className="font-bold">Your listing is currently Pending Review</p>
+            <p className="text-amber-700 dark:text-amber-400 mt-0.5">
+              This preview is visible to you. Our campus moderation team will review and approve your item shortly.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Details Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -323,7 +337,7 @@ export default function ProductDetails() {
         {/* Left Col: Image Gallery (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           {/* Main Large Image */}
-          <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
+          <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-800 shadow-sm">
             <img
               src={formatProductImage(selectedImage, product.category)}
               alt={product.title}
