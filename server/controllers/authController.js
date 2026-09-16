@@ -1,17 +1,84 @@
 import { User } from "../models/User.js";
+import { VerificationCode } from "../models/VerificationCode.js";
 import { generateToken } from "../middleware/authMiddleware.js";
 import { Product } from "../models/Product.js";
 import { Wishlist } from "../models/Wishlist.js";
 import { Review } from "../models/Review.js";
+import { sendVerificationEmail } from "../services/emailService.js";
 
 // @desc    Register a new student/user
+// @desc    Generate and send a 6-digit email verification code for account registration
+// @route   POST /api/auth/send-verification-code
+export const sendVerificationCode = async (req, res, next) => {
+  try {
+    const { email, name } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ success: false, message: "Email address is required." });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Check if email format is valid
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return res.status(400).json({ success: false, message: "Please enter a valid email address." });
+    }
+
+    // Check if already registered
+    const existing = await User.findOne({ email: cleanEmail });
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: "An account with this email address already exists. Please log in instead."
+      });
+    }
+
+    // Generate secure random 6-digit numeric verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Delete any previous pending codes for this email
+    await VerificationCode.deleteMany({ email: cleanEmail });
+
+    // Store new verification code
+    await VerificationCode.create({
+      email: cleanEmail,
+      code,
+      expiresAt
+    });
+
+    // Send email dispatch
+    const emailRes = await sendVerificationEmail({
+      to: cleanEmail,
+      name: name || "",
+      code
+    });
+
+    res.json({
+      success: true,
+      message: `A 6-digit verification code has been dispatched to ${cleanEmail}.`,
+      expiresIn: "10 minutes",
+      // Include devCode in development mode for easy testing
+      ...(process.env.NODE_ENV !== "production" && emailRes.devCode ? { devCode: emailRes.devCode } : {})
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Register a new student/user with mandatory verification code
 // @route   POST /api/auth/register
 export const register = async (req, res, next) => {
   try {
-    const { name, email, password, confirmPassword, college, studentId, department, year } = req.body;
+    const { name, email, password, confirmPassword, college, studentId, department, year, verificationCode } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ success: false, message: "Please provide all required fields." });
+    }
+
+    if (!verificationCode || !verificationCode.trim()) {
+      return res.status(400).json({ success: false, message: "Please enter the 6-digit email verification code." });
     }
 
     if (password.length < 6) {
@@ -22,10 +89,37 @@ export const register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Passwords do not match." });
     }
 
-    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanCode = verificationCode.trim();
+
+    const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return res.status(400).json({ success: false, message: "A user with this email address already exists." });
     }
+
+    // Verify code against database
+    const record = await VerificationCode.findOne({
+      email: cleanEmail,
+      code: cleanCode
+    });
+
+    if (!record) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification code. Please check your email or request a new code."
+      });
+    }
+
+    if (new Date() > new Date(record.expiresAt)) {
+      await VerificationCode.deleteOne({ _id: record._id });
+      return res.status(400).json({
+        success: false,
+        message: "Verification code has expired. Please request a new code."
+      });
+    }
+
+    // Remove used code immediately
+    await VerificationCode.deleteMany({ email: cleanEmail });
 
     // First registered account can automatically be ADMIN if none exists
     const userCount = await User.countDocuments();
@@ -33,11 +127,11 @@ export const register = async (req, res, next) => {
 
     const user = await User.create({
       name: name.trim(),
-      email: email.toLowerCase().trim(),
+      email: cleanEmail,
       password,
-      college: college || "Campus Institute of Technology",
+      college: college || "Asian School of Business",
       studentId: studentId || "",
-      department: department || "General Studies",
+      department: department || "",
       year: year || "1st Year",
       role,
       isVerified: true
@@ -55,7 +149,7 @@ export const register = async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: "Account created successfully.",
+      message: "Account created and verified successfully.",
       token,
       user: {
         _id: user._id,

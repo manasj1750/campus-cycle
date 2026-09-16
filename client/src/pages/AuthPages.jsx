@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
-import { Recycle, Mail, Lock, ArrowRight, AlertCircle, Sparkles, UserCheck, Shield, KeyRound, CheckCircle, Zap } from "lucide-react";
+import { Recycle, Mail, Lock, ArrowRight, AlertCircle, Sparkles, UserCheck, Shield, KeyRound, CheckCircle, Zap, Send } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import api from "../services/api";
 
 export function Login({ defaultAdmin = false }) {
   const [searchParams] = useSearchParams();
@@ -259,6 +260,7 @@ export function Login({ defaultAdmin = false }) {
 }
 
 export function Register() {
+  const [step, setStep] = useState("DETAILS"); // "DETAILS" | "VERIFY"
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -269,18 +271,48 @@ export function Register() {
     department: "",
     year: "1st Year"
   });
+  const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [sendingCode, setSendingCode] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   const { register } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let timer;
+    if (resendCooldown > 0) {
+      timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async (e) => {
+  // Step 1: Validate details and send verification code to email
+  const handleInitiateRegister = async (e) => {
     e.preventDefault();
     setError("");
+    setInfo("");
+
+    if (!formData.name.trim()) {
+      setError("Please enter your full name.");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError("Please enter your email address.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
@@ -288,11 +320,67 @@ export function Register() {
     }
 
     try {
+      setSendingCode(true);
+      const res = await api.post("/auth/send-verification-code", {
+        email: formData.email,
+        name: formData.name
+      });
+
+      if (res.data.success) {
+        setStep("VERIFY");
+        setResendCooldown(60);
+        setInfo(`A 6-digit verification code has been dispatched to ${formData.email}.`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to send verification code. Please check your email.");
+    } finally {
+      setSendingCode(false);
+    }
+  };
+
+  // Resend code handler
+  const handleResendCode = async () => {
+    if (resendCooldown > 0 || sendingCode) return;
+    setError("");
+    setInfo("");
+    try {
+      setSendingCode(true);
+      const res = await api.post("/auth/send-verification-code", {
+        email: formData.email,
+        name: formData.name
+      });
+      if (res.data.success) {
+        setResendCooldown(60);
+        setInfo(`A fresh verification code has been sent to ${formData.email}.`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to resend code.");
+    } finally {
+      setSendingCode(false);
+    }
+  };
+
+  // Step 2: Submit code and complete registration
+  const handleVerifyAndComplete = async (e) => {
+    e.preventDefault();
+    setError("");
+    setInfo("");
+
+    if (!verificationCode.trim() || verificationCode.trim().length !== 6) {
+      setError("Please enter the complete 6-digit verification code.");
+      return;
+    }
+
+    try {
       setSubmitting(true);
-      await register({ ...formData, college: "Asian School of Business" });
+      await register({
+        ...formData,
+        college: "Asian School of Business",
+        verificationCode: verificationCode.trim()
+      });
       navigate("/dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed. Please check your details.");
+      setError(err.response?.data?.message || "Verification failed. Please check the code and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -302,159 +390,268 @@ export function Register() {
     <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-xl w-full bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-xl space-y-6">
         
-        <div className="text-center space-y-1">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center mx-auto shadow-md shadow-emerald-600/30">
-            <Recycle className="w-7 h-7" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Create an Account
-          </h2>
-          <p className="text-xs text-slate-500">
-            Join the campus second-hand community and start reusing
-          </p>
-        </div>
+        {step === "DETAILS" ? (
+          <>
+            <div className="text-center space-y-1">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center mx-auto shadow-md shadow-emerald-600/30">
+                <Recycle className="w-7 h-7" />
+              </div>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                Create an Account
+              </h2>
+              <p className="text-xs text-slate-500">
+                Join the campus second-hand community and start reusing
+              </p>
+            </div>
 
-        {error && (
-          <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>{error}</span>
+            {error && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleInitiateRegister} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    College / Institution
+                  </label>
+                  <input
+                    type="text"
+                    name="college"
+                    readOnly
+                    value="Asian School of Business"
+                    className="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium cursor-not-allowed select-none focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Student ID / Roll No
+                  </label>
+                  <input
+                    type="text"
+                    name="studentId"
+                    value={formData.studentId}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Department
+                  </label>
+                  <input
+                    type="text"
+                    name="department"
+                    value={formData.department}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Current Year
+                  </label>
+                  <select
+                    name="year"
+                    value={formData.year}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                    <option value="Postgraduate">Postgraduate</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Password (min 6 chars) *
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    minLength={6}
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    Confirm Password *
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    required
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={sendingCode}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                {sendingCode ? (
+                  <span>Sending Verification Code...</span>
+                ) : (
+                  <>
+                    <span>Send Verification Code</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <p className="text-center text-xs text-slate-500">
+              Already have an account?{" "}
+              <Link to="/login" className="font-bold text-emerald-600 hover:underline">
+                Log In
+              </Link>
+            </p>
+          </>
+        ) : (
+          /* STEP 2: VERIFICATION CODE ENTRY */
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-sm">
+                <Mail className="w-7 h-7" />
+              </div>
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                Verify Your Email
+              </h2>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                We've dispatched a 6-digit verification code to:
+              </p>
+              <div className="inline-block bg-slate-100 text-slate-800 font-bold px-3 py-1 rounded-lg text-xs break-all border border-slate-200">
+                {formData.email}
+              </div>
+            </div>
+
+            {info && (
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{info}</span>
+              </div>
+            )}
+
+            {error && (
+              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyAndComplete} className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 text-center">
+                  6-Digit Verification Code *
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoFocus
+                  maxLength={6}
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/[^0-9]/g, ""))}
+                  placeholder="••••••"
+                  className="w-full text-center text-3xl font-mono font-black tracking-[0.4em] py-3 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-emerald-500 focus:bg-white focus:outline-none"
+                />
+                <p className="text-[11px] text-slate-400 text-center mt-2">
+                  Check your inbox and spam folder. Code expires in 10 minutes.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting || verificationCode.trim().length !== 6}
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <span>Verifying & Creating Account...</span>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Verify & Create Account</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("DETAILS");
+                  setError("");
+                  setInfo("");
+                }}
+                className="text-slate-500 hover:text-slate-800 font-semibold"
+              >
+                ← Edit Registration Details
+              </button>
+
+              {resendCooldown > 0 ? (
+                <span className="text-slate-400 font-medium">
+                  Resend code in {resendCooldown}s
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={sendingCode}
+                  className="font-bold text-emerald-600 hover:underline"
+                >
+                  {sendingCode ? "Sending..." : "Resend Verification Code"}
+                </button>
+              )}
+            </div>
           </div>
         )}
 
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                name="name"
-                required
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                College / Institution
-              </label>
-              <input
-                type="text"
-                name="college"
-                readOnly
-                value="Asian School of Business"
-                className="w-full px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium cursor-not-allowed select-none focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Student ID / Roll No
-              </label>
-              <input
-                type="text"
-                name="studentId"
-                value={formData.studentId}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Department
-              </label>
-              <input
-                type="text"
-                name="department"
-                value={formData.department}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Current Year
-              </label>
-              <select
-                name="year"
-                value={formData.year}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-              >
-                <option value="1st Year">1st Year</option>
-                <option value="2nd Year">2nd Year</option>
-                <option value="3rd Year">3rd Year</option>
-                <option value="4th Year">4th Year</option>
-                <option value="Postgraduate">Postgraduate</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Password (min 6 chars) *
-              </label>
-              <input
-                type="password"
-                name="password"
-                required
-                minLength={6}
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Confirm Password *
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                required
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95"
-          >
-            {submitting ? "Registering..." : "Create Account & Join Club"}
-          </button>
-        </form>
-
-        <p className="text-center text-xs text-slate-500">
-          Already have an account?{" "}
-          <Link to="/login" className="font-bold text-emerald-600 hover:underline">
-            Log In
-          </Link>
-        </p>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import express from "express";
 import {
   register,
+  sendVerificationCode,
   login,
   logout,
   getMe,
@@ -12,6 +13,7 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
+router.post("/send-verification-code", sendVerificationCode);
 router.post("/register", register);
 router.post("/login", login);
 router.post("/logout", logout);
