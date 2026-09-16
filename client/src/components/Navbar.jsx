@@ -19,9 +19,11 @@ import {
   Layers,
   ChevronDown,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  Settings
 } from "lucide-react";
 import api from "../services/api";
+import SettingsModal from "./SettingsModal";
 
 export default function Navbar() {
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
@@ -30,6 +32,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -302,6 +305,17 @@ export default function Navbar() {
                             Admin Console
                           </Link>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                            setSettingsModalOpen(true);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left font-medium"
+                        >
+                          <Settings className="w-4 h-4 text-emerald-600" />
+                          Settings
+                        </button>
                         <div className="border-t border-slate-100 my-1"></div>
                         <button
                           onClick={handleLogout}
@@ -414,6 +428,17 @@ export default function Navbar() {
                 </Link>
               )}
               <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setSettingsModalOpen(true);
+                }}
+                className="w-full text-left px-3 py-2 rounded-lg text-base font-medium text-slate-700 hover:bg-slate-100 flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4 text-emerald-600" />
+                Settings
+              </button>
+              <button
                 onClick={() => {
                   handleLogout();
                   setMobileMenuOpen(false);
@@ -520,6 +545,18 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Settings Modal (Theme, Edit Password, Delete Account) */}
+      <SettingsModal
+        isOpen={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
+        user={user}
+        onRequestDeleteAccount={() => {
+          setDeleteConfirmText("");
+          setDeleteError("");
+          setShowDeleteModal(true);
+        }}
+      />
     </header>
   );
 }

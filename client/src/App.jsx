@@ -5,6 +5,7 @@ import { WishlistProvider } from "./context/WishlistContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { SocketProvider } from "./context/SocketContext";
 import { ToastProvider } from "./context/ToastContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 import Navbar from "./components/Navbar";
 import MobileBottomNav from "./components/MobileBottomNav";
@@ -26,12 +27,13 @@ import NotFound from "./pages/NotFound";
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <SocketProvider>
-          <WishlistProvider>
-            <NotificationProvider>
-              <ToastProvider>
-                <div className="flex flex-col min-h-screen bg-[#f8fafc] text-slate-800 w-full max-w-full">
+      <ThemeProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <WishlistProvider>
+              <NotificationProvider>
+                <ToastProvider>
+                  <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-slate-950 text-slate-800 dark:text-slate-100 w-full max-w-full transition-colors duration-200">
                 <Navbar />
                 <main className="flex-1 pb-16 md:pb-0 w-full max-w-full overflow-x-hidden">
                   <Routes>
@@ -88,6 +90,7 @@ export default function App() {
           </WishlistProvider>
         </SocketProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
