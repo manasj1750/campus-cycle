@@ -27,11 +27,11 @@ export default function FilterSidebar({
   ];
 
   return (
-    <aside className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-6">
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+    <aside className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-6">
+      <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-emerald-600" />
-          <h2 className="font-bold text-slate-900 text-base">Filters</h2>
+          <h2 className="font-bold text-slate-900 dark:text-white text-base">Filters</h2>
         </div>
         <button
           onClick={onResetFilters}
@@ -43,38 +43,45 @@ export default function FilterSidebar({
 
       {/* Categories */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">
           Category
         </label>
         <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
           <button
             onClick={() => onCategoryChange("All")}
             className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              !selectedCategory || selectedCategory === "All"
-                ? "bg-emerald-50 text-emerald-700 font-semibold"
-                : "text-slate-600 hover:bg-slate-50"
+              !selectedCategory || selectedCategory.toLowerCase() === "all"
+                ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold"
+                : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
             }`}
           >
             All Categories
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat._id || cat.name}
-              onClick={() => onCategoryChange(cat.name)}
-              className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
-                selectedCategory === cat.name
-                  ? "bg-emerald-50 text-emerald-700 font-semibold"
-                  : "text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <span className="truncate">{cat.name}</span>
-              {cat.productCount > 0 && (
-                <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">
-                  {cat.productCount}
-                </span>
-              )}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const isSelected = selectedCategory?.toLowerCase() === cat.name?.toLowerCase();
+            return (
+              <button
+                key={cat._id || cat.name}
+                onClick={() => onCategoryChange(cat.name)}
+                className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-between ${
+                  isSelected
+                    ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 font-semibold"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span className="truncate">{cat.name}</span>
+                {cat.productCount > 0 && (
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    isSelected
+                      ? "bg-emerald-200/60 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold"
+                      : "text-slate-400 bg-slate-100 dark:bg-slate-800"
+                  }`}>
+                    {cat.productCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 

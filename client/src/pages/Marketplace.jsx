@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { SlidersHorizontal, ArrowUpDown, RefreshCw, Search } from "lucide-react";
+import { SlidersHorizontal, ArrowUpDown, RefreshCw, Search, LayoutGrid } from "lucide-react";
 import api from "../services/api";
 import ProductCard from "../components/ProductCard";
 import FilterSidebar from "../components/FilterSidebar";
@@ -44,6 +44,20 @@ export default function Marketplace() {
   useEffect(() => {
     setSearchInput(search);
   }, [search]);
+
+  // Scroll to and highlight categories section when ?focus=categories is in URL
+  useEffect(() => {
+    if (searchParams.get("focus") === "categories") {
+      const el = document.getElementById("categories-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("ring-2", "ring-emerald-500", "ring-offset-2");
+        setTimeout(() => {
+          el.classList.remove("ring-2", "ring-emerald-500", "ring-offset-2");
+        }, 2500);
+      }
+    }
+  }, [searchParams]);
 
   // Fetch products whenever params change
   useEffect(() => {
@@ -136,6 +150,69 @@ export default function Marketplace() {
       </div>
 
       <SafeCampusExchangeBanner />
+
+      {/* Interactive Category Bar */}
+      <div
+        id="categories-section"
+        className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-xs space-y-3 transition-all"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h2 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm uppercase tracking-wider">
+              Browse by Category
+            </h2>
+          </div>
+          {category && category !== "All" && (
+            <button
+              onClick={() => updateFilter("category", "All")}
+              className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-semibold cursor-pointer"
+            >
+              Show All Categories
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar w-full">
+          <button
+            onClick={() => updateFilter("category", "All")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer ${
+              category === "All" || !category
+                ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+                : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+            }`}
+          >
+            <span>All Items</span>
+          </button>
+          {categories.map((cat) => {
+            const isSelected = category?.toLowerCase() === cat.name?.toLowerCase();
+            return (
+              <button
+                key={cat._id || cat.name}
+                onClick={() => updateFilter("category", isSelected ? "All" : cat.name)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 flex-shrink-0 cursor-pointer ${
+                  isSelected
+                    ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                }`}
+              >
+                <span>{cat.name}</span>
+                {cat.productCount > 0 && (
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      isSelected
+                        ? "bg-white/25 text-white"
+                        : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
+                    }`}
+                  >
+                    {cat.productCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Main Grid with Sidebar Filters */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

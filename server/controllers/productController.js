@@ -45,12 +45,14 @@ export const getProducts = async (req, res, next) => {
       }
     }
 
+const escapeRegex = (str) => (str ? str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") : "");
+
     if (category && category !== "All" && category !== "all") {
-      query.category = new RegExp(`^${category}$`, "i");
+      query.category = new RegExp(`^${escapeRegex(category.trim())}$`, "i");
     }
 
     if (subcategory) {
-      query.subcategory = new RegExp(`^${subcategory}$`, "i");
+      query.subcategory = new RegExp(`^${escapeRegex(subcategory.trim())}$`, "i");
     }
 
     if (condition) {
@@ -62,7 +64,7 @@ export const getProducts = async (req, res, next) => {
     }
 
     if (brand) {
-      query.brand = new RegExp(brand, "i");
+      query.brand = new RegExp(escapeRegex(brand.trim()), "i");
     }
 
     if (featured === "true") {

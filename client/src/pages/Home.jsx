@@ -104,9 +104,12 @@ export default function Home() {
 
   // Filtered Products for Live In-Page Catalog
   const filteredProducts = allProducts.filter((p) => {
+    const pCat = typeof p.category === "object" && p.category !== null
+      ? (p.category.name || p.category._id || "")
+      : (p.category || "");
     const matchesCategory =
       activeCategory === "All" ||
-      (p.category && (p.category.name === activeCategory || p.category._id === activeCategory));
+      pCat.toLowerCase() === activeCategory.toLowerCase();
     
     const matchesCondition =
       catalogCondition === "All" ||
