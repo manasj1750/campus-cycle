@@ -3,11 +3,74 @@ import { Conversation } from "../models/Conversation.js";
 import { Message } from "../models/Message.js";
 import { Product } from "../models/Product.js";
 import { Notification } from "../models/Notification.js";
+import { supabase, isSupabaseConfigured } from "../config/supabase.js";
+import { formatUser, formatProduct, formatMessage, formatConversation } from "../config/supabaseAdapter.js";
 
 // @desc    Get all conversations for logged in user
 // @route   GET /api/messages/conversations
 export const getConversations = async (req, res, next) => {
   try {
+    if (isSupabaseConfigured) {
+      const { data: participations } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", req.user._id);
+
+      if (participations && participations.length > 0) {
+        const convoIds = participations.map((p) => p.conversation_id);
+
+        const { data: convos } = await supabase
+          .from("conversations")
+          .select("*, product:products(*, seller:users(*))")
+          .in("id", convoIds)
+          .order("updated_at", { ascending: false });
+
+        if (Array.isArray(convos)) {
+          const { data: allParts } = await supabase
+            .from("conversation_participants")
+            .select("conversation_id, user:users(*)")
+            .in("conversation_id", convoIds);
+
+          const partsMap = {};
+          if (Array.isArray(allParts)) {
+            allParts.forEach((ap) => {
+              if (!partsMap[ap.conversation_id]) partsMap[ap.conversation_id] = [];
+              if (ap.user) partsMap[ap.conversation_id].push(formatUser(ap.user));
+            });
+          }
+
+          const { data: unreadMsgs } = await supabase
+            .from("messages")
+            .select("conversation_id")
+            .in("conversation_id", convoIds)
+            .eq("receiver_id", req.user._id)
+            .eq("is_read", false);
+
+          const unreadMap = {};
+          if (Array.isArray(unreadMsgs)) {
+            unreadMsgs.forEach((um) => {
+              unreadMap[um.conversation_id] = (unreadMap[um.conversation_id] || 0) + 1;
+            });
+          }
+
+          const enriched = convos.map((c) =>
+            formatConversation({
+              ...c,
+              participants: partsMap[c.id] || [],
+              unread_count: unreadMap[c.id] || 0
+            })
+          );
+
+          return res.json({
+            success: true,
+            conversations: enriched
+          });
+        }
+      } else if (participations && participations.length === 0) {
+        return res.json({ success: true, conversations: [] });
+      }
+    }
+
     const conversations = await Conversation.find({
       participants: req.user._id
     })
@@ -67,6 +130,38 @@ export const getMessages = async (req, res, next) => {
   try {
     const { conversationId } = req.params;
 
+    if (isSupabaseConfigured) {
+      // Verify conversation exists and user is participant
+      const { data: part } = await supabase
+        .from("conversation_participants")
+        .select("id")
+        .eq("conversation_id", conversationId)
+        .eq("user_id", req.user._id)
+        .single();
+
+      if (part) {
+        // Mark as read
+        await supabase
+          .from("messages")
+          .update({ is_read: true })
+          .eq("conversation_id", conversationId)
+          .eq("receiver_id", req.user._id)
+          .eq("is_read", false);
+
+        // Fetch messages with sender
+        const { data: msgs } = await supabase
+          .from("messages")
+          .select("*, sender:users(*)")
+          .eq("conversation_id", conversationId)
+          .order("created_at", { ascending: true });
+
+        return res.json({
+          success: true,
+          messages: Array.isArray(msgs) ? msgs.map(formatMessage) : []
+        });
+      }
+    }
+
     const conversation = await Conversation.findById(conversationId);
     if (!conversation) {
       return res.status(404).json({ success: false, message: "Conversation not found." });
@@ -114,6 +209,87 @@ export const sendMessage = async (req, res, next) => {
 
     if (!text || !text.trim()) {
       return res.status(400).json({ success: false, message: "Message content cannot be empty." });
+    }
+
+    if (isSupabaseConfigured) {
+      let finalConvoId = conversationId;
+      if (!finalConvoId && productId && receiverId) {
+        const { data: existingConvo } = await supabase
+          .from("conversations")
+          .select("id")
+          .eq("product_id", productId)
+          .limit(1)
+          .single();
+
+        if (existingConvo) {
+          finalConvoId = existingConvo.id;
+        } else {
+          const { data: newConvo } = await supabase
+            .from("conversations")
+            .insert({ product_id: productId, last_message_text: text.trim() })
+            .select("id")
+            .single();
+
+          if (newConvo) {
+            finalConvoId = newConvo.id;
+            await supabase.from("conversation_participants").insert([
+              { conversation_id: finalConvoId, user_id: req.user._id },
+              { conversation_id: finalConvoId, user_id: receiverId }
+            ]);
+          }
+        }
+      }
+
+      if (finalConvoId) {
+        let targetReceiver = receiverId;
+        if (!targetReceiver) {
+          const { data: parts } = await supabase
+            .from("conversation_participants")
+            .select("user_id")
+            .eq("conversation_id", finalConvoId)
+            .neq("user_id", req.user._id)
+            .single();
+          targetReceiver = parts?.user_id;
+        }
+
+        const { data: newMsg, error: msgErr } = await supabase
+          .from("messages")
+          .insert({
+            conversation_id: finalConvoId,
+            sender_id: req.user._id,
+            receiver_id: targetReceiver,
+            text: text.trim()
+          })
+          .select("*, sender:users(*)")
+          .single();
+
+        if (msgErr) throw new Error(msgErr.message);
+
+        // Update conversation last message & timestamp
+        await supabase
+          .from("conversations")
+          .update({
+            last_message_text: text.trim(),
+            last_message_sender_id: req.user._id,
+            last_message_at: new Date(),
+            updated_at: new Date()
+          })
+          .eq("id", finalConvoId);
+
+        // Emit via Socket.io if running
+        const io = req.app.get("io");
+        if (io && targetReceiver) {
+          io.to(String(targetReceiver)).emit("new_message", {
+            message: formatMessage(newMsg),
+            conversationId: finalConvoId
+          });
+        }
+
+        return res.status(201).json({
+          success: true,
+          message: formatMessage(newMsg)
+        });
+      }
     }
 
     let convo;
@@ -190,6 +366,58 @@ export const sendMessage = async (req, res, next) => {
 export const startConversation = async (req, res, next) => {
   try {
     const { productId } = req.body;
+
+    if (isSupabaseConfigured) {
+      const { data: product } = await supabase
+        .from("products")
+        .select("*, seller:users(*)")
+        .eq("id", productId)
+        .single();
+
+      if (!product) {
+        return res.status(404).json({ success: false, message: "Product not found." });
+      }
+
+      if (String(product.seller_id) === String(req.user._id)) {
+        return res.status(400).json({ success: false, message: "You cannot message yourself as the seller." });
+      }
+
+      let convoId = null;
+      const { data: existingConvo } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("product_id", productId)
+        .limit(1)
+        .single();
+
+      if (existingConvo) {
+        convoId = existingConvo.id;
+      } else {
+        const { data: newConvo } = await supabase
+          .from("conversations")
+          .insert({ product_id: productId })
+          .select("id")
+          .single();
+
+        if (newConvo) {
+          convoId = newConvo.id;
+          await supabase.from("conversation_participants").insert([
+            { conversation_id: convoId, user_id: req.user._id },
+            { conversation_id: convoId, user_id: product.seller_id }
+          ]);
+        }
+      }
+
+      return res.json({
+        success: true,
+        conversation: {
+          _id: convoId,
+          id: convoId,
+          product: formatProduct(product)
+        }
+      });
+    }
+
     const product = await Product.findById(productId);
 
     if (!product) {

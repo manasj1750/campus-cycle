@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
+import { supabase, isSupabaseConfigured } from "../config/supabase.js";
+import { formatUser } from "../config/supabaseAdapter.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "campuscycle_super_secret_jwt_key_2026";
 
@@ -18,7 +20,18 @@ export const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.id).select("-password");
+    let user = null;
+
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from("users").select("*").eq("id", decoded.id).single();
+      if (data) {
+        user = formatUser(data);
+      }
+    }
+
+    if (!user) {
+      user = await User.findById(decoded.id).select("-password");
+    }
 
     if (!user) {
       return res.status(401).json({ success: false, message: "User account no longer exists." });
@@ -49,7 +62,19 @@ export const optionalAuth = async (req, res, next) => {
 
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET);
-      const user = await User.findById(decoded.id).select("-password");
+      let user = null;
+
+      if (isSupabaseConfigured) {
+        const { data } = await supabase.from("users").select("*").eq("id", decoded.id).single();
+        if (data) {
+          user = formatUser(data);
+        }
+      }
+
+      if (!user) {
+        user = await User.findById(decoded.id).select("-password");
+      }
+
       if (user && !user.isSuspended) {
         req.user = user;
       }

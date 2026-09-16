@@ -27,7 +27,14 @@ export const connectDB = async () => {
     console.log(`[Database] Connected successfully to MongoDB at ${uri.includes("@") ? uri.split("@")[1] : uri}`);
     return mongoose.connection;
   } catch (err) {
-    console.warn(`[Database] External MongoDB connection error: ${err.message}`);
+    // If Supabase is configured, continue running without throwing
+    try {
+      const { isSupabaseConfigured } = await import("./supabase.js");
+      if (isSupabaseConfigured) {
+        console.log("[Database] Supabase PostgreSQL is active. Continuing in primary Supabase mode.");
+        return null;
+      }
+    } catch (e) {}
 
     // On Vercel / serverless or production, do not attempt to start in-memory binary
     if (process.env.VERCEL === "1" || process.env.NODE_ENV === "production") {

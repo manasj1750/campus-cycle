@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { User } from "../models/User.js";
 import { VerificationCode } from "../models/VerificationCode.js";
 import { generateToken } from "../middleware/authMiddleware.js";
@@ -5,6 +6,11 @@ import { Product } from "../models/Product.js";
 import { Wishlist } from "../models/Wishlist.js";
 import { Review } from "../models/Review.js";
 import { sendVerificationEmail } from "../services/emailService.js";
+import { supabase, isSupabaseConfigured } from "../config/supabase.js";
+import { formatUser } from "../config/supabaseAdapter.js";
+
+// In-memory fallback for verification codes (ensures email verification works even without MongoDB)
+const memoryCodes = new Map();
 
 // @desc    Register a new student/user
 // @desc    Generate and send a 6-digit email verification code for account registration
@@ -25,28 +31,48 @@ export const sendVerificationCode = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Please enter a valid email address." });
     }
 
-    // Check if already registered
-    const existing = await User.findOne({ email: cleanEmail });
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "An account with this email address already exists. Please log in instead."
-      });
+    // Check if already registered (Supabase & Mongo)
+    if (isSupabaseConfigured) {
+      const { data: supaUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", cleanEmail)
+        .maybeSingle();
+
+      if (supaUser) {
+        return res.status(400).json({
+          success: false,
+          message: "An account with this email address already exists. Please log in instead."
+        });
+      }
+    } else {
+      const existing = await User.findOne({ email: cleanEmail });
+      if (existing) {
+        return res.status(400).json({
+          success: false,
+          message: "An account with this email address already exists. Please log in instead."
+        });
+      }
     }
 
     // Generate secure random 6-digit numeric verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Delete any previous pending codes for this email
-    await VerificationCode.deleteMany({ email: cleanEmail });
+    // Store in memory
+    memoryCodes.set(cleanEmail, { code, expiresAt });
 
-    // Store new verification code
-    await VerificationCode.create({
-      email: cleanEmail,
-      code,
-      expiresAt
-    });
+    // Also attempt MongoDB storage if available
+    try {
+      await VerificationCode.deleteMany({ email: cleanEmail });
+      await VerificationCode.create({
+        email: cleanEmail,
+        code,
+        expiresAt
+      });
+    } catch (e) {
+      // ignore if Mongo is offline
+    }
 
     // Send email dispatch
     const emailRes = await sendVerificationEmail({
@@ -56,8 +82,10 @@ export const sendVerificationCode = async (req, res, next) => {
     });
 
     if (!emailRes.sent) {
-      // If delivery failed, clean up the pending verification code
-      await VerificationCode.deleteMany({ email: cleanEmail });
+      memoryCodes.delete(cleanEmail);
+      try {
+        await VerificationCode.deleteMany({ email: cleanEmail });
+      } catch (e) {}
       return res.status(500).json({
         success: false,
         message: emailRes.error || "Could not dispatch verification email. Please verify the email address or contact support."
@@ -99,36 +127,105 @@ export const register = async (req, res, next) => {
     const cleanEmail = email.toLowerCase().trim();
     const cleanCode = verificationCode.trim();
 
+    // Verify code: check memoryCodes first, then Mongo
+    let isValidCode = false;
+    const memRecord = memoryCodes.get(cleanEmail);
+    if (memRecord && memRecord.code === cleanCode) {
+      if (new Date() <= new Date(memRecord.expiresAt)) {
+        isValidCode = true;
+      }
+    }
+
+    if (!isValidCode) {
+      try {
+        const record = await VerificationCode.findOne({
+          email: cleanEmail,
+          code: cleanCode
+        });
+        if (record && new Date() <= new Date(record.expiresAt)) {
+          isValidCode = true;
+        }
+      } catch (e) {}
+    }
+
+    if (!isValidCode) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired verification code. Please request a new code."
+      });
+    }
+
+    // Clean up used code
+    memoryCodes.delete(cleanEmail);
+    try {
+      await VerificationCode.deleteMany({ email: cleanEmail });
+    } catch (e) {}
+
+    // Supabase Path
+    if (isSupabaseConfigured) {
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", cleanEmail)
+        .maybeSingle();
+
+      if (existingUser) {
+        return res.status(400).json({ success: false, message: "A user with this email address already exists." });
+      }
+
+      // Count users to determine role
+      const { count } = await supabase.from("users").select("*", { count: "exact", head: true });
+      const role = count === 0 ? "ADMIN" : "USER";
+
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
+      const { data: newUser, error } = await supabase
+        .from("users")
+        .insert([
+          {
+            name: name.trim(),
+            email: cleanEmail,
+            password: hashedPassword,
+            college: college || "Asian School of Business",
+            student_id: studentId || "",
+            department: department || "",
+            year: year || "1st Year",
+            role,
+            is_verified: true
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      const formatted = formatUser(newUser);
+      const token = generateToken(formatted._id);
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        sameSite: "lax"
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Account created and verified successfully.",
+        token,
+        user: formatted
+      });
+    }
+
+    // Fallback to MongoDB
     const existingUser = await User.findOne({ email: cleanEmail });
     if (existingUser) {
       return res.status(400).json({ success: false, message: "A user with this email address already exists." });
     }
 
-    // Verify code against database
-    const record = await VerificationCode.findOne({
-      email: cleanEmail,
-      code: cleanCode
-    });
-
-    if (!record) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid verification code. Please check your email or request a new code."
-      });
-    }
-
-    if (new Date() > new Date(record.expiresAt)) {
-      await VerificationCode.deleteOne({ _id: record._id });
-      return res.status(400).json({
-        success: false,
-        message: "Verification code has expired. Please request a new code."
-      });
-    }
-
-    // Remove used code immediately
-    await VerificationCode.deleteMany({ email: cleanEmail });
-
-    // First registered account can automatically be ADMIN if none exists
     const userCount = await User.countDocuments();
     const role = userCount === 0 ? "ADMIN" : "USER";
 
@@ -188,7 +285,50 @@ export const login = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Please provide an email and password." });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() }).select("+password");
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Supabase Path
+    if (isSupabaseConfigured) {
+      const { data: userRecord } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", cleanEmail)
+        .maybeSingle();
+
+      if (userRecord) {
+        const isMatch = await bcrypt.compare(password, userRecord.password);
+        if (!isMatch) {
+          return res.status(401).json({ success: false, message: "Invalid email or password." });
+        }
+
+        if (userRecord.is_suspended) {
+          return res.status(403).json({
+            success: false,
+            message: `Account is suspended. Reason: ${userRecord.suspension_reason || "Violation of campus marketplace terms."}`
+          });
+        }
+
+        const formatted = formatUser(userRecord);
+        const token = generateToken(formatted._id);
+
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 30 * 24 * 60 * 60 * 1000,
+          sameSite: "lax"
+        });
+
+        return res.json({
+          success: true,
+          message: "Logged in successfully.",
+          token,
+          user: formatted
+        });
+      }
+    }
+
+    // Fallback to MongoDB
+    const user = await User.findOne({ email: cleanEmail }).select("+password");
 
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ success: false, message: "Invalid email or password." });
@@ -248,7 +388,50 @@ export const logout = (req, res) => {
 // @route   GET /api/auth/me
 export const getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id);
+    const userId = req.user._id || req.user.id;
+
+    if (isSupabaseConfigured) {
+      const { data: user } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (user) {
+        const [activeRes, soldRes, wishlistRes, reviewsRes] = await Promise.all([
+          supabase.from("products").select("id", { count: "exact", head: true }).eq("seller_id", userId).in("status", ["AVAILABLE", "APPROVED"]),
+          supabase.from("products").select("id", { count: "exact", head: true }).eq("seller_id", userId).eq("status", "SOLD"),
+          supabase.from("wishlists").select("id", { count: "exact", head: true }).eq("user_id", userId),
+          supabase.from("reviews").select("rating").eq("seller_id", userId)
+        ]);
+
+        const activeListings = activeRes.count || 0;
+        const soldItems = soldRes.count || 0;
+        const wishlistCount = wishlistRes.count || 0;
+        const reviews = reviewsRes.data || [];
+
+        const avgRating = reviews.length
+          ? Number((reviews.reduce((acc, r) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1))
+          : 5.0;
+
+        const formatted = formatUser(user);
+        return res.json({
+          success: true,
+          user: {
+            ...formatted,
+            stats: {
+              activeListings,
+              soldItems,
+              wishlistCount,
+              totalReviews: reviews.length,
+              avgRating
+            }
+          }
+        });
+      }
+    }
+
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found." });
     }
@@ -261,7 +444,7 @@ export const getMe = async (req, res, next) => {
     ]);
 
     const avgRating = reviews.length
-      ? Number((reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1))
+      ? Number((reviews.reduce((acc, r) => acc + (r.rating || 0), 0) / reviews.length).toFixed(1))
       : 5.0;
 
     res.json({
@@ -298,8 +481,36 @@ export const getMe = async (req, res, next) => {
 export const updateProfile = async (req, res, next) => {
   try {
     const { name, bio, college, department, year, location, profilePhoto } = req.body;
+    const userId = req.user._id || req.user.id;
 
-    const user = await User.findById(req.user._id);
+    if (isSupabaseConfigured) {
+      const updateData = {};
+      if (name !== undefined) updateData.name = name.trim();
+      if (bio !== undefined) updateData.bio = bio;
+      if (college !== undefined) updateData.college = college.trim();
+      if (department !== undefined) updateData.department = department.trim();
+      if (year !== undefined) updateData.year = year.trim();
+      if (location !== undefined) updateData.location = location.trim();
+      if (profilePhoto !== undefined) updateData.profile_photo = profilePhoto;
+      updateData.updated_at = new Date().toISOString();
+
+      const { data: updated, error } = await supabase
+        .from("users")
+        .update(updateData)
+        .eq("id", userId)
+        .select()
+        .single();
+
+      if (!error && updated) {
+        return res.json({
+          success: true,
+          message: "Profile updated successfully.",
+          user: formatUser(updated)
+        });
+      }
+    }
+
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found." });
     }
@@ -377,7 +588,41 @@ export const changePassword = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "New passwords do not match." });
     }
 
-    const user = await User.findById(req.user._id).select("+password");
+    const userId = req.user._id || req.user.id;
+
+    if (isSupabaseConfigured) {
+      const { data: user } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (user) {
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+          return res.status(400).json({ success: false, message: "Incorrect current password." });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        const { error } = await supabase
+          .from("users")
+          .update({ password: hashedPassword, updated_at: new Date().toISOString() })
+          .eq("id", userId);
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return res.json({
+          success: true,
+          message: "Password updated successfully!"
+        });
+      }
+    }
+
+    const user = await User.findById(userId).select("+password");
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found." });
     }

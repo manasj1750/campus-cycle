@@ -4,6 +4,8 @@ import { Review } from "../models/Review.js";
 import { Notification } from "../models/Notification.js";
 import { uploadImage } from "../services/imageService.js";
 import { classifyProduct } from "../utils/categoryClassifier.js";
+import { supabase, isSupabaseConfigured } from "../config/supabase.js";
+import { formatProduct } from "../config/supabaseAdapter.js";
 
 // @desc    Get all public products with rich filters, sorting, search, and pagination
 // @route   GET /api/products
@@ -25,6 +27,88 @@ export const getProducts = async (req, res, next) => {
       page = 1,
       limit = 12
     } = req.query;
+
+    if (isSupabaseConfigured) {
+      let sbQuery = supabase
+        .from("products")
+        .select("*, seller:users(*)", { count: "exact" });
+
+      if (status) {
+        sbQuery = sbQuery.eq("status", status);
+      } else if (!seller) {
+        sbQuery = sbQuery.in("status", ["AVAILABLE", "APPROVED", "RESERVED", "SOLD", "PENDING_REVIEW"]);
+      }
+
+      if (seller) {
+        sbQuery = sbQuery.eq("seller_id", seller);
+      }
+
+      if (category && category !== "All" && category !== "all") {
+        sbQuery = sbQuery.ilike("category", category.trim());
+      }
+
+      if (subcategory) {
+        sbQuery = sbQuery.ilike("subcategory", subcategory.trim());
+      }
+
+      if (condition) {
+        sbQuery = sbQuery.eq("condition", condition);
+      }
+
+      if (location && location !== "All") {
+        sbQuery = sbQuery.eq("location", location);
+      }
+
+      if (brand) {
+        sbQuery = sbQuery.ilike("brand", `%${brand.trim()}%`);
+      }
+
+      if (minPrice) {
+        sbQuery = sbQuery.gte("price", Number(minPrice));
+      }
+
+      if (maxPrice) {
+        sbQuery = sbQuery.lte("price", Number(maxPrice));
+      }
+
+      if (search && search.trim() !== "") {
+        const s = search.trim();
+        sbQuery = sbQuery.or(`title.ilike.%${s}%,description.ilike.%${s}%,category.ilike.%${s}%,brand.ilike.%${s}%`);
+      }
+
+      if (sort === "oldest") {
+        sbQuery = sbQuery.order("created_at", { ascending: true });
+      } else if (sort === "price-asc") {
+        sbQuery = sbQuery.order("price", { ascending: true });
+      } else if (sort === "price-desc") {
+        sbQuery = sbQuery.order("price", { ascending: false });
+      } else if (sort === "popular") {
+        sbQuery = sbQuery.order("views_count", { ascending: false });
+      } else {
+        sbQuery = sbQuery.order("created_at", { ascending: false });
+      }
+
+      const pageNum = parseInt(page, 10) || 1;
+      const limitNum = parseInt(limit, 10) || 12;
+      const from = (pageNum - 1) * limitNum;
+      const to = from + limitNum - 1;
+
+      sbQuery = sbQuery.range(from, to);
+
+      const { data, count, error } = await sbQuery;
+
+      if (!error && Array.isArray(data)) {
+        const formatted = data.map(formatProduct);
+        const totalCount = count !== null ? count : formatted.length;
+        return res.json({
+          success: true,
+          products: formatted,
+          page: pageNum,
+          pages: Math.ceil(totalCount / limitNum) || 1,
+          total: totalCount
+        });
+      }
+    }
 
     const query = {};
 
@@ -126,6 +210,46 @@ const escapeRegex = (str) => (str ? str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") :
 // @route   GET /api/products/:id
 export const getProductById = async (req, res, next) => {
   try {
+    if (isSupabaseConfigured) {
+      const { data: p, error } = await supabase
+        .from("products")
+        .select("*, seller:users(*)")
+        .eq("id", req.params.id)
+        .single();
+
+      if (!error && p) {
+        // Increment views safely in background
+        supabase
+          .from("products")
+          .update({ views_count: (p.views_count || 0) + 1 })
+          .eq("id", p.id)
+          .then();
+
+        // Get similar products
+        const { data: similar } = await supabase
+          .from("products")
+          .select("*, seller:users(id, name, college)")
+          .eq("category", p.category)
+          .neq("id", p.id)
+          .in("status", ["AVAILABLE", "APPROVED"])
+          .limit(4);
+
+        const formatted = formatProduct(p);
+        formatted.views = formatted.viewsCount + 1;
+        if (formatted.seller && typeof formatted.seller === "object") {
+          formatted.seller.listingCount = 1;
+          formatted.seller.totalReviews = 1;
+          formatted.seller.avgRating = 5.0;
+        }
+
+        return res.json({
+          success: true,
+          product: formatted,
+          similarProducts: Array.isArray(similar) ? similar.map(formatProduct) : []
+        });
+      }
+    }
+
     const product = await Product.findById(req.params.id).populate(
       "seller",
       "name college department year profilePhoto bio createdAt isVerified"
@@ -248,6 +372,49 @@ export const createProduct = async (req, res, next) => {
       }
     }
 
+    if (isSupabaseConfigured) {
+      const { data: inserted, error: insertErr } = await supabase
+        .from("products")
+        .insert({
+          title: title.trim(),
+          description: description.trim(),
+          price: Number(price),
+          original_price: originalPrice ? Number(originalPrice) : 0,
+          category: finalCategory,
+          subcategory: finalSubcategory,
+          condition,
+          brand: brand ? brand.trim() : "",
+          model: model ? model.trim() : "",
+          purchase_year: purchaseYear ? Number(purchaseYear) : null,
+          images,
+          primary_image: primaryImage || images[0],
+          seller_id: req.user._id,
+          location: location || "Main Campus",
+          tags: Array.isArray(tags) ? tags : (tags ? tags.split(",").map((t) => t.trim()) : []),
+          is_negotiable: isNegotiable !== undefined ? isNegotiable : true,
+          contact_preference: contactPreference || "In-App Chat",
+          status: "AVAILABLE"
+        })
+        .select("*, seller:users(*)")
+        .single();
+
+      if (insertErr) {
+        throw new Error(insertErr.message);
+      }
+
+      let statusMsg = "Listing published immediately.";
+      if (wasAutoFiltered) {
+        statusMsg += ` (Auto-Filtered category to "${finalCategory}")`;
+      }
+
+      return res.status(201).json({
+        success: true,
+        message: statusMsg,
+        autoFiltered: wasAutoFiltered,
+        product: formatProduct(inserted)
+      });
+    }
+
     const product = await Product.create({
       title: title.trim(),
       description: description.trim(),
@@ -308,6 +475,81 @@ export const createProduct = async (req, res, next) => {
 // @route   PUT /api/products/:id
 export const updateProduct = async (req, res, next) => {
   try {
+    if (isSupabaseConfigured) {
+      const { data: existing } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", req.params.id)
+        .single();
+
+      if (existing) {
+        if (String(existing.seller_id) !== String(req.user._id) && req.user.role !== "ADMIN") {
+          return res.status(403).json({ success: false, message: "Not authorized to update this listing." });
+        }
+
+        let finalCat = req.body.category ? req.body.category.trim() : existing.category;
+        let finalSub = req.body.subcategory !== undefined ? req.body.subcategory.trim() : existing.subcategory;
+        let wasAutoFiltered = false;
+
+        if (!req.body.forceCategory && (req.body.title || req.body.description || req.body.category)) {
+          const classification = classifyProduct({
+            title: req.body.title || existing.title,
+            description: req.body.description || existing.description,
+            brand: req.body.brand || existing.brand,
+            tags: req.body.tags || existing.tags,
+            currentCategory: finalCat
+          });
+          if (classification.isMismatch && classification.confidence >= 0.35 && classification.category) {
+            finalCat = classification.category;
+            if (classification.subcategory) finalSub = classification.subcategory;
+            wasAutoFiltered = true;
+          }
+        }
+
+        const updatePayload = {
+          updated_at: new Date()
+        };
+        if (req.body.title) updatePayload.title = req.body.title.trim();
+        if (req.body.description) updatePayload.description = req.body.description.trim();
+        if (req.body.price !== undefined) updatePayload.price = Number(req.body.price);
+        if (req.body.originalPrice !== undefined) updatePayload.original_price = Number(req.body.originalPrice);
+        updatePayload.category = finalCat;
+        updatePayload.subcategory = finalSub;
+        if (req.body.condition) updatePayload.condition = req.body.condition;
+        if (req.body.brand !== undefined) updatePayload.brand = req.body.brand.trim();
+        if (req.body.model !== undefined) updatePayload.model = req.body.model.trim();
+        if (req.body.purchaseYear !== undefined) updatePayload.purchase_year = Number(req.body.purchaseYear) || null;
+        if (req.body.images) updatePayload.images = req.body.images;
+        if (req.body.primaryImage) updatePayload.primary_image = req.body.primaryImage;
+        if (req.body.location) updatePayload.location = req.body.location;
+        if (req.body.tags) updatePayload.tags = Array.isArray(req.body.tags) ? req.body.tags : [];
+        if (req.body.isNegotiable !== undefined) updatePayload.is_negotiable = Boolean(req.body.isNegotiable);
+        if (req.body.contactPreference) updatePayload.contact_preference = req.body.contactPreference;
+        if (req.body.status) updatePayload.status = req.body.status;
+
+        const { data: updated, error: updateErr } = await supabase
+          .from("products")
+          .update(updatePayload)
+          .eq("id", req.params.id)
+          .select("*, seller:users(*)")
+          .single();
+
+        if (updateErr) throw new Error(updateErr.message);
+
+        let updateMsg = "Listing updated successfully.";
+        if (wasAutoFiltered) {
+          updateMsg += ` (Auto-Filtered category to "${finalCat}")`;
+        }
+
+        return res.json({
+          success: true,
+          message: updateMsg,
+          autoFiltered: wasAutoFiltered,
+          product: formatProduct(updated)
+        });
+      }
+    }
+
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
@@ -391,6 +633,26 @@ export const classifyProductEndpoint = async (req, res, next) => {
 // @route   DELETE /api/products/:id
 export const deleteProduct = async (req, res, next) => {
   try {
+    if (isSupabaseConfigured) {
+      const { data: existing } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", req.params.id)
+        .single();
+
+      if (existing) {
+        if (String(existing.seller_id) !== String(req.user._id) && req.user.role !== "ADMIN") {
+          return res.status(403).json({ success: false, message: "Not authorized to delete this listing." });
+        }
+
+        await supabase.from("products").delete().eq("id", req.params.id);
+        return res.json({
+          success: true,
+          message: "Product listing deleted successfully."
+        });
+      }
+    }
+
     const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ success: false, message: "Product not found." });
@@ -420,6 +682,35 @@ export const updateProductStatus = async (req, res, next) => {
 
     if (!allowed.includes(status)) {
       return res.status(400).json({ success: false, message: "Invalid status option." });
+    }
+
+    if (isSupabaseConfigured) {
+      const { data: existing } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", req.params.id)
+        .single();
+
+      if (existing) {
+        if (String(existing.seller_id) !== String(req.user._id) && req.user.role !== "ADMIN") {
+          return res.status(403).json({ success: false, message: "Not authorized to change listing status." });
+        }
+
+        const { data: updated, error: updateErr } = await supabase
+          .from("products")
+          .update({ status, updated_at: new Date() })
+          .eq("id", req.params.id)
+          .select("*, seller:users(*)")
+          .single();
+
+        if (updateErr) throw new Error(updateErr.message);
+
+        return res.json({
+          success: true,
+          message: `Product marked as ${status}.`,
+          product: formatProduct(updated)
+        });
+      }
     }
 
     const product = await Product.findById(req.params.id);

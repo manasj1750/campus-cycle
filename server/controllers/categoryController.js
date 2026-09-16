@@ -1,10 +1,51 @@
 import { Category } from "../models/Category.js";
 import { Product } from "../models/Product.js";
+import { supabase, isSupabaseConfigured } from "../config/supabase.js";
 
 // @desc    Get all categories with dynamic live product counts
 // @route   GET /api/categories
 export const getCategories = async (req, res, next) => {
   try {
+    if (isSupabaseConfigured) {
+      const { data: categories, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name", { ascending: true });
+
+      if (!error && Array.isArray(categories) && categories.length > 0) {
+        const { data: products } = await supabase
+          .from("products")
+          .select("category, status")
+          .in("status", ["AVAILABLE", "APPROVED"]);
+
+        const countMap = {};
+        if (Array.isArray(products)) {
+          products.forEach((p) => {
+            if (p.category) {
+              const k = p.category.toLowerCase();
+              countMap[k] = (countMap[k] || 0) + 1;
+            }
+          });
+        }
+
+        const enriched = categories.map((cat) => ({
+          _id: cat.id,
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug,
+          icon: cat.icon || "Tag",
+          description: cat.description || "",
+          subcategories: Array.isArray(cat.subcategories) ? cat.subcategories : [],
+          productCount: countMap[cat.name.toLowerCase()] || 0
+        }));
+
+        return res.json({
+          success: true,
+          categories: enriched
+        });
+      }
+    }
+
     const categories = await Category.find({ isActive: true }).sort({ name: 1 });
 
     // Aggregate counts of available/approved products per category
