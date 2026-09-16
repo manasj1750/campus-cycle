@@ -30,6 +30,13 @@ export function Login({ defaultAdmin = false }) {
     }
   }, [isAuthenticated, isAdmin, portalMode, navigate]);
 
+  // Display info message from navigation state if redirected (e.g. account deletion)
+  useEffect(() => {
+    if (location.state?.info) {
+      setInfo(location.state.info);
+    }
+  }, [location.state]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");

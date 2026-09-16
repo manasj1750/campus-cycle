@@ -121,3 +121,44 @@ export const getMyListings = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Delete logged in user's own account and cascade associated data
+// @route   DELETE /api/users/me
+export const deleteMyAccount = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // Prevent admin account accidental deletion from student route
+    if (req.user.role === "ADMIN") {
+      return res.status(403).json({
+        success: false,
+        message: "Administrator accounts cannot be deleted from student settings."
+      });
+    }
+
+    // Delete all products listed by this user
+    await Product.deleteMany({ seller: userId });
+
+    // Delete all wishlist entries for this user
+    await Wishlist.deleteMany({ user: userId });
+
+    // Delete offers sent or received by this user
+    await Offer.deleteMany({ $or: [{ buyer: userId }, { seller: userId }] });
+
+    // Delete notifications received by this user
+    await Notification.deleteMany({ recipient: userId });
+
+    // Delete the user record
+    await User.findByIdAndDelete(userId);
+
+    // Clear authentication cookie if present
+    res.clearCookie("token");
+
+    res.json({
+      success: true,
+      message: "Your account and all associated data have been permanently deleted."
+    });
+  } catch (error) {
+    next(error);
+  }
+};
