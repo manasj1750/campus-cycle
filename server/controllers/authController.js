@@ -55,16 +55,18 @@ export const sendVerificationCode = async (req, res, next) => {
       code
     });
 
-    const isDelivered = emailRes.sent === true;
-    const responseMessage = isDelivered
-      ? `A 6-digit verification code has been dispatched to ${cleanEmail}.`
-      : `Email service (SMTP) is not yet configured. Your verification code is: ${code}`;
+    if (!emailRes.sent) {
+      // If delivery failed, clean up the pending verification code
+      await VerificationCode.deleteMany({ email: cleanEmail });
+      return res.status(500).json({
+        success: false,
+        message: emailRes.error || "Could not dispatch verification email. Please verify the email address or contact support."
+      });
+    }
 
     res.json({
       success: true,
-      emailSent: isDelivered,
-      message: responseMessage,
-      devCode: !isDelivered ? code : undefined,
+      message: `A 6-digit verification code has been dispatched to ${cleanEmail}. Please check your inbox and spam folder.`,
       expiresIn: "10 minutes"
     });
   } catch (error) {

@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
  * Configure Nodemailer Transporter
  */
 const getTransporter = () => {
-  // Option 1: Custom SMTP configuration
+  // Option 1: Custom SMTP configuration (e.g. Brevo, Mailgun, Amazon SES)
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -13,18 +13,24 @@ const getTransporter = () => {
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
-      }
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
     });
   }
 
-  // Option 2: Gmail service with App Password (e.g. campuscyclesrc@gmail.com)
+  // Option 2: Gmail service with Google App Password (e.g. campuscyclesrc@gmail.com)
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     return nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
+        user: process.env.EMAIL_USER.trim(),
+        pass: process.env.EMAIL_PASS.replace(/\s+/g, "").trim()
+      },
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
     });
   }
 
@@ -37,11 +43,11 @@ const getTransporter = () => {
  * @param {string} options.to - Recipient email
  * @param {string} options.name - Recipient name
  * @param {string} options.code - 6-digit verification code
- * @returns {Promise<{success: boolean, sent: boolean, devCode?: string}>}
+ * @returns {Promise<{success: boolean, sent: boolean, error?: string}>}
  */
 export const sendVerificationEmail = async ({ to, name, code }) => {
   const transporter = getTransporter();
-  const senderEmail = process.env.EMAIL_USER || process.env.SMTP_USER || "noreply@campuscycle.edu";
+  const senderEmail = process.env.EMAIL_USER ? process.env.EMAIL_USER.trim() : (process.env.SMTP_USER || "noreply@campuscycle.edu");
 
   const emailHtml = `
     <!DOCTYPE html>
@@ -93,16 +99,12 @@ export const sendVerificationEmail = async ({ to, name, code }) => {
   `;
 
   if (!transporter) {
-    // Log prominently for development / debugging
-    console.log("==================================================");
-    console.log(`[EMAIL DISPATCH - DEV SIMULATION]`);
-    console.log(`To: ${to}`);
-    console.log(`Recipient: ${name}`);
-    console.log(`VERIFICATION CODE: ${code}`);
-    console.log(`Expires in: 10 minutes`);
-    console.log("Tip: Set EMAIL_USER and EMAIL_PASS in server/.env for real SMTP delivery.");
-    console.log("==================================================");
-    return { success: true, sent: false, devCode: code };
+    console.error("[EMAIL ERROR] No email transporter configured. EMAIL_USER and EMAIL_PASS must be set in environment variables.");
+    return {
+      success: false,
+      sent: false,
+      error: "Email delivery service is not configured yet on the server. Please set EMAIL_USER and EMAIL_PASS in your Vercel Environment Variables."
+    };
   }
 
   try {
@@ -113,12 +115,10 @@ export const sendVerificationEmail = async ({ to, name, code }) => {
       html: emailHtml
     });
 
-    console.log(`[EMAIL DISPATCH] Verification code sent to ${to} (MessageId: ${info.messageId})`);
+    console.log(`[EMAIL DISPATCH] Verification code successfully sent to ${to} (MessageId: ${info.messageId})`);
     return { success: true, sent: true };
   } catch (error) {
     console.error(`[EMAIL DISPATCH ERROR] Failed sending to ${to}:`, error.message);
-    // Even if transporter fails, log code in console so developer/user isn't locked out
-    console.log(`[VERIFICATION CODE FALLBACK FOR ${to}]: ${code}`);
-    return { success: true, sent: false, devCode: code, error: error.message };
+    return { success: false, sent: false, error: error.message };
   }
 };
