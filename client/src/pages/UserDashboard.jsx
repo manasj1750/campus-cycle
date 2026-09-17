@@ -69,15 +69,21 @@ export default function UserDashboard() {
   const fetchDashboard = async () => {
     try {
       setLoading(true);
-      const [sumRes, listRes, offRes] = await Promise.all([
+      const [sumRes, listRes, offRes] = await Promise.allSettled([
         api.get("/users/dashboard/summary"),
         api.get(`/users/my-listings?status=${listingFilter}`),
         api.get("/offers")
       ]);
 
-      if (sumRes.data.success) setSummary(sumRes.data.summary);
-      if (listRes.data.success) setMyListings(listRes.data.listings || []);
-      if (offRes.data.success) setOffers(offRes.data.offers || []);
+      if (sumRes.status === "fulfilled" && sumRes.value?.data?.success) {
+        setSummary(sumRes.value.data.summary);
+      }
+      if (listRes.status === "fulfilled" && listRes.value?.data?.success) {
+        setMyListings(listRes.value.data.listings || []);
+      }
+      if (offRes.status === "fulfilled" && offRes.value?.data?.success) {
+        setOffers(offRes.value.data.offers || []);
+      }
     } catch (err) {
       console.error("Dashboard error:", err);
     } finally {

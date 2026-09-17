@@ -93,6 +93,66 @@ export const formatConversation = (c) => {
   };
 };
 
+export const formatOffer = (o) => {
+  if (!o) return null;
+  const productObj = o.product ? formatProduct(o.product) : o.product_id;
+  const buyerObj = o.buyer ? formatUser(o.buyer) : o.buyer_id;
+  const sellerObj = o.seller ? formatUser(o.seller) : o.seller_id;
+
+  let status = o.status || "Pending";
+  if (status === "PENDING") status = "Pending";
+  else if (status === "ACCEPTED") status = "Accepted";
+  else if (status === "DECLINED") status = "Rejected";
+  else if (status === "COUNTERED") status = "Countered";
+
+  return {
+    _id: o.id,
+    id: o.id,
+    product: productObj,
+    buyer: buyerObj,
+    seller: sellerObj,
+    amount: Number(o.offer_price || o.amount || 0),
+    counterAmount: Number(o.counter_amount || o.counterAmount || 0),
+    status,
+    message: o.notes || o.message || "",
+    createdAt: o.created_at || o.createdAt,
+    updatedAt: o.updated_at || o.updatedAt
+  };
+};
+
+export const formatNotification = (n) => {
+  if (!n) return null;
+  return {
+    _id: n.id,
+    id: n.id,
+    recipient: n.recipient ? formatUser(n.recipient) : n.recipient_id,
+    sender: n.sender ? formatUser(n.sender) : n.sender_id,
+    type: n.type,
+    title: n.title,
+    message: n.message,
+    link: n.link || "/messages",
+    isRead: Boolean(n.is_read !== undefined ? n.is_read : n.isRead),
+    createdAt: n.created_at || n.createdAt
+  };
+};
+
+export const formatReport = (r) => {
+  if (!r) return null;
+  return {
+    _id: r.id,
+    id: r.id,
+    reporter: r.reporter ? formatUser(r.reporter) : r.reporter_id,
+    targetType: r.target_type || r.targetType || "PRODUCT",
+    targetId: r.target_id || r.targetId,
+    reason: r.reason || "",
+    description: r.details || r.description || "",
+    details: r.details || r.description || "",
+    status: r.status || "PENDING",
+    createdAt: r.created_at || r.createdAt
+  };
+};
+
 export const isUUID = (str) =>
   typeof str === "string" &&
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str.trim());
+
