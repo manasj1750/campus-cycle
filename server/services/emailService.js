@@ -107,6 +107,9 @@ export const sendVerificationEmail = async ({ to, name, code }) => {
     };
   }
 
+  // Log code to server console so developers and admins can inspect it in Vercel Runtime Logs
+  console.log(`[VERIFICATION CODE GENERATED] For ${to}: ${code}`);
+
   try {
     const info = await transporter.sendMail({
       from: `"CampusCycle" <${senderEmail}>`,
@@ -119,6 +122,12 @@ export const sendVerificationEmail = async ({ to, name, code }) => {
     return { success: true, sent: true };
   } catch (error) {
     console.error(`[EMAIL DISPATCH ERROR] Failed sending to ${to}:`, error.message);
-    return { success: false, sent: false, error: error.message };
+
+    let friendlyError = error.message;
+    if (error.message.includes("BadCredentials") || error.message.includes("535")) {
+      friendlyError = "Gmail authentication rejected (535 BadCredentials). You must use a 16-character Google App Password (not your regular Gmail login password). Generate one at https://myaccount.google.com/apppasswords and update EMAIL_PASS in Vercel.";
+    }
+
+    return { success: false, sent: false, error: friendlyError };
   }
 };
