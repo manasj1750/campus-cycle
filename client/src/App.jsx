@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { WishlistProvider } from "./context/WishlistContext";
@@ -7,6 +7,7 @@ import { SocketProvider } from "./context/SocketContext";
 import { ToastProvider } from "./context/ToastContext";
 import { ThemeProvider } from "./context/ThemeContext";
 
+import SplashScreen from "./components/SplashScreen";
 import Navbar from "./components/Navbar";
 import MobileBottomNav from "./components/MobileBottomNav";
 import Footer from "./components/Footer";
@@ -25,8 +26,21 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(() => {
+    // Check if splash was already shown in this session (unless ?splash=1 is requested)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get("splash") === "1") return true;
+    return !sessionStorage.getItem("campus_cycle_splash_seen");
+  });
+
+  const handleSplashComplete = () => {
+    sessionStorage.setItem("campus_cycle_splash_seen", "true");
+    setShowSplash(false);
+  };
+
   return (
     <BrowserRouter>
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
       <ThemeProvider>
         <AuthProvider>
           <SocketProvider>
