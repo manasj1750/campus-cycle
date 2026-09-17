@@ -92,3 +92,7 @@ export const formatConversation = (c) => {
     updatedAt: c.updated_at
   };
 };
+
+export const isUUID = (str) =>
+  typeof str === "string" &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str.trim());

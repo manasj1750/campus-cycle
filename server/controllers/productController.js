@@ -5,7 +5,23 @@ import { Notification } from "../models/Notification.js";
 import { uploadImage } from "../services/imageService.js";
 import { classifyProduct } from "../utils/categoryClassifier.js";
 import { supabase, isSupabaseConfigured } from "../config/supabase.js";
-import { formatProduct } from "../config/supabaseAdapter.js";
+import { formatProduct, isUUID } from "../config/supabaseAdapter.js";
+
+const resolveSellerId = async (user) => {
+  if (!user) return null;
+  const rawId = String(user._id || user.id || "");
+  if (isUUID(rawId)) return rawId;
+
+  if (user.email && isSupabaseConfigured) {
+    const { data } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", user.email.toLowerCase().trim())
+      .maybeSingle();
+    if (data?.id) return data.id;
+  }
+  return rawId;
+};
 
 // @desc    Get all public products with rich filters, sorting, search, and pagination
 // @route   GET /api/products
@@ -210,7 +226,7 @@ const escapeRegex = (str) => (str ? str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") :
 // @route   GET /api/products/:id
 export const getProductById = async (req, res, next) => {
   try {
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(req.params.id)) {
       const { data: p, error } = await supabase
         .from("products")
         .select("*, seller:users(*)")
@@ -373,6 +389,7 @@ export const createProduct = async (req, res, next) => {
     }
 
     if (isSupabaseConfigured) {
+      const sellerId = await resolveSellerId(req.user);
       const { data: inserted, error: insertErr } = await supabase
         .from("products")
         .insert({
@@ -388,7 +405,7 @@ export const createProduct = async (req, res, next) => {
           purchase_year: purchaseYear ? Number(purchaseYear) : null,
           images,
           primary_image: primaryImage || images[0],
-          seller_id: req.user._id,
+          seller_id: sellerId,
           location: location || "Main Campus",
           tags: Array.isArray(tags) ? tags : (tags ? tags.split(",").map((t) => t.trim()) : []),
           is_negotiable: isNegotiable !== undefined ? isNegotiable : true,
@@ -475,7 +492,7 @@ export const createProduct = async (req, res, next) => {
 // @route   PUT /api/products/:id
 export const updateProduct = async (req, res, next) => {
   try {
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(req.params.id)) {
       const { data: existing } = await supabase
         .from("products")
         .select("*")
@@ -633,7 +650,7 @@ export const classifyProductEndpoint = async (req, res, next) => {
 // @route   DELETE /api/products/:id
 export const deleteProduct = async (req, res, next) => {
   try {
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(req.params.id)) {
       const { data: existing } = await supabase
         .from("products")
         .select("*")
@@ -684,7 +701,7 @@ export const updateProductStatus = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Invalid status option." });
     }
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(req.params.id)) {
       const { data: existing } = await supabase
         .from("products")
         .select("*")

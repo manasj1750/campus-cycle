@@ -1,9 +1,75 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
 import { supabase, isSupabaseConfigured } from "../config/supabase.js";
-import { formatUser } from "../config/supabaseAdapter.js";
+import { formatUser, isUUID } from "../config/supabaseAdapter.js";
 
 const JWT_SECRET = process.env.JWT_SECRET || "campuscycle_super_secret_jwt_key_2026";
+
+// Reliably resolve a user from Supabase (by UUID or email) with Mongo fallback
+export const resolveUserFromToken = async (decodedId) => {
+  let user = null;
+
+  // 1. If decodedId is a valid UUID, look up directly in Supabase
+  if (isSupabaseConfigured && isUUID(decodedId)) {
+    const { data } = await supabase.from("users").select("*").eq("id", decodedId).maybeSingle();
+    if (data) {
+      user = formatUser(data);
+    }
+  }
+
+  // 2. If not found or decodedId is a legacy MongoDB ObjectId (24 hex characters)
+  if (!user) {
+    try {
+      const mongoUser = await User.findById(decodedId).select("-password");
+      if (mongoUser) {
+        // If Supabase is active, find the matching user in Supabase by email
+        if (isSupabaseConfigured && mongoUser.email) {
+          const { data: supaUser } = await supabase
+            .from("users")
+            .select("*")
+            .eq("email", mongoUser.email.toLowerCase().trim())
+            .maybeSingle();
+
+          if (supaUser) {
+            user = formatUser(supaUser);
+          } else {
+            // Auto-migrate legacy user record into Supabase so future queries work seamlessly
+            const { data: newSupa } = await supabase
+              .from("users")
+              .insert({
+                name: mongoUser.name,
+                email: mongoUser.email.toLowerCase().trim(),
+                password: mongoUser.password || "$2a$10$defaultHashForLegacySync",
+                college: mongoUser.college || "Asian School of Business",
+                student_id: mongoUser.studentId || "",
+                department: mongoUser.department || "BCA",
+                year: mongoUser.year || "3rd Year",
+                role: mongoUser.role || "USER",
+                profile_photo: mongoUser.profilePhoto || "",
+                bio: mongoUser.bio || "",
+                location: mongoUser.location || "Main Campus",
+                is_verified: mongoUser.isVerified !== undefined ? mongoUser.isVerified : true
+              })
+              .select()
+              .maybeSingle();
+
+            if (newSupa) {
+              user = formatUser(newSupa);
+            }
+          }
+        }
+
+        if (!user) {
+          user = mongoUser;
+        }
+      }
+    } catch (e) {
+      // Ignore if not a valid Mongo ObjectId
+    }
+  }
+
+  return user;
+};
 
 export const protect = async (req, res, next) => {
   try {
@@ -20,18 +86,7 @@ export const protect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET);
-    let user = null;
-
-    if (isSupabaseConfigured) {
-      const { data } = await supabase.from("users").select("*").eq("id", decoded.id).single();
-      if (data) {
-        user = formatUser(data);
-      }
-    }
-
-    if (!user) {
-      user = await User.findById(decoded.id).select("-password");
-    }
+    const user = await resolveUserFromToken(decoded.id);
 
     if (!user) {
       return res.status(401).json({ success: false, message: "User account no longer exists." });
@@ -62,18 +117,7 @@ export const optionalAuth = async (req, res, next) => {
 
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET);
-      let user = null;
-
-      if (isSupabaseConfigured) {
-        const { data } = await supabase.from("users").select("*").eq("id", decoded.id).single();
-        if (data) {
-          user = formatUser(data);
-        }
-      }
-
-      if (!user) {
-        user = await User.findById(decoded.id).select("-password");
-      }
+      const user = await resolveUserFromToken(decoded.id);
 
       if (user && !user.isSuspended) {
         req.user = user;

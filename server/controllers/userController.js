@@ -6,7 +6,23 @@ import { Wishlist } from "../models/Wishlist.js";
 import { Notification } from "../models/Notification.js";
 import { Conversation } from "../models/Conversation.js";
 import { supabase, isSupabaseConfigured } from "../config/supabase.js";
-import { formatUser, formatProduct } from "../config/supabaseAdapter.js";
+import { formatUser, formatProduct, isUUID } from "../config/supabaseAdapter.js";
+
+const resolveUserId = async (user) => {
+  if (!user) return null;
+  const rawId = String(user._id || user.id || "");
+  if (isUUID(rawId)) return rawId;
+
+  if (user.email && isSupabaseConfigured) {
+    const { data } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", user.email.toLowerCase().trim())
+      .maybeSingle();
+    if (data?.id) return data.id;
+  }
+  return rawId;
+};
 
 // @desc    Get public user profile
 // @route   GET /api/users/:id
@@ -14,7 +30,7 @@ export const getUserProfile = async (req, res, next) => {
   try {
     const targetId = req.params.id;
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(targetId)) {
       const { data: userData } = await supabase
         .from("users")
         .select("*")
@@ -120,9 +136,9 @@ export const getUserProfile = async (req, res, next) => {
 // @route   GET /api/users/dashboard/summary
 export const getDashboardSummary = async (req, res, next) => {
   try {
-    const userId = req.user._id || req.user.id;
+    const userId = await resolveUserId(req.user);
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(userId)) {
       const [
         activeRes,
         pendingRes,
@@ -241,9 +257,9 @@ export const getDashboardSummary = async (req, res, next) => {
 export const getMyListings = async (req, res, next) => {
   try {
     const { status } = req.query;
-    const userId = req.user._id || req.user.id;
+    const userId = await resolveUserId(req.user);
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(userId)) {
       let query = supabase
         .from("products")
         .select("*, seller:users(*)")
@@ -295,7 +311,7 @@ export const getMyListings = async (req, res, next) => {
 // @route   DELETE /api/users/me
 export const deleteMyAccount = async (req, res, next) => {
   try {
-    const userId = req.user._id || req.user.id;
+    const userId = await resolveUserId(req.user);
 
     // Prevent admin account accidental deletion from student route
     if (req.user.role === "ADMIN") {
@@ -305,7 +321,7 @@ export const deleteMyAccount = async (req, res, next) => {
       });
     }
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(userId)) {
       await supabase.from("products").delete().eq("seller_id", userId);
       await supabase.from("wishlists").delete().eq("user_id", userId);
       await supabase.from("offers").delete().or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);

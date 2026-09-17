@@ -4,13 +4,13 @@ import { Message } from "../models/Message.js";
 import { Product } from "../models/Product.js";
 import { Notification } from "../models/Notification.js";
 import { supabase, isSupabaseConfigured } from "../config/supabase.js";
-import { formatUser, formatProduct, formatMessage, formatConversation } from "../config/supabaseAdapter.js";
+import { formatUser, formatProduct, formatMessage, formatConversation, isUUID } from "../config/supabaseAdapter.js";
 
 // @desc    Get all conversations for logged in user
 // @route   GET /api/messages/conversations
 export const getConversations = async (req, res, next) => {
   try {
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(req.user._id)) {
       const { data: participations } = await supabase
         .from("conversation_participants")
         .select("conversation_id")
@@ -130,7 +130,7 @@ export const getMessages = async (req, res, next) => {
   try {
     const { conversationId } = req.params;
 
-    if (isSupabaseConfigured) {
+    if (isSupabaseConfigured && isUUID(conversationId) && isUUID(req.user._id)) {
       // Verify conversation exists and user is participant
       const { data: part } = await supabase
         .from("conversation_participants")
@@ -211,9 +211,9 @@ export const sendMessage = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Message content cannot be empty." });
     }
 
-    if (isSupabaseConfigured) {
-      let finalConvoId = conversationId;
-      if (!finalConvoId && productId && receiverId) {
+    if (isSupabaseConfigured && isUUID(req.user._id)) {
+      let finalConvoId = isUUID(conversationId) ? conversationId : null;
+      if (!finalConvoId && productId && receiverId && isUUID(productId) && isUUID(receiverId)) {
         const { data: existingConvo } = await supabase
           .from("conversations")
           .select("id")
