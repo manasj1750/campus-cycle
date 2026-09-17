@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Recycle, Sparkles, Zap, ShieldCheck, ArrowRight } from "lucide-react";
+import { Recycle, Sparkles, ArrowRight, Heart, Leaf, ShieldCheck } from "lucide-react";
 
 export default function SplashScreen({ onComplete }) {
   const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
-  const [statusText, setStatusText] = useState("Connecting to Campus Network...");
+  const [statusText, setStatusText] = useState("Welcome to your campus marketplace...");
 
-  const statusMessages = [
-    { threshold: 0, text: "Connecting to Campus Hub..." },
-    { threshold: 28, text: "Discovering student listings..." },
-    { threshold: 58, text: "Syncing eco-marketplace..." },
-    { threshold: 85, text: "Preparing your college cycle..." },
-    { threshold: 98, text: "Welcome to CampusCycle!" }
+  const friendlyMessages = [
+    { threshold: 0, text: "Welcome to your campus marketplace..." },
+    { threshold: 25, text: "Finding textbooks, cycles & tech..." },
+    { threshold: 55, text: "Connecting student buyers & sellers..." },
+    { threshold: 82, text: "Giving things a second life..." },
+    { threshold: 96, text: "Ready to explore! ✨" }
   ];
 
   const handleFinish = () => {
     setIsExiting(true);
     setTimeout(() => {
       if (onComplete) onComplete();
-    }, 500);
+    }, 400);
   };
 
   useEffect(() => {
-    // Keyboard shortcut to skip splash immediately
     const handleKeyDown = (e) => {
       if (e.key === "Escape" || e.key === " " || e.key === "Enter") {
         handleFinish();
@@ -30,28 +29,24 @@ export default function SplashScreen({ onComplete }) {
     };
     window.addEventListener("keydown", handleKeyDown);
 
-    // Progress counter over ~2.1 seconds
-    const intervalTime = 22; // ms
-    const increment = 1.05; // per tick
-
+    // Smooth ~1.9s duration
     const timer = setInterval(() => {
       setProgress((prev) => {
-        const nextVal = prev + increment;
+        const nextVal = prev + 1.25;
         if (nextVal >= 100) {
           clearInterval(timer);
-          setTimeout(handleFinish, 200);
+          setTimeout(handleFinish, 150);
           return 100;
         }
 
-        // Update status text based on progress
-        const currentMsg = [...statusMessages].reverse().find((m) => nextVal >= m.threshold);
-        if (currentMsg) {
-          setStatusText(currentMsg.text);
+        const msg = [...friendlyMessages].reverse().find((m) => nextVal >= m.threshold);
+        if (msg) {
+          setStatusText(msg.text);
         }
 
         return nextVal;
       });
-    }, intervalTime);
+    }, 22);
 
     return () => {
       clearInterval(timer);
@@ -61,156 +56,115 @@ export default function SplashScreen({ onComplete }) {
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-[#070d18] text-white flex flex-col items-center justify-center overflow-hidden select-none transition-all duration-500 ease-in-out ${
-        isExiting
-          ? "opacity-0 scale-105 pointer-events-none blur-sm"
-          : "opacity-100 scale-100"
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center p-4 select-none bg-gradient-to-b from-emerald-50/95 via-white to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900 transition-all duration-400 ease-out ${
+        isExiting ? "opacity-0 scale-98 pointer-events-none" : "opacity-100 scale-100"
       }`}
-      aria-label="CampusCycle Loading"
     >
-      {/* Background Ambient Glow Orbs */}
-      <div className="absolute top-1/4 -left-20 w-80 sm:w-96 h-80 sm:h-96 bg-emerald-500/15 rounded-full blur-[100px] animate-pulse-glow pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-80 sm:w-96 h-80 sm:h-96 bg-teal-500/15 rounded-full blur-[100px] animate-pulse-glow pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.08)_0%,transparent_70%)] pointer-events-none" />
+      {/* Soft Friendly Ambient Blobs */}
+      <div className="absolute top-12 left-12 w-64 h-64 bg-emerald-200/40 dark:bg-emerald-900/20 rounded-full blur-3xl animate-pulse-glow pointer-events-none" />
+      <div className="absolute bottom-12 right-12 w-72 h-72 bg-teal-200/40 dark:bg-teal-900/20 rounded-full blur-3xl animate-pulse-glow pointer-events-none" />
 
-      {/* Subtle Grid Accent */}
+      {/* Floating Campus Item Bubbles (Playful, student-friendly) */}
+      <div className="absolute top-[18%] left-[15%] hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-sm border border-emerald-100 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 animate-float-slow">
+        <span>🚲</span> Bicycles
+      </div>
       <div
-        className="absolute inset-0 opacity-[0.04] pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
-          backgroundSize: "32px 32px"
-        }}
-      />
+        className="absolute bottom-[22%] left-[18%] hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-sm border border-emerald-100 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 animate-float-slow"
+        style={{ animationDelay: "1.5s" }}
+      >
+        <span>📚</span> Textbooks
+      </div>
+      <div
+        className="absolute top-[22%] right-[16%] hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-sm border border-emerald-100 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 animate-float-slow"
+        style={{ animationDelay: "0.8s" }}
+      >
+        <span>💻</span> Electronics
+      </div>
+      <div
+        className="absolute bottom-[20%] right-[15%] hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 dark:bg-slate-800/80 shadow-sm border border-emerald-100 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 animate-float-slow"
+        style={{ animationDelay: "2.2s" }}
+      >
+        <span>🌱</span> Eco Reused
+      </div>
 
       {/* Skip Button */}
       <button
         type="button"
         onClick={handleFinish}
-        className="absolute top-5 right-5 sm:top-7 sm:right-7 z-20 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-slate-400 hover:text-white bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/40 backdrop-blur-md transition-all duration-200 cursor-pointer shadow-lg group"
+        className="absolute top-5 right-5 sm:top-7 sm:right-7 z-20 flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-500 hover:text-emerald-700 dark:text-slate-400 dark:hover:text-emerald-300 bg-white/80 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 shadow-sm transition-all cursor-pointer group"
       >
         <span>Skip</span>
-        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform text-emerald-400" />
+        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
       </button>
 
-      {/* Main Center Animation Container */}
-      <div className="relative flex flex-col items-center justify-center z-10 px-4 max-w-md w-full text-center">
+      {/* Main Friendly Card */}
+      <div className="relative w-full max-w-sm sm:max-w-md bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl p-8 sm:p-10 shadow-xl shadow-emerald-950/5 border border-emerald-100/80 dark:border-slate-800 flex flex-col items-center text-center z-10 transition-transform">
         
-        {/* Orbital & Ripple Centerpiece */}
-        <div className="relative w-44 h-44 sm:w-52 sm:h-52 flex items-center justify-center mb-6 animate-float-slow">
-          
-          {/* Expanding Pulsing Ripple Rings */}
-          <div className="absolute inset-0 rounded-full border border-emerald-500/30 animate-ripple pointer-events-none" />
-          <div
-            className="absolute inset-2 rounded-full border border-teal-500/20 animate-ripple pointer-events-none"
-            style={{ animationDelay: "1.2s" }}
-          />
-
-          {/* Outer Rotating Dashed Ring */}
-          <svg
-            className="absolute inset-0 w-full h-full animate-spin-slow text-emerald-400/40"
-            viewBox="0 0 200 200"
-          >
-            <circle
-              cx="100"
-              cy="100"
-              r="86"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeDasharray="8 12"
-              strokeLinecap="round"
-            />
-          </svg>
-
-          {/* Inner Counter-Rotating Ring with Accents */}
-          <svg
-            className="absolute inset-4 w-[calc(100%-2rem)] h-[calc(100%-2rem)] animate-spin-reverse-slow text-teal-400/30"
-            viewBox="0 0 160 160"
-          >
-            <circle
-              cx="80"
-              cy="80"
-              r="70"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeDasharray="4 8"
-            />
-          </svg>
-
-          {/* Central 3D Glowing Brand Badge */}
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-400 p-[2.5px] shadow-[0_0_50px_rgba(16,185,129,0.4)] transition-transform duration-300 hover:scale-105">
-            <div className="w-full h-full bg-[#0a1222]/95 backdrop-blur-xl rounded-[22px] flex flex-col items-center justify-center relative overflow-hidden group">
-              {/* Inner ambient shine */}
-              <div className="absolute -top-6 -right-6 w-16 h-16 bg-emerald-400/30 rounded-full blur-xl" />
-              
-              <div className="relative flex items-center justify-center">
-                <Recycle className="w-11 h-11 sm:w-12 sm:h-12 text-emerald-400 animate-spin-slow drop-shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
-                <Sparkles className="w-4 h-4 text-teal-300 absolute -top-1 -right-2 animate-bounce drop-shadow" />
-              </div>
-            </div>
+        {/* Logo Badge (Exact match with website Navbar style) */}
+        <div className="relative mb-5">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/25 animate-float-slow">
+            <Recycle className="w-9 h-9 sm:w-11 sm:h-11 animate-spin-slow" />
+          </div>
+          <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-amber-400 text-slate-900 flex items-center justify-center shadow-md animate-bounce">
+            <Sparkles className="w-3.5 h-3.5 fill-current" />
           </div>
         </div>
 
-        {/* Brand Typography */}
-        <div className="space-y-2 mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/30 backdrop-blur-md shadow-inner mb-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-[11px] font-semibold tracking-wider uppercase text-emerald-300">
-              Campus Student Exchange
+        {/* Brand Name & Tagline */}
+        <div className="space-y-1 mb-6">
+          <div className="flex items-center justify-center gap-1.5">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+              Campus<span className="text-emerald-600">Cycle</span>
+            </h1>
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full">
+              Club
             </span>
           </div>
-
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">
-            Campus<span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200 bg-clip-text text-transparent">Cycle</span>
-          </h1>
-
-          <p className="text-sm sm:text-base font-medium text-slate-300/90 tracking-wide">
-            Give Your Things a Second Life.
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            Give Your Things a Second Life
           </p>
         </div>
 
-        {/* Progress Bar & Status */}
-        <div className="w-full max-w-xs sm:max-w-sm space-y-2.5">
-          {/* Glowing Track */}
-          <div className="h-2 w-full bg-slate-900/90 rounded-full p-0.5 border border-slate-800/80 backdrop-blur-md shadow-inner overflow-hidden relative">
+        {/* Friendly Progress Bar */}
+        <div className="w-full space-y-2 mb-6">
+          <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/60 dark:border-slate-700/60">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-300 shadow-[0_0_14px_rgba(52,211,153,0.9)] transition-all duration-100 ease-out relative"
+              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-100 ease-out"
               style={{ width: `${Math.min(100, Math.max(5, progress))}%` }}
-            >
-              {/* Shimmer light pass */}
-              <div className="absolute inset-0 bg-white/25 rounded-full animate-pulse" />
-            </div>
+            />
           </div>
 
-          {/* Micro Information */}
-          <div className="flex items-center justify-between text-xs px-1">
-            <span className="text-slate-400 font-medium tracking-wide transition-all duration-200 truncate pr-2">
+          <div className="flex items-center justify-between text-xs px-0.5">
+            <span className="text-slate-500 dark:text-slate-400 font-medium truncate">
               {statusText}
             </span>
-            <span className="text-emerald-400 font-mono font-bold tracking-tight">
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold font-mono">
               {Math.round(progress)}%
             </span>
           </div>
         </div>
 
-        {/* Feature Badges Footer */}
-        <div className="mt-10 flex items-center justify-center gap-3 sm:gap-4 text-[11px] sm:text-xs text-slate-400 font-medium">
-          <div className="flex items-center gap-1.5 bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-800/60">
-            <span className="text-emerald-400">🌱</span>
+        {/* Campus Feature Pills */}
+        <div className="grid grid-cols-3 gap-2 w-full pt-4 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-medium text-slate-600 dark:text-slate-400">
+          <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+            <Leaf className="w-4 h-4 text-emerald-600" />
             <span>Zero Waste</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-800/60">
-            <Zap className="w-3 h-3 text-amber-400" />
-            <span>Peer to Peer</span>
+          <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+            <ShieldCheck className="w-4 h-4 text-teal-600" />
+            <span>Student Only</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-slate-900/50 px-2.5 py-1 rounded-lg border border-slate-800/60">
-            <ShieldCheck className="w-3 h-3 text-teal-400" />
-            <span>Verified Students</span>
+          <div className="flex flex-col items-center gap-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+            <Heart className="w-4 h-4 text-rose-500" />
+            <span>Campus Resale</span>
           </div>
         </div>
 
+      </div>
+
+      {/* Bottom Campus Tagline */}
+      <div className="mt-6 text-xs text-slate-400 dark:text-slate-500 font-medium tracking-wide">
+        Asian School of Business • Student Marketplace
       </div>
     </div>
   );
