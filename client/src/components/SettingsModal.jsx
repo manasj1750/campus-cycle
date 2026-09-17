@@ -11,10 +11,12 @@ import {
   AlertCircle,
   CheckCircle,
   Eye,
-  EyeOff
+  EyeOff,
+  User
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import api from "../services/api";
+import ProfilePhotoUploader from "./ProfilePhotoUploader";
 
 export default function SettingsModal({ isOpen, onClose, user, onRequestDeleteAccount }) {
   const { theme, setTheme } = useTheme();
@@ -99,7 +101,21 @@ export default function SettingsModal({ isOpen, onClose, user, onRequestDeleteAc
           </button>
         </div>
 
-        {/* SECTION 1: THEME OPTION */}
+        {/* SECTION 1: PROFILE PICTURE */}
+        <div className="space-y-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Profile Photo</span>
+          </div>
+
+          <ProfilePhotoUploader
+            currentPhoto={user?.profilePhoto}
+            userName={user?.name}
+            autoSave={true}
+          />
+        </div>
+
+        {/* SECTION 2: THEME OPTION */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
             <Sun className="w-4 h-4 text-amber-500" />

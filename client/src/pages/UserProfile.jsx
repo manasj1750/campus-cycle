@@ -7,16 +7,22 @@ import {
   CheckCircle2,
   Calendar,
   MapPin,
-  Star
+  Star,
+  Camera,
+  Edit
 } from "lucide-react";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import ProductCard from "../components/ProductCard";
 import RatingStars from "../components/RatingStars";
 
 export default function UserProfile() {
   const { id } = useParams();
+  const { user: currentUser } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const isOwnProfile = currentUser && (currentUser._id === id || currentUser.id === id);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,25 +69,55 @@ export default function UserProfile() {
       {/* Profile Card */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex items-center gap-5">
-          {user.profilePhoto ? (
+          {isOwnProfile ? (
+            <Link
+              to="/dashboard?tab=settings"
+              className="relative group flex-shrink-0 cursor-pointer"
+              title="Change your profile picture"
+            >
+              {user.profilePhoto ? (
+                <img
+                  src={user.profilePhoto}
+                  alt={user.name}
+                  className="w-20 h-20 rounded-2xl object-cover ring-4 ring-emerald-500/20 group-hover:opacity-90 transition-opacity"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-2xl bg-emerald-100 text-emerald-800 text-3xl font-black flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                  {user.name?.charAt(0) || "U"}
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/30 group-hover:scale-110 transition-transform">
+                <Camera className="w-4 h-4" />
+              </div>
+            </Link>
+          ) : user.profilePhoto ? (
             <img
               src={user.profilePhoto}
               alt={user.name}
-              className="w-20 h-20 rounded-2xl object-cover ring-4 ring-emerald-500/20"
+              className="w-20 h-20 rounded-2xl object-cover ring-4 ring-emerald-500/20 flex-shrink-0"
             />
           ) : (
-            <div className="w-20 h-20 rounded-2xl bg-emerald-100 text-emerald-800 text-3xl font-black flex items-center justify-center">
+            <div className="w-20 h-20 rounded-2xl bg-emerald-100 text-emerald-800 text-3xl font-black flex items-center justify-center flex-shrink-0">
               {user.name?.charAt(0) || "U"}
             </div>
           )}
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-black text-slate-900">{user.name}</h1>
               {user.isVerified && (
                 <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                   Verified
                 </span>
+              )}
+              {isOwnProfile && (
+                <Link
+                  to="/dashboard?tab=settings"
+                  className="px-2.5 py-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold flex items-center gap-1 transition-colors"
+                >
+                  <Edit className="w-3 h-3" />
+                  <span>Edit Profile & Photo</span>
+                </Link>
               )}
             </div>
             <p className="text-xs text-slate-500 mt-1">

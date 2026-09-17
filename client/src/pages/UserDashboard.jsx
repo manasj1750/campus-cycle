@@ -20,12 +20,14 @@ import {
   Eye,
   Shield,
   ArrowRight,
-  LogOut
+  LogOut,
+  Camera
 } from "lucide-react";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import RatingStars from "../components/RatingStars";
 import EmptyState from "../components/EmptyState";
+import ProfilePhotoUploader from "../components/ProfilePhotoUploader";
 import { formatProductImage, handleImageError } from "../utils/imageUtils";
 import { COLLEGE_DEPARTMENTS } from "./AuthPages";
 
@@ -211,17 +213,26 @@ export default function UserDashboard() {
       {/* Top Banner */}
       <div className="bg-white rounded-3xl border border-slate-200 p-4 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-full overflow-hidden">
         <div className="flex items-center gap-4">
-          {user?.profilePhoto ? (
-            <img
-              src={user.profilePhoto}
-              alt={user.name}
-              className="w-16 h-16 rounded-2xl object-cover ring-2 ring-emerald-500/20"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-800 text-2xl font-black flex items-center justify-center">
-              {user?.name?.charAt(0) || "U"}
+          <div
+            onClick={() => handleTabChange("settings")}
+            className="relative group cursor-pointer flex-shrink-0"
+            title="Click to change profile picture"
+          >
+            {user?.profilePhoto ? (
+              <img
+                src={user.profilePhoto}
+                alt={user.name}
+                className="w-16 h-16 rounded-2xl object-cover ring-2 ring-emerald-500/20 group-hover:opacity-90 transition-opacity"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-800 text-2xl font-black flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                {user?.name?.charAt(0) || "U"}
+              </div>
+            )}
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/30 group-hover:scale-110 transition-transform">
+              <Camera className="w-3.5 h-3.5" />
             </div>
-          )}
+          </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-black text-slate-900">{user?.name}</h1>
@@ -565,8 +576,17 @@ export default function UserDashboard() {
 
       {/* TAB 3: SETTINGS */}
       {activeTab === "settings" && (
-        <div className="max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Profile & Campus Settings</h3>
+        <div className="max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-white">Profile & Campus Settings</h3>
+
+          {/* Profile Photo Uploader Section */}
+          <div className="pb-6 border-b border-slate-100 dark:border-slate-800">
+            <ProfilePhotoUploader
+              currentPhoto={user?.profilePhoto}
+              userName={user?.name}
+              autoSave={true}
+            />
+          </div>
 
           {settingsSuccess && (
             <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 text-xs font-bold rounded-xl mb-4">
