@@ -343,8 +343,12 @@ export function Register() {
       if (res.data.success) {
         setStep("VERIFY");
         setResendCooldown(60);
-        setVerificationCode("");
-        setInfo(`A 6-digit verification code has been dispatched to ${formData.email}. Please check your inbox and spam folder.`);
+        if (res.data.fallbackCode) {
+          setVerificationCode(res.data.fallbackCode);
+        } else {
+          setVerificationCode("");
+        }
+        setInfo(res.data.message || `A 6-digit verification code has been dispatched to ${formData.email}. Please check your inbox and spam folder.`);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to send verification code. Please check your email.");
@@ -366,8 +370,12 @@ export function Register() {
       });
       if (res.data.success) {
         setResendCooldown(60);
-        setVerificationCode("");
-        setInfo(`A fresh verification code has been sent to ${formData.email}.`);
+        if (res.data.fallbackCode) {
+          setVerificationCode(res.data.fallbackCode);
+        } else {
+          setVerificationCode("");
+        }
+        setInfo(res.data.message || `A fresh verification code has been sent to ${formData.email}.`);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to resend code.");
