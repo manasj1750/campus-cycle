@@ -120,10 +120,10 @@ export default function Marketplace() {
       {/* Page Title & Search Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             Campus Marketplace
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Showing {totalCount} verified items available on campus
           </p>
         </div>
@@ -137,12 +137,12 @@ export default function Marketplace() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Search in marketplace..."
-              className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-xs"
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold shadow-xs cursor-pointer"
           >
             Search
           </button>
@@ -237,28 +237,28 @@ export default function Marketplace() {
         <div className="lg:col-span-9 space-y-6">
           
           {/* Controls Bar: Mobile filter trigger & Sort dropdown */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-3.5 flex items-center justify-between shadow-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-3.5 flex items-center justify-between shadow-xs transition-colors">
             <button
               onClick={() => setMobileFilterOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl"
+              className="lg:hidden flex items-center gap-2 px-3.5 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl cursor-pointer"
             >
-              <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
+              <SlidersHorizontal className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Filters & Categories</span>
             </button>
 
-            <span className="text-xs text-slate-500 hidden sm:inline">
+            <span className="text-xs text-slate-500 dark:text-slate-400 hidden sm:inline">
               Page {page} of {totalPages}
             </span>
 
             {/* Sorting Select */}
             <div className="flex items-center gap-2 ml-auto">
               <ArrowUpDown className="w-4 h-4 text-slate-400" />
-              <label htmlFor="sortSelect" className="text-xs text-slate-500 font-medium">Sort:</label>
+              <label htmlFor="sortSelect" className="text-xs text-slate-500 dark:text-slate-400 font-medium">Sort:</label>
               <select
                 id="sortSelect"
                 value={sort}
                 onChange={(e) => updateFilter("sort", e.target.value)}
-                className="text-xs font-semibold bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                className="text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -274,32 +274,32 @@ export default function Marketplace() {
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
               <span className="text-xs text-slate-400 whitespace-nowrap">Active filters:</span>
               {search && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/60 whitespace-nowrap">
                   Search: "{search}"
-                  <button onClick={() => updateFilter("search", "")} className="hover:text-rose-600">×</button>
+                  <button onClick={() => updateFilter("search", "")} className="hover:text-rose-600 cursor-pointer">×</button>
                 </span>
               )}
               {category !== "All" && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/60 whitespace-nowrap">
                   Category: {category}
-                  <button onClick={() => updateFilter("category", "")} className="hover:text-rose-600">×</button>
+                  <button onClick={() => updateFilter("category", "")} className="hover:text-rose-600 cursor-pointer">×</button>
                 </span>
               )}
               {condition && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/60 whitespace-nowrap">
                   Condition: {condition}
-                  <button onClick={() => updateFilter("condition", "")} className="hover:text-rose-600">×</button>
+                  <button onClick={() => updateFilter("condition", "")} className="hover:text-rose-600 cursor-pointer">×</button>
                 </span>
               )}
               {location !== "All" && (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-lg border border-emerald-200 whitespace-nowrap">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/60 whitespace-nowrap">
                   Location: {location}
-                  <button onClick={() => updateFilter("location", "")} className="hover:text-rose-600">×</button>
+                  <button onClick={() => updateFilter("location", "")} className="hover:text-rose-600 cursor-pointer">×</button>
                 </span>
               )}
               <button
                 onClick={resetFilters}
-                className="text-xs text-rose-600 hover:underline font-medium ml-2 whitespace-nowrap"
+                className="text-xs text-rose-600 dark:text-rose-400 hover:underline font-medium ml-2 whitespace-nowrap cursor-pointer"
               >
                 Clear all
               </button>

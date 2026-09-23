@@ -3,22 +3,22 @@ import { ShieldAlert, MapPin, CheckCircle } from "lucide-react";
 
 export default function SafeCampusExchangeBanner() {
   return (
-    <div className="bg-emerald-50/90 border border-emerald-200 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full max-w-full overflow-hidden">
+    <div className="bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl p-4 sm:p-5 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full max-w-full overflow-hidden transition-colors">
       <div className="flex items-start gap-3.5">
         <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
           <ShieldAlert className="w-5 h-5" />
         </div>
         <div>
-          <h4 className="font-bold text-slate-900 text-sm sm:text-base">
+          <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
             CampusCycle Safe Exchange Protocol
           </h4>
-          <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed">
             All exchanges happen peer-to-peer on campus. Inspect electronics and course materials in person before payment (Cash or UPI).
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-800 bg-white border border-emerald-200 px-3 py-2 rounded-xl shadow-xs w-full sm:w-auto">
-        <MapPin className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+      <div className="flex items-center gap-2.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300 bg-white dark:bg-slate-900 border border-emerald-200 dark:border-emerald-800/70 px-3 py-2 rounded-xl shadow-xs w-full sm:w-auto">
+        <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
         <span>Designated Safe Zones: Central Library & Student Union</span>
       </div>
     </div>

@@ -47,7 +47,7 @@ export default function App() {
             <WishlistProvider>
               <NotificationProvider>
                 <ToastProvider>
-                  <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-slate-950 text-slate-800 dark:text-slate-100 w-full max-w-full transition-colors duration-200">
+                  <div className="flex flex-col min-h-screen bg-[#f8fafc] dark:bg-[#0b0f17] text-slate-800 dark:text-slate-100 w-full max-w-full transition-colors duration-200">
                 <Navbar />
                 <main className="flex-1 pb-16 md:pb-0 w-full max-w-full overflow-x-hidden">
                   <Routes>

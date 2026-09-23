@@ -27,17 +27,17 @@ export default function ProductCard({ product }) {
   const getConditionBadge = (condition) => {
     switch (condition) {
       case "Like New":
-        return "bg-emerald-50 text-emerald-700 border-emerald-200";
+        return "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60";
       case "Excellent":
-        return "bg-teal-50 text-teal-700 border-teal-200";
+        return "bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800/60";
       case "Good":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60";
       case "Fair":
-        return "bg-amber-50 text-amber-700 border-amber-200";
+        return "bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60";
       case "Needs Repair":
-        return "bg-rose-50 text-rose-700 border-rose-200";
+        return "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60";
       default:
-        return "bg-slate-50 text-slate-700 border-slate-200";
+        return "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700";
     }
   };
 
@@ -161,7 +161,7 @@ export default function ProductCard({ product }) {
                 className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover"
               />
             ) : null}
-            <span className="font-medium text-slate-700 max-w-[60px] sm:max-w-[80px] truncate">
+            <span className="font-medium text-slate-700 dark:text-slate-300 max-w-[60px] sm:max-w-[80px] truncate">
               {product.seller?.name?.split(" ")[0] || "Student"}
             </span>
           </div>

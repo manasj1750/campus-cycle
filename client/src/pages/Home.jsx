@@ -321,24 +321,24 @@ export default function Home() {
     <div className="space-y-12 sm:space-y-16 pb-20 w-full max-w-full overflow-x-hidden">
       
       {/* 1. HERO SECTION */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/80 via-white to-slate-50 pt-8 pb-16 md:pt-14 md:pb-20 border-b border-slate-200">
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/80 via-white to-slate-50 dark:from-[#0b0f17] dark:via-[#0c1626] dark:to-[#0b0f17] pt-8 pb-16 md:pt-14 md:pb-20 border-b border-slate-200 dark:border-slate-800/80 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             
             {/* Left Copy */}
             <div className="lg:col-span-7 space-y-5 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-300 text-emerald-800 text-xs font-bold uppercase tracking-wider shadow-xs">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider shadow-xs">
                 <Leaf className="w-3.5 h-3.5" />
                 <span>College Social Responsibility Club Initiative</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.12]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-[1.12]">
                 Give Your Things <br className="hidden sm:block" />
-                a <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500">Second Life.</span>
+                a <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-300">Second Life.</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed">
                 Everything in one college marketplace. Buy affordable textbooks, laptops, bikes, and dorm gear from verified campus peers, or sell what you no longer need.
               </p>
 
@@ -346,21 +346,21 @@ export default function Home() {
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-1">
                 <button
                   onClick={() => scrollToSection("marketplace")}
-                  className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2"
+                  className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
                 >
                   <Tag className="w-4 h-4" />
                   <span>Explore Marketplace</span>
                 </button>
                 <Link
                   to={isAuthenticated ? "/sell" : "/login"}
-                  className="px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-sm shadow-xs transition-all active:scale-95 flex items-center gap-2"
+                  className="px-6 py-3 rounded-2xl bg-white hover:bg-slate-50 dark:bg-slate-800/90 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-700 font-bold text-sm shadow-xs transition-all active:scale-95 flex items-center gap-2"
                 >
-                  <Plus className="w-4 h-4 text-emerald-600" />
+                  <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Sell an Item</span>
                 </Link>
                 <button
                   onClick={() => scrollToSection("calculator")}
-                  className="px-5 py-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold text-sm border border-emerald-200 transition-all flex items-center gap-2"
+                  className="px-5 py-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-semibold text-sm border border-emerald-200 dark:border-emerald-800 transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <Calculator className="w-4 h-4" />
                   <span>Impact Calculator</span>
@@ -368,17 +368,17 @@ export default function Home() {
               </div>
 
               {/* Campus Badges */}
-              <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-semibold text-slate-500">
+              <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Verified College Students
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Zero Platform Commission
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   Safe On-Campus Handover
                 </span>
               </div>
@@ -717,36 +717,36 @@ export default function Home() {
           </div>
 
           {/* Quick Anchor Navigation Bar */}
-          <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs font-bold text-slate-600">
-            <span className="text-slate-400 uppercase tracking-wider hidden sm:inline whitespace-nowrap">Jump To Section:</span>
+          <div className="mt-8 sm:mt-10 pt-5 sm:pt-6 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs font-bold text-slate-600 dark:text-slate-400">
+            <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider hidden sm:inline whitespace-nowrap">Jump To Section:</span>
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto py-1 min-w-0">
               <button
                 onClick={() => scrollToSection("marketplace")}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors whitespace-nowrap"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-transparent dark:border-slate-700/60 transition-colors whitespace-nowrap cursor-pointer"
               >
                 🛍️ Live Marketplace
               </button>
               <button
                 onClick={() => scrollToSection("calculator")}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-transparent dark:border-slate-700/60 transition-colors cursor-pointer"
               >
                 🌿 Impact Calculator
               </button>
               <button
                 onClick={() => scrollToSection("safe-zones")}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-transparent dark:border-slate-700/60 transition-colors cursor-pointer"
               >
                 🛡️ Safe Campus Zones
               </button>
               <button
                 onClick={() => scrollToSection("how-it-works")}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-transparent dark:border-slate-700/60 transition-colors cursor-pointer"
               >
                 ⚡ How It Works
               </button>
               <button
                 onClick={() => scrollToSection("club")}
-                className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-300 border border-transparent dark:border-slate-700/60 transition-colors cursor-pointer"
               >
                 🤝 About Club
               </button>
@@ -758,31 +758,31 @@ export default function Home() {
 
       {/* 2. FAST ACCESS / 1-CLICK AUTH BAR */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="bg-white dark:bg-slate-900/95 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-slate-950/50 flex flex-col md:flex-row items-center justify-between gap-4 transition-colors">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200/50 dark:border-emerald-800/50 flex items-center justify-center font-bold">
                 {user?.name?.[0] || "U"}
               </div>
               <div>
-                <p className="text-sm font-bold text-slate-900">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
                   Welcome back, {user?.name}! ({user?.email})
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Campus Member • {user?.college || "Campus Institute"} • {user?.role || "USER"}
                 </p>
               </div>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/50 flex items-center justify-center flex-shrink-0">
                 <Recycle className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-slate-900">
+                <p className="text-sm font-bold text-slate-900 dark:text-white">
                   Ready to sell or buy on campus?
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Join verified college peers to buy, sell, or reuse pre-owned campus essentials.
                 </p>
               </div>
@@ -801,13 +801,13 @@ export default function Home() {
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors"
                 >
                   My Dashboard
                 </Link>
                 <Link
                   to="/messages"
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors"
                 >
                   Messages
                 </Link>
@@ -816,13 +816,13 @@ export default function Home() {
               <>
                 <Link
                   to="/products"
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors"
+                  className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors"
                 >
                   Browse Marketplace
                 </Link>
                 <Link
                   to="/login"
-                  className="px-3.5 py-2 text-xs font-bold text-slate-700 hover:text-emerald-700 transition-colors"
+                  className="px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
                 >
                   Sign In
                 </Link>
@@ -844,21 +844,21 @@ export default function Home() {
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
           <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Complete Campus Marketplace</span>
             </div>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               Browse & Filter All Items
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
               Real-time campus listings with instant category filtering and search
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-500">
-              Showing <span className="text-emerald-700 font-bold">{filteredProducts.length}</span> items
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Showing <span className="text-emerald-700 dark:text-emerald-400 font-bold">{filteredProducts.length}</span> items
             </span>
             <Link
               to={isAuthenticated ? "/sell" : "/login"}
@@ -871,7 +871,7 @@ export default function Home() {
         </div>
 
         {/* Live Filter Controls Bar */}
-        <div className="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-sm space-y-4 mb-6 w-full max-w-full overflow-hidden">
+        <div className="bg-white dark:bg-slate-900/90 rounded-2xl p-3 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 mb-6 w-full max-w-full overflow-hidden transition-colors">
           
           {/* Search + Sort + Condition Controls */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
@@ -884,12 +884,12 @@ export default function Home() {
                 value={catalogSearch}
                 onChange={(e) => setCatalogSearch(e.target.value)}
                 placeholder="Search laptops, books, bikes, furniture, calculators..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-colors"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-800 transition-colors"
               />
               {catalogSearch && (
                 <button
                   onClick={() => setCatalogSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-bold"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold cursor-pointer"
                 >
                   ✕
                 </button>
@@ -901,7 +901,7 @@ export default function Home() {
               <select
                 value={catalogCondition}
                 onChange={(e) => setCatalogCondition(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 <option value="All">All Conditions</option>
                 <option value="Like New">Like New</option>
@@ -915,7 +915,7 @@ export default function Home() {
               <select
                 value={catalogSort}
                 onChange={(e) => setCatalogSort(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 <option value="newest">Newest First</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -930,10 +930,10 @@ export default function Home() {
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar pt-1 w-full max-w-full min-w-0">
             <button
               onClick={() => setActiveCategory("All")}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
                 activeCategory === "All"
                   ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
-                  : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
               }`}
             >
               All Items
@@ -942,10 +942,10 @@ export default function Home() {
               <button
                 key={c._id || c.name}
                 onClick={() => setActiveCategory(c.name)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
                   activeCategory === c.name
                     ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/30"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                    : "bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 <span>{c.name}</span>
@@ -965,15 +965,15 @@ export default function Home() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 max-w-md mx-auto space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-xs">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-800 max-w-md mx-auto space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-xs">
               <Recycle className="w-7 h-7" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {allProducts.length === 0 ? "No Items Listed Yet" : "No matching items found"}
               </h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs mx-auto">
                 {allProducts.length === 0
                   ? "Be the first on campus to list your books, cycles, electronics, or dorm essentials for sale!"
                   : "Try clearing search terms or selecting a different category."}
@@ -994,7 +994,7 @@ export default function Home() {
                   setCatalogSearch("");
                   setCatalogCondition("All");
                 }}
-                className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -1180,16 +1180,16 @@ export default function Home() {
       </section>
 
       {/* 6. HOW IT WORKS */}
-      <section id="how-it-works" className="bg-slate-100/70 py-16 border-y border-slate-200 scroll-mt-20">
+      <section id="how-it-works" className="bg-slate-100/70 dark:bg-slate-900/40 py-16 border-y border-slate-200 dark:border-slate-800/80 scroll-mt-20 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-widest text-emerald-700">
+            <span className="text-xs font-bold uppercase tracking-widest text-emerald-700 dark:text-emerald-400">
               Easy & Safe Campus Flow
             </span>
-            <h2 className="text-3xl font-black text-slate-900 mt-2">
+            <h2 className="text-3xl font-black text-slate-900 dark:text-white mt-2">
               How CampusCycle Works
             </h2>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               Four simple steps to give and receive within your campus community
             </p>
           </div>
@@ -1197,57 +1197,57 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* Step 1 */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative">
-              <span className="text-4xl font-black text-emerald-100 absolute top-4 right-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors">
+              <span className="text-4xl font-black text-emerald-100 dark:text-slate-800 absolute top-4 right-4">
                 01
               </span>
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4">
                 <SearchIcon className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base mb-1">1. Find</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">1. Find</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Search books, electronics, bikes, or furniture posted by verified college peers.
               </p>
             </div>
 
             {/* Step 2 */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative">
-              <span className="text-4xl font-black text-emerald-100 absolute top-4 right-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors">
+              <span className="text-4xl font-black text-emerald-100 dark:text-slate-800 absolute top-4 right-4">
                 02
               </span>
-              <div className="w-12 h-12 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-950/80 text-teal-700 dark:text-teal-400 flex items-center justify-center mb-4">
                 <MessageCircle className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base mb-1">2. Connect</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">2. Connect</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Chat with the student seller in real-time, negotiate price, and agree on an offer.
               </p>
             </div>
 
             {/* Step 3 */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative">
-              <span className="text-4xl font-black text-emerald-100 absolute top-4 right-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors">
+              <span className="text-4xl font-black text-emerald-100 dark:text-slate-800 absolute top-4 right-4">
                 03
               </span>
-              <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-400 flex items-center justify-center mb-4">
                 <MapPin className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base mb-1">3. Meet</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">3. Meet</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Meet safely at the central library or student cafeteria to inspect the item in person.
               </p>
             </div>
 
             {/* Step 4 */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm relative">
-              <span className="text-4xl font-black text-emerald-100 absolute top-4 right-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative transition-colors">
+              <span className="text-4xl font-black text-emerald-100 dark:text-slate-800 absolute top-4 right-4">
                 04
               </span>
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4">
                 <Recycle className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-slate-900 text-base mb-1">4. Reuse</h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <h3 className="font-bold text-slate-900 dark:text-white text-base mb-1">4. Reuse</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Complete the exchange, save money, and give the product a second life!
               </p>
             </div>

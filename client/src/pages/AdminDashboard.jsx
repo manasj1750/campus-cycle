@@ -354,7 +354,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Admin Navigation Tabs */}
-      <nav aria-label="Admin console sections" className="border-b border-slate-200">
+      <nav aria-label="Admin console sections" className="border-b border-slate-200 dark:border-slate-800">
         <div
           role="tablist"
           aria-label="Admin sections"
@@ -381,8 +381,8 @@ export default function AdminDashboard() {
                 onClick={() => setSearchParams({ tab: t.key })}
                 className={`pb-3.5 border-b-2 transition-all whitespace-nowrap flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-t-lg ${
                   isSelected
-                    ? "border-emerald-600 text-emerald-700"
-                    : "border-transparent text-slate-600 hover:text-slate-900"
+                    ? "border-emerald-600 text-emerald-700 dark:text-emerald-400"
+                    : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 <Icon className="w-4 h-4" aria-hidden="true" />
@@ -406,28 +406,28 @@ export default function AdminDashboard() {
           {/* Top Metric Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-600 uppercase">Total Students</span>
-              <div className="text-2xl font-black text-slate-900 mt-1">{stats?.totalUsers || 0}</div>
-              <span className="text-[11px] text-emerald-700 font-semibold">Active campus peers</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Total Students</span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{stats?.totalUsers || 0}</div>
+              <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">Active campus peers</span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-600 uppercase">Active Listings</span>
-              <div className="text-2xl font-black text-slate-900 mt-1">{stats?.activeListings || 0}</div>
-              <span className="text-[11px] text-slate-600">Live on marketplace</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Active Listings</span>
+              <div className="text-2xl font-black text-slate-900 dark:text-white mt-1">{stats?.activeListings || 0}</div>
+              <span className="text-[11px] text-slate-600 dark:text-slate-400">Live on marketplace</span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-600 uppercase">Pending Review</span>
-              <div className="text-2xl font-black text-amber-700 mt-1">{stats?.pendingListings || 0}</div>
-              <span className="text-[11px] text-amber-700 font-semibold">Awaiting club approval</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Pending Review</span>
+              <div className="text-2xl font-black text-amber-700 dark:text-amber-400 mt-1">{stats?.pendingListings || 0}</div>
+              <span className="text-[11px] text-amber-700 dark:text-amber-400 font-semibold">Awaiting club approval</span>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
-              <span className="text-xs font-bold text-slate-600 uppercase">Items Reused (Sold)</span>
-              <div className="text-2xl font-black text-emerald-700 mt-1">{stats?.itemsReused || 0}</div>
-              <span className="text-[11px] text-emerald-800 font-semibold">Diverted from waste</span>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">Items Reused (Sold)</span>
+              <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400 mt-1">{stats?.itemsReused || 0}</div>
+              <span className="text-[11px] text-emerald-800 dark:text-emerald-300 font-semibold">Diverted from waste</span>
             </div>
 
           </div>
@@ -436,12 +436,12 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
             {/* Timeline Trends Chart */}
-            <div className="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4" role="region" aria-label="Campus Activity Timeline">
+            <div className="lg:col-span-7 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4" role="region" aria-label="Campus Activity Timeline">
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+                <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
                   Campus Platform Activity (Last 7 Days)
                 </h3>
-                <span className="text-xs text-slate-600">Listings vs Registrations</span>
+                <span className="text-xs text-slate-600 dark:text-slate-400">Listings vs Registrations</span>
               </div>
 
               {/* Screen reader accessible summary table */}
@@ -488,8 +488,8 @@ export default function AdminDashboard() {
             </div>
 
             {/* Popular Categories Bar Chart */}
-            <div className="lg:col-span-5 bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4" role="region" aria-label="Popular Campus Categories">
-              <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+            <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4" role="region" aria-label="Popular Campus Categories">
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
                 Popular Campus Categories
               </h3>
 
@@ -517,8 +517,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* Condition Distribution Pie Chart */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs max-w-xl" role="region" aria-label="Item Conditions Distribution">
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base mb-2">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs max-w-xl" role="region" aria-label="Item Conditions Distribution">
+            <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base mb-2">
               Item Conditions Distribution
             </h3>
 
@@ -576,8 +576,8 @@ export default function AdminDashboard() {
                   onClick={() => setProductFilter(st)}
                   className={`px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none ${
                     productFilter === st
-                      ? "bg-slate-900 text-white shadow-xs"
-                      : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+                      ? "bg-slate-900 dark:bg-emerald-600 text-white shadow-xs"
+                      : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                   }`}
                 >
                   {st.replace("_", " ")}
@@ -588,27 +588,27 @@ export default function AdminDashboard() {
             <button
               onClick={handleAutoCategorizeAll}
               disabled={autoCategorizing}
-              className="px-3.5 py-2 min-h-[40px] bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs active:scale-95 disabled:opacity-50 flex-shrink-0"
+              className="px-3.5 py-2 min-h-[40px] bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/40 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-xs active:scale-95 disabled:opacity-50 flex-shrink-0"
               title="Audit and reclassify miscategorized products"
             >
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>{autoCategorizing ? "Auto-Filtering..." : "Run Category Auto-Filter"}</span>
             </button>
           </div>
 
           {autoCatResult && (
-            <div className="p-3.5 bg-purple-50 border border-purple-200 text-purple-900 rounded-2xl text-xs font-semibold flex items-center justify-between shadow-xs">
+            <div className="p-3.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-200 rounded-2xl text-xs font-semibold flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
                 <span>{autoCatResult}</span>
               </div>
-              <button onClick={() => setAutoCatResult(null)} className="font-bold text-purple-700 hover:text-purple-900 px-1">✕</button>
+              <button onClick={() => setAutoCatResult(null)} className="font-bold text-purple-700 dark:text-purple-300 hover:text-purple-900 dark:hover:text-purple-100 px-1">✕</button>
             </div>
           )}
 
-          <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs divide-y divide-slate-100 dark:divide-slate-800">
             {products.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-500">
+              <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
                 No products found under status "{productFilter}".
               </div>
             ) : (
@@ -618,27 +618,27 @@ export default function AdminDashboard() {
                     <img
                       src={p.primaryImage || p.images?.[0]}
                       alt={p.title}
-                      className="w-16 h-16 rounded-2xl object-cover border border-slate-200 flex-shrink-0"
+                      className="w-16 h-16 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 flex-shrink-0"
                     />
                     <div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
                           {p.category}
                         </span>
                         {p.autoFiltered && (
                           <span
-                            className="text-[10px] font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200 flex items-center gap-1"
+                            className="text-[10px] font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded border border-teal-200 dark:border-teal-800 flex items-center gap-1"
                             title={p.originalCategory ? `Auto-filtered from "${p.originalCategory}"` : "Category auto-corrected"}
                           >
-                            <Sparkles className="w-2.5 h-2.5 text-teal-600" /> Auto-Filtered
+                            <Sparkles className="w-2.5 h-2.5 text-teal-600 dark:text-teal-400" /> Auto-Filtered
                           </span>
                         )}
-                        <span className="text-[10px] text-slate-600">
+                        <span className="text-[10px] text-slate-600 dark:text-slate-400">
                           by {p.seller?.name} ({p.seller?.college})
                         </span>
                       </div>
-                      <h4 className="font-bold text-slate-900 text-sm mt-0.5">{p.title}</h4>
-                      <p className="text-sm font-black text-slate-900 mt-0.5">
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm mt-0.5">{p.title}</h4>
+                      <p className="text-sm font-black text-slate-900 dark:text-white mt-0.5">
                         ₹{p.price?.toLocaleString("en-IN")}
                       </p>
                     </div>
@@ -721,40 +721,40 @@ export default function AdminDashboard() {
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
               placeholder="Search students by name, email, roll no..."
-              className="w-full px-4 py-2.5 min-h-[44px] bg-white border border-slate-200 rounded-xl text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+              className="w-full px-4 py-2.5 min-h-[44px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-xs sm:text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
             />
             <button
               type="submit"
               aria-label="Search student accounts"
-              className="px-4 py-2.5 min-h-[44px] bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
+              className="px-4 py-2.5 min-h-[44px] bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
             >
               Search
             </button>
           </form>
 
-          <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs divide-y divide-slate-100 dark:divide-slate-800">
             {users.map((u) => (
               <div key={u._id} className="p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 font-bold text-sm flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold text-sm flex items-center justify-center">
                     {u.name?.charAt(0)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-slate-900 text-sm">{u.name}</h4>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{u.name}</h4>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
-                        u.role === "ADMIN" ? "bg-purple-100 text-purple-800" : "bg-emerald-50 text-emerald-800"
+                        u.role === "ADMIN" ? "bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800" : "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
                       }`}>
                         {u.role}
                       </span>
                       {u.isSuspended && (
-                        <span className="text-[10px] font-bold bg-rose-100 text-rose-800 px-2 py-0.5 rounded-md">
+                        <span className="text-[10px] font-bold bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-2 py-0.5 rounded-md">
                           Suspended
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-600">{u.email} • {u.college}</p>
-                    <p className="text-[11px] text-slate-500">{u.department} • {u.year}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">{u.email} • {u.college}</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-500">{u.department} • {u.year}</p>
                   </div>
                 </div>
 
@@ -765,8 +765,8 @@ export default function AdminDashboard() {
                       aria-label={u.isSuspended ? `Unsuspend student account for ${u.name}` : `Suspend student account for ${u.name}`}
                       className={`px-3.5 py-2 min-h-[40px] rounded-xl text-xs font-bold border transition-colors focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none ${
                         u.isSuspended
-                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                          : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
+                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                          : "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/40"
                       }`}
                     >
                       {u.isSuspended ? "Unsuspend" : "Suspend Account"}
@@ -775,7 +775,7 @@ export default function AdminDashboard() {
                     <button
                       onClick={() => handleDeleteUser(u._id)}
                       aria-label={`Permanently delete student account for ${u.name}`}
-                      className="p-2.5 min-w-[40px] min-h-[40px] text-rose-600 hover:bg-rose-50 rounded-xl flex items-center justify-center focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                      className="p-2.5 min-w-[40px] min-h-[40px] text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl flex items-center justify-center focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                       title="Delete User"
                     >
                       <Trash2 className="w-4 h-4" aria-hidden="true" />
@@ -798,11 +798,11 @@ export default function AdminDashboard() {
           className="space-y-8 focus-visible:outline-none"
         >
           {/* Add Category Form */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs space-y-4 max-w-xl">
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">Add New Campus Category</h3>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4 max-w-xl">
+            <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">Add New Campus Category</h3>
             <form onSubmit={handleCreateCategory} className="space-y-3">
               <div>
-                <label htmlFor="adminNewCatName" className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                <label htmlFor="adminNewCatName" className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">
                   Category Name
                 </label>
                 <input
@@ -812,11 +812,11 @@ export default function AdminDashboard() {
                   value={newCat.name}
                   onChange={(e) => setNewCat({ ...newCat, name: e.target.value })}
                   placeholder="e.g. Lab Equipment"
-                  className="w-full px-3.5 py-2.5 min-h-[40px] border border-slate-300 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                  className="w-full px-3.5 py-2.5 min-h-[40px] bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                 />
               </div>
               <div>
-                <label htmlFor="adminNewCatSubcats" className="block text-xs font-bold uppercase text-slate-700 mb-1">
+                <label htmlFor="adminNewCatSubcats" className="block text-xs font-bold uppercase text-slate-700 dark:text-slate-300 mb-1">
                   Subcategories (Comma separated)
                 </label>
                 <input
@@ -825,7 +825,7 @@ export default function AdminDashboard() {
                   value={newCat.subcategories}
                   onChange={(e) => setNewCat({ ...newCat, subcategories: e.target.value })}
                   placeholder="e.g. Microscopes, Pipettes, Aprons"
-                  className="w-full px-3.5 py-2.5 min-h-[40px] border border-slate-300 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                  className="w-full px-3.5 py-2.5 min-h-[40px] bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                 />
               </div>
               <button
@@ -840,15 +840,15 @@ export default function AdminDashboard() {
           {/* Categories List */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {categories.map((c) => (
-              <div key={c._id} className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-between">
+              <div key={c._id} className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm">{c.name}</h4>
-                  <span className="text-xs text-slate-500">{c.productCount || 0} items active</span>
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm">{c.name}</h4>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{c.productCount || 0} items active</span>
                 </div>
                 <button
                   onClick={() => handleDeleteCategory(c._id)}
                   aria-label={`Delete category ${c.name}`}
-                  className="p-2 min-w-[36px] min-h-[36px] text-rose-600 hover:bg-rose-50 rounded-lg flex items-center justify-center focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                  className="p-2 min-w-[36px] min-h-[36px] text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg flex items-center justify-center focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
                 >
                   <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </button>
@@ -867,9 +867,9 @@ export default function AdminDashboard() {
           tabIndex={0}
           className="space-y-4 focus-visible:outline-none"
         >
-          <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs divide-y divide-slate-100">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs divide-y divide-slate-100 dark:divide-slate-800">
             {reports.length === 0 ? (
-              <div className="p-8 text-center text-xs text-slate-500">
+              <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
                 No safety reports currently pending review.
               </div>
             ) : (
@@ -877,17 +877,17 @@ export default function AdminDashboard() {
                 <div key={rep._id} className="p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                      <span className="text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded border border-rose-200 dark:border-rose-800">
                         {rep.reason}
                       </span>
-                      <span className="text-xs text-slate-600">
-                        Status: <span className="font-bold text-slate-900">{rep.status}</span>
+                      <span className="text-xs text-slate-600 dark:text-slate-400">
+                        Status: <span className="font-bold text-slate-900 dark:text-white">{rep.status}</span>
                       </span>
                     </div>
-                    <p className="text-xs text-slate-900 font-semibold mt-1">
+                    <p className="text-xs text-slate-900 dark:text-white font-semibold mt-1">
                       {rep.description}
                     </p>
-                    <p className="text-[11px] text-slate-500 mt-1">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                       Reported by: {rep.reporter?.name} ({rep.reporter?.email})
                     </p>
                   </div>
@@ -896,14 +896,14 @@ export default function AdminDashboard() {
                     <button
                       onClick={() => handleUpdateReportStatus(rep._id, "Resolved")}
                       aria-label={`Mark report from ${rep.reporter?.name || "student"} as resolved`}
-                      className="px-3.5 py-2 min-h-[38px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                      className="px-3.5 py-2 min-h-[38px] bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none shadow-xs transition active:scale-95"
                     >
                       Resolve
                     </button>
                     <button
                       onClick={() => handleUpdateReportStatus(rep._id, "Dismissed")}
                       aria-label={`Dismiss report from ${rep.reporter?.name || "student"}`}
-                      className="px-3.5 py-2 min-h-[38px] bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
+                      className="px-3.5 py-2 min-h-[38px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none transition"
                     >
                       Dismiss
                     </button>
@@ -924,38 +924,38 @@ export default function AdminDashboard() {
           tabIndex={0}
           className="space-y-6 max-w-2xl focus-visible:outline-none"
         >
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
-            <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs space-y-6">
+            <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <div className="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 flex items-center justify-center">
                 <KeyRound className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-base">
+                <h3 className="font-bold text-slate-900 dark:text-white text-base">
                   Administrator Credentials & Security
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Customize the email and password used to access the CampusCycle Admin Portal.
                 </p>
               </div>
             </div>
 
             {credStatus.error && (
-              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
+              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 rounded-xl text-xs font-semibold flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>{credStatus.error}</span>
               </div>
             )}
 
             {credStatus.success && (
-              <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+              <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 rounded-xl text-xs font-semibold flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{credStatus.success}</span>
               </div>
             )}
 
             <form onSubmit={handleUpdateCredentials} className="space-y-4">
               <div>
-                <label htmlFor="adminCredEmail" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                <label htmlFor="adminCredEmail" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                   Admin Email Address
                 </label>
                 <div className="relative">
@@ -967,16 +967,16 @@ export default function AdminDashboard() {
                     value={credForm.email}
                     onChange={(e) => setCredForm({ ...credForm, email: e.target.value })}
                     placeholder="e.g. admin@campuscycle.edu or your custom email"
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                   />
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                   This email will be used when logging into the Admin Portal.
                 </p>
               </div>
 
               <div>
-                <label htmlFor="adminCredPassword" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                <label htmlFor="adminCredPassword" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                   New Admin Password
                 </label>
                 <div className="relative">
@@ -987,17 +987,17 @@ export default function AdminDashboard() {
                     value={credForm.password}
                     onChange={(e) => setCredForm({ ...credForm, password: e.target.value })}
                     placeholder="Leave blank to keep existing password"
-                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                   />
                 </div>
-                <p className="text-[11px] text-slate-500 mt-1">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
                   Must be at least 6 characters long. Leave empty if only changing the email address.
                 </p>
               </div>
 
               {credForm.password && (
                 <div>
-                  <label htmlFor="adminCredConfirmPassword" className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  <label htmlFor="adminCredConfirmPassword" className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1">
                     Confirm New Admin Password
                   </label>
                   <div className="relative">
@@ -1009,7 +1009,7 @@ export default function AdminDashboard() {
                       value={credForm.confirmPassword}
                       onChange={(e) => setCredForm({ ...credForm, confirmPassword: e.target.value })}
                       placeholder="Re-enter new password"
-                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                      className="w-full pl-10 pr-3.5 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-sm focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
                     />
                   </div>
                 </div>
@@ -1038,23 +1038,23 @@ export default function AdminDashboard() {
           aria-labelledby="rejectModalTitle"
           className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4"
         >
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 id="rejectModalTitle" className="font-bold text-slate-900 text-base">
+              <h3 id="rejectModalTitle" className="font-bold text-slate-900 dark:text-white text-base">
                 Reject Listing
               </h3>
               <button
                 type="button"
                 onClick={() => setRejectModal({ open: false, productId: null, reason: "" })}
                 aria-label="Close rejection dialog"
-                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-xl focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
+                className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
             <form onSubmit={handleRejectProduct} className="space-y-4">
               <div>
-                <label htmlFor="rejectReasonTextarea" className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="rejectReasonTextarea" className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                   Reason for student feedback
                 </label>
                 <textarea
@@ -1064,20 +1064,20 @@ export default function AdminDashboard() {
                   value={rejectModal.reason}
                   onChange={(e) => setRejectModal({ ...rejectModal, reason: e.target.value })}
                   placeholder="e.g. Please upload clear photos showing condition."
-                  className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
+                  className="w-full px-3.5 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-xl text-xs focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none outline-none"
                 ></textarea>
               </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setRejectModal({ open: false, productId: null, reason: "" })}
-                  className="px-4 py-2 min-h-[40px] border border-slate-200 hover:bg-slate-50 rounded-xl text-xs font-semibold focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none"
+                  className="px-4 py-2 min-h-[40px] border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:outline-none transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 min-h-[40px] bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none"
+                  className="px-4 py-2 min-h-[40px] bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-xs focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:outline-none transition"
                 >
                   Confirm Rejection
                 </button>

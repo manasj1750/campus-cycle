@@ -9,12 +9,18 @@
 
   html,
   body {
-    @apply bg-[#f8fafc] text-slate-800 font-sans antialiased min-h-screen selection:bg-emerald-500 selection:text-white;
+    @apply bg-[#f8fafc] text-slate-800 font-sans antialiased min-h-screen selection:bg-emerald-500 selection:text-white transition-colors duration-200;
     overflow-x: hidden;
     width: 100%;
     max-width: 100vw;
     touch-action: pan-y;
     -webkit-overflow-scrolling: touch;
+  }
+
+  html.dark,
+  html.dark body {
+    background-color: #0b0f17 !important;
+    color: #f1f5f9;
   }
 
   #root {
@@ -50,8 +56,25 @@
   background: #94a3b8;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #0b0f17;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
 .glass {
   background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }

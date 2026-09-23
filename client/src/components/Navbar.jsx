@@ -21,12 +21,16 @@ import {
   ChevronDown,
   Trash2,
   AlertCircle,
-  Settings
+  Settings,
+  Sun,
+  Moon
 } from "lucide-react";
 import api from "../services/api";
 import SettingsModal from "./SettingsModal";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Navbar() {
+  const { theme, toggleTheme, isDark } = useTheme();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { wishlist } = useWishlist();
   const { unreadCount, notifications, markAsRead } = useNotifications();
@@ -71,7 +75,7 @@ export default function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm w-full max-w-full overflow-visible">
+    <header className="sticky top-0 z-50 bg-white/95 dark:bg-[#0b0f17]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/80 shadow-xs w-full max-w-full overflow-visible transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 overflow-visible">
         <div className="flex items-center justify-between h-16 gap-2 sm:gap-4 overflow-visible">
           
@@ -82,14 +86,14 @@ export default function Navbar() {
             </div>
             <div>
               <div className="flex items-center gap-1 sm:gap-1.5">
-                <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900">
-                  Campus<span className="text-emerald-600">Cycle</span>
+                <span className="text-lg sm:text-xl font-black tracking-tight text-slate-900 dark:text-white">
+                  Campus<span className="text-emerald-600 dark:text-emerald-400">Cycle</span>
                 </span>
-                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 px-1.5 py-0.5 rounded-full">
                   Club
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium hidden sm:block -mt-1">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium hidden sm:block -mt-1">
                 Give Your Things a Second Life
               </p>
             </div>
@@ -100,7 +104,7 @@ export default function Navbar() {
             <Link
               to="/"
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive("/") ? "text-emerald-700 bg-emerald-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                isActive("/") ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 font-semibold" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80"
               }`}
             >
               Home
@@ -108,21 +112,21 @@ export default function Navbar() {
             <Link
               to="/products"
               className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                isActive("/products") ? "text-emerald-700 bg-emerald-50" : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                isActive("/products") ? "text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 font-semibold" : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80"
               }`}
             >
               Browse
             </Link>
             <Link
               to="/products?focus=categories"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="px-3 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
             >
               Categories
             </Link>
             {isAdmin && (
               <Link
                 to="/admin"
-                className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/60 transition-colors"
               >
                 <Shield className="w-4 h-4" />
                 Admin Panel
@@ -131,8 +135,23 @@ export default function Navbar() {
           </nav>
 
           {/* Right Action Icons */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             
+            {/* Quick Sun/Moon Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all cursor-pointer"
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5 text-amber-400 hover:rotate-45 transition-transform duration-300" />
+              ) : (
+                <Moon className="w-5 h-5 text-slate-600 hover:-rotate-12 transition-transform duration-300" />
+              )}
+            </button>
+
             {/* Sell CTA Button */}
             <Link
               to="/sell"
@@ -144,10 +163,10 @@ export default function Navbar() {
 
             {isAuthenticated ? (
               <>
-                {/* Wishlist - hidden on mobile header, available in bottom nav / drawer */}
+                {/* Wishlist */}
                 <Link
                   to="/wishlist"
-                  className="hidden sm:inline-flex relative p-2 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="hidden sm:inline-flex relative p-2 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl transition-colors"
                   title="Wishlist"
                 >
                   <Heart className="w-5 h-5" />
@@ -158,10 +177,10 @@ export default function Navbar() {
                   )}
                 </Link>
 
-                {/* Messages - hidden on mobile header since it's already in the bottom nav */}
+                {/* Messages */}
                 <Link
                   to="/messages"
-                  className="hidden sm:inline-flex relative p-2 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="hidden sm:inline-flex relative p-2 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl transition-colors"
                   title="Messages"
                 >
                   <MessageSquare className="w-5 h-5" />
@@ -174,7 +193,7 @@ export default function Navbar() {
                       setNotifOpen(!notifOpen);
                       setUserDropdownOpen(false);
                     }}
-                    className="relative p-2 text-slate-600 hover:text-emerald-600 hover:bg-slate-100 rounded-xl transition-colors"
+                    className="relative p-2 text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 rounded-xl transition-colors"
                     title="Notifications"
                   >
                     <Bell className="w-5 h-5" />
@@ -193,17 +212,17 @@ export default function Navbar() {
                         onClick={() => setNotifOpen(false)}
                         aria-hidden="true"
                       />
-                      <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-slate-200 py-3 z-50 overflow-hidden">
-                        <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                      <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-3 z-50 overflow-hidden">
+                        <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Bell className="w-4 h-4 text-emerald-600" />
-                            <span className="font-semibold text-sm text-slate-800">Notifications</span>
+                            <Bell className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                            <span className="font-semibold text-sm text-slate-800 dark:text-white">Notifications</span>
                           </div>
-                          <span className="text-xs text-slate-400">{notifications.length} alerts</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">{notifications.length} alerts</span>
                         </div>
-                        <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                        <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800">
                           {notifications.length === 0 ? (
-                            <div className="p-6 text-center text-sm text-slate-400">
+                            <div className="p-6 text-center text-sm text-slate-400 dark:text-slate-500">
                               No notifications yet
                             </div>
                           ) : (
@@ -215,24 +234,24 @@ export default function Navbar() {
                                   if (n.link) navigate(n.link);
                                   setNotifOpen(false);
                                 }}
-                                className={`p-3 text-xs cursor-pointer hover:bg-slate-50 transition-colors ${
-                                  !n.isRead ? "bg-emerald-50/50" : ""
+                                className={`p-3 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors ${
+                                  !n.isRead ? "bg-emerald-50/50 dark:bg-emerald-950/40" : ""
                                 }`}
                               >
-                                <p className="font-semibold text-slate-900">{n.title}</p>
-                                <p className="text-slate-600 line-clamp-2 mt-0.5">{n.message}</p>
-                                <span className="text-[10px] text-slate-400 mt-1 block">
+                                <p className="font-semibold text-slate-900 dark:text-white">{n.title}</p>
+                                <p className="text-slate-600 dark:text-slate-300 line-clamp-2 mt-0.5">{n.message}</p>
+                                <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block">
                                   {new Date(n.createdAt).toLocaleDateString()}
                                 </span>
                               </div>
                             ))
                           )}
                         </div>
-                        <div className="px-4 pt-2 border-t border-slate-100 text-center">
+                        <div className="px-4 pt-2 border-t border-slate-100 dark:border-slate-800 text-center">
                           <Link
                             to="/dashboard"
                             onClick={() => setNotifOpen(false)}
-                            className="text-xs font-medium text-emerald-600 hover:text-emerald-700"
+                            className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
                           >
                             View All in Dashboard →
                           </Link>
@@ -249,7 +268,7 @@ export default function Navbar() {
                       setUserDropdownOpen(!userDropdownOpen);
                       setNotifOpen(false);
                     }}
-                    className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
                   >
                     {user?.profilePhoto ? (
                       <img
@@ -258,7 +277,7 @@ export default function Navbar() {
                         className="w-8 h-8 rounded-full object-cover ring-2 ring-emerald-500/30"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center ring-2 ring-emerald-500/30">
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center ring-2 ring-emerald-500/30">
                         {user?.name?.charAt(0) || "U"}
                       </div>
                     )}
@@ -272,37 +291,37 @@ export default function Navbar() {
                         onClick={() => setUserDropdownOpen(false)}
                         aria-hidden="true"
                       />
-                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-50">
-                        <div className="px-4 py-2 border-b border-slate-100">
-                          <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
-                          <p className="text-xs text-slate-500 truncate">{user?.college || user?.email}</p>
-                          <span className="inline-block mt-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md">
+                      <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50">
+                        <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-800">
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">{user?.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.college || user?.email}</p>
+                          <span className="inline-block mt-1 text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md border border-emerald-200/50 dark:border-emerald-800/50">
                             {user?.role === "ADMIN" ? "Administrator" : "Verified Student"}
                           </span>
                         </div>
                         <Link
                           to="/dashboard"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
                         >
-                          <Layers className="w-4 h-4 text-emerald-600" />
+                          <Layers className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                           My Dashboard
                         </Link>
                         <Link
                           to={`/profile/${user?._id}`}
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors"
                         >
-                          <User className="w-4 h-4 text-emerald-600" />
+                          <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                           Public Profile
                         </Link>
                         {isAdmin && (
                           <Link
                             to="/admin"
                             onClick={() => setUserDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2 text-sm text-purple-700 font-medium hover:bg-purple-50 transition-colors"
+                            className="flex items-center gap-2.5 px-4 py-2 text-sm text-purple-700 dark:text-purple-300 font-medium hover:bg-purple-50 dark:hover:bg-purple-950/60 transition-colors"
                           >
-                            <Shield className="w-4 h-4 text-purple-600" />
+                            <Shield className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                             Admin Console
                           </Link>
                         )}
@@ -312,17 +331,17 @@ export default function Navbar() {
                             setUserDropdownOpen(false);
                             setSettingsModalOpen(true);
                           }}
-                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left font-medium"
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors text-left font-medium cursor-pointer"
                         >
-                          <Settings className="w-4 h-4 text-emerald-600" />
+                          <Settings className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                           Settings
                         </button>
-                        <div className="border-t border-slate-100 my-1"></div>
+                        <div className="border-t border-slate-100 dark:border-slate-800 my-1"></div>
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors text-left"
+                          className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors text-left cursor-pointer"
                         >
-                          <LogOut className="w-4 h-4 text-slate-500" />
+                          <LogOut className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                           Sign Out
                         </button>
                         {!isAdmin && (
@@ -333,9 +352,9 @@ export default function Navbar() {
                               setDeleteError("");
                               setShowDeleteModal(true);
                             }}
-                            className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left font-medium"
+                            className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors text-left font-medium cursor-pointer"
                           >
-                            <Trash2 className="w-4 h-4 text-rose-500" />
+                            <Trash2 className="w-4 h-4 text-rose-500 dark:text-rose-400" />
                             Delete Account
                           </button>
                         )}
@@ -348,7 +367,7 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="px-3.5 py-1.5 text-sm font-medium text-slate-700 hover:text-emerald-700 rounded-xl transition-colors"
+                  className="px-3.5 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-xl transition-colors"
                 >
                   Log In
                 </Link>
@@ -364,7 +383,7 @@ export default function Navbar() {
             {/* Mobile Hamburger Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100"
+              className="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -471,6 +490,38 @@ export default function Navbar() {
                 </button>
               )}
             </>
+          )}
+
+          {/* Theme Row in Mobile Drawer */}
+          <div className="pt-2 pb-1 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between px-3">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Theme</span>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600 dark:text-slate-300" />}
+              <span>{isDark ? "Light Mode" : "Dark Mode"}</span>
+            </button>
+          </div>
+
+          {!isAuthenticated && (
+            <div className="pt-2 grid grid-cols-2 gap-2">
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-center py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
+              >
+                Log In
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-center py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-sm font-semibold text-white shadow-xs"
+              >
+                Join Club
+              </Link>
+            </div>
           )}
         </div>
       )}

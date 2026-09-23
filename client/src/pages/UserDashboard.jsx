@@ -217,7 +217,7 @@ export default function UserDashboard() {
       )}
 
       {/* Top Banner */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-4 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-full overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-4 sm:p-8 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full max-w-full overflow-hidden">
         <div className="flex items-center gap-4">
           <div
             onClick={() => handleTabChange("settings")}
@@ -231,7 +231,7 @@ export default function UserDashboard() {
                 className="w-16 h-16 rounded-2xl object-cover ring-2 ring-emerald-500/20 group-hover:opacity-90 transition-opacity"
               />
             ) : (
-              <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-800 text-2xl font-black flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-2xl font-black flex items-center justify-center group-hover:bg-emerald-200 dark:group-hover:bg-emerald-900/60 transition-colors">
                 {user?.name?.charAt(0) || "U"}
               </div>
             )}
@@ -241,14 +241,14 @@ export default function UserDashboard() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-slate-900">{user?.name}</h1>
+              <h1 className="text-2xl font-black text-slate-900 dark:text-white">{user?.name}</h1>
               <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
-                user?.role === "ADMIN" ? "text-purple-800 bg-purple-100 border border-purple-200" : "text-emerald-700 bg-emerald-50"
+                user?.role === "ADMIN" ? "text-purple-800 dark:text-purple-300 bg-purple-100 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-800" : "text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60"
               }`}>
                 {user?.role === "ADMIN" ? "Platform Administrator" : "Verified Student"}
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               {user?.department} • {user?.year} • {user?.college}
             </p>
           </div>
@@ -256,7 +256,7 @@ export default function UserDashboard() {
 
         <Link
           to="/sell"
-          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-2xl shadow-sm flex items-center gap-2"
+          className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-2xl shadow-sm flex items-center gap-2 transition active:scale-95"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Post New Listing</span>
@@ -266,68 +266,68 @@ export default function UserDashboard() {
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase">Active Listings</span>
-            <div className="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Active Listings</span>
+            <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400">
               <Package className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2">
+          <div className="text-2xl font-black text-slate-900 dark:text-white mt-2">
             {summary?.activeListings || 0}
           </div>
-          <span className="text-[11px] text-slate-400">Available to campus buyers</span>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500">Available to campus buyers</span>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase">Items Sold</span>
-            <div className="p-2 rounded-xl bg-teal-50 text-teal-600">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Items Sold</span>
+            <div className="p-2 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2">
+          <div className="text-2xl font-black text-slate-900 dark:text-white mt-2">
             {summary?.soldItems || 0}
           </div>
-          <span className="text-[11px] text-teal-600 font-semibold">Given a second life</span>
+          <span className="text-[11px] text-teal-600 dark:text-teal-400 font-semibold">Given a second life</span>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase">Offers Received</span>
-            <div className="p-2 rounded-xl bg-amber-50 text-amber-600">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Offers Received</span>
+            <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
               <Tag className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2">
+          <div className="text-2xl font-black text-slate-900 dark:text-white mt-2">
             {summary?.offersReceived || 0}
           </div>
-          <span className="text-[11px] text-slate-400">Pending buyer bids</span>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500">Pending buyer bids</span>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 uppercase">Saved Wishlist</span>
-            <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
+            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Saved Wishlist</span>
+            <div className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400">
               <Heart className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-2">
+          <div className="text-2xl font-black text-slate-900 dark:text-white mt-2">
             {summary?.wishlistCount || 0}
           </div>
-          <span className="text-[11px] text-slate-400">Items watched</span>
+          <span className="text-[11px] text-slate-400 dark:text-slate-500">Items watched</span>
         </div>
 
       </div>
 
       {/* Main Navigation Tabs */}
-      <div className="flex border-b border-slate-200 gap-4 sm:gap-6 overflow-x-auto text-sm font-bold w-full max-w-full min-w-0 no-scrollbar">
+      <div className="flex border-b border-slate-200 dark:border-slate-800 gap-4 sm:gap-6 overflow-x-auto text-sm font-bold w-full max-w-full min-w-0 no-scrollbar">
         <button
           onClick={() => handleTabChange("listings")}
           className={`pb-3.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
             activeTab === "listings"
-              ? "border-emerald-600 text-emerald-700"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              ? "border-emerald-600 text-emerald-700 dark:text-emerald-400"
+              : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
           }`}
         >
           <Package className="w-4 h-4" />
@@ -338,8 +338,8 @@ export default function UserDashboard() {
           onClick={() => handleTabChange("offers")}
           className={`pb-3.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
             activeTab === "offers"
-              ? "border-emerald-600 text-emerald-700"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              ? "border-emerald-600 text-emerald-700 dark:text-emerald-400"
+              : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
           }`}
         >
           <Tag className="w-4 h-4" />
@@ -350,8 +350,8 @@ export default function UserDashboard() {
           onClick={() => handleTabChange("settings")}
           className={`pb-3.5 border-b-2 transition-colors whitespace-nowrap flex items-center gap-2 ${
             activeTab === "settings"
-              ? "border-emerald-600 text-emerald-700"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              ? "border-emerald-600 text-emerald-700 dark:text-emerald-400"
+              : "border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
           }`}
         >
           <Settings className="w-4 h-4" />
@@ -371,8 +371,8 @@ export default function UserDashboard() {
                 onClick={() => setListingFilter(f)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   listingFilter === f
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                    ? "bg-slate-900 dark:bg-emerald-600 text-white shadow-xs"
+                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                 }`}
               >
                 {f.replace("_", " ")}
@@ -502,7 +502,7 @@ export default function UserDashboard() {
               actionLink="/products"
             />
           ) : (
-            <div className="bg-white rounded-3xl border border-slate-200 divide-y divide-slate-100 overflow-hidden shadow-xs">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden shadow-xs">
               {offers.map((off) => {
                 const isSeller = String(off.seller?._id || off.seller) === String(user?._id);
 
@@ -512,15 +512,15 @@ export default function UserDashboard() {
                       <img
                         src={off.product?.primaryImage || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=300&q=80"}
                         alt={off.product?.title}
-                        className="w-14 h-14 rounded-2xl object-cover border border-slate-200"
+                        className="w-14 h-14 rounded-2xl object-cover border border-slate-200 dark:border-slate-700"
                       />
                       <div>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                           {isSeller ? "Offer from Buyer:" : "Your Offer to Seller:"}
                         </span>
-                        <h4 className="font-bold text-slate-900 text-sm">{off.product?.title}</h4>
+                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">{off.product?.title}</h4>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-base font-black text-emerald-700">
+                          <span className="text-base font-black text-emerald-700 dark:text-emerald-400">
                             Offer: ₹{off.amount?.toLocaleString("en-IN")}
                           </span>
                           <span className="text-xs text-slate-400 line-through">
@@ -528,7 +528,7 @@ export default function UserDashboard() {
                           </span>
                         </div>
                         {off.message && (
-                          <p className="text-xs text-slate-500 italic mt-0.5">"{off.message}"</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-0.5">"{off.message}"</p>
                         )}
                       </div>
                     </div>
@@ -537,12 +537,12 @@ export default function UserDashboard() {
                       <span
                         className={`text-xs font-bold px-2.5 py-1 rounded-lg uppercase tracking-wider ${
                           off.status === "Accepted"
-                            ? "bg-emerald-100 text-emerald-800"
+                            ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50"
                             : off.status === "Rejected"
-                            ? "bg-rose-100 text-rose-800"
+                            ? "bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50"
                             : off.status === "Countered"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-slate-100 text-slate-700"
+                            ? "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50"
+                            : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
                         }`}
                       >
                         {off.status}
@@ -553,19 +553,19 @@ export default function UserDashboard() {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => handleOfferAction(off._id, "Accepted")}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold"
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition active:scale-95"
                           >
                             Accept
                           </button>
                           <button
                             onClick={() => setCounterModal({ open: true, offerId: off._id, amount: off.amount })}
-                            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-xl text-xs font-bold"
+                            className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-xl text-xs font-bold transition active:scale-95"
                           >
                             Counter
                           </button>
                           <button
                             onClick={() => handleOfferAction(off._id, "Rejected")}
-                            className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold"
+                            className="px-3 py-1.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-bold transition active:scale-95"
                           >
                             Decline
                           </button>

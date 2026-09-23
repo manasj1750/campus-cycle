@@ -339,13 +339,13 @@ export default function SellProduct() {
       
       {/* Header */}
       <div className="mb-8">
-        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
+        <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/60 px-3 py-1 rounded-full">
           {isEditMode ? "Update Listing" : "Sell to Campus Community"}
         </span>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight mt-2">
+        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mt-2">
           {isEditMode ? "Edit Listing Details" : "Create a New Listing"}
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           {isEditMode
             ? "Update price, condition, description, category, or photos for your item."
             : "Give unused textbooks, electronics, cycles, and hostel items a second life."}
@@ -353,10 +353,10 @@ export default function SellProduct() {
       </div>
 
       {/* Moderation notice */}
-      <div className="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 mb-8 flex items-start gap-3">
-        <ShieldAlert className="w-5 h-5 text-emerald-700 flex-shrink-0 mt-0.5" />
-        <div className="text-xs text-slate-600 leading-relaxed">
-          <span className="font-bold text-slate-900">Campus Verification Policy:</span>{" "}
+      <div className="bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 mb-8 flex items-start gap-3">
+        <ShieldAlert className="w-5 h-5 text-emerald-700 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+        <div className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+          <span className="font-bold text-slate-900 dark:text-white">Campus Verification Policy:</span>{" "}
           {isEditMode
             ? "Your edits will be updated immediately. Keep details accurate, honest, and genuine."
             : "To keep our college marketplace clean and scam-free, listings are automatically reviewed by the Social Responsibility Club moderation team before becoming publicly visible."}
@@ -364,7 +364,7 @@ export default function SellProduct() {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs font-semibold mb-6 flex items-center gap-2">
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 rounded-2xl text-xs font-semibold mb-6 flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{error}</span>
         </div>
@@ -379,13 +379,13 @@ export default function SellProduct() {
       <form onSubmit={(e) => handleSubmit(e, false)} className="space-y-8">
         
         {/* Photos Upload Section */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-xs space-y-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-xs space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-slate-900">Product Photos</h2>
-              <p className="text-xs text-slate-500">Upload up to 5 genuine photos of the item</p>
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Product Photos</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Upload up to 5 genuine photos of the item</p>
             </div>
-            <span className="text-xs font-bold text-emerald-700">{images.length}/5 uploaded</span>
+            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">{images.length}/5 uploaded</span>
           </div>
 
           {/* Upload Grid */}
@@ -393,7 +393,7 @@ export default function SellProduct() {
             {images.map((img, idx) => (
               <div
                 key={idx}
-                className="relative aspect-square rounded-2xl overflow-hidden border-2 border-slate-200 group bg-slate-100"
+                className="relative aspect-square rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 group bg-slate-100 dark:bg-slate-800"
               >
                 <img src={img} alt={`Upload ${idx}`} className="w-full h-full object-cover" />
                 
@@ -405,11 +405,11 @@ export default function SellProduct() {
                 )}
 
                 {/* Overlay actions */}
-                <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
                     type="button"
                     onClick={() => setPrimaryImageIdx(idx)}
-                    className="p-1.5 bg-white/90 text-slate-800 rounded-lg text-[10px] font-bold hover:bg-white"
+                    className="p-1.5 bg-white/90 hover:bg-white text-slate-800 rounded-lg text-[10px] font-bold"
                   >
                     Set Cover
                   </button>
@@ -425,10 +425,10 @@ export default function SellProduct() {
             ))}
 
             {images.length < 5 && (
-              <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 hover:border-emerald-500 hover:bg-emerald-50/40 transition-colors flex flex-col items-center justify-center cursor-pointer p-3 text-center">
-                <UploadCloud className="w-6 h-6 text-slate-400 mb-1" />
-                <span className="text-xs font-bold text-slate-700">Add Photo</span>
-                <span className="text-[10px] text-slate-400">PNG, JPG, WEBP</span>
+              <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 transition-colors flex flex-col items-center justify-center cursor-pointer p-3 text-center">
+                <UploadCloud className="w-6 h-6 text-slate-400 dark:text-slate-500 mb-1" />
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Add Photo</span>
+                <span className="text-[10px] text-slate-400 dark:text-slate-500">PNG, JPG, WEBP</span>
                 <input
                   type="file"
                   multiple
@@ -442,14 +442,14 @@ export default function SellProduct() {
         </div>
 
         {/* Basic Details */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-xs space-y-5">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-xs space-y-5">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
             Item Details
           </h2>
 
           {/* Title */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Title *
             </label>
             <input
@@ -460,7 +460,7 @@ export default function SellProduct() {
               placeholder="e.g. Casio FX-991EX Scientific Calculator with Case"
               required
               maxLength={100}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-800 outline-none"
             />
           </div>
 
@@ -469,7 +469,7 @@ export default function SellProduct() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
                     Category *
                   </label>
                   <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
@@ -477,10 +477,10 @@ export default function SellProduct() {
                       type="checkbox"
                       checked={autoFilterEnabled}
                       onChange={(e) => setAutoFilterEnabled(e.target.checked)}
-                      className="w-3.5 h-3.5 text-emerald-600 rounded focus:ring-emerald-500 border-slate-300"
+                      className="w-3.5 h-3.5 text-emerald-600 rounded focus:ring-emerald-500 border-slate-300 dark:border-slate-600"
                     />
-                    <span className="text-[11px] font-bold text-emerald-700 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-emerald-600" />
+                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                       Auto-Filter
                     </span>
                   </label>
@@ -490,7 +490,7 @@ export default function SellProduct() {
                   value={formData.category}
                   onChange={handleCategoryChange}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 font-medium"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 font-medium outline-none"
                 >
                   {categories.map((cat) => (
                     <option key={cat._id || cat.name} value={cat.name}>
@@ -501,14 +501,14 @@ export default function SellProduct() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                   Subcategory
                 </label>
                 <select
                   name="subcategory"
                   value={formData.subcategory}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 font-medium"
+                  className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 font-medium outline-none"
                 >
                   <option value="">General</option>
                   {selectedCategoryObj?.subcategories?.map((sc) => (
@@ -522,15 +522,15 @@ export default function SellProduct() {
 
             {/* Live Auto-Filter Notice */}
             {autoFilterMessage && (
-              <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between gap-2">
+              <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold text-emerald-800 dark:text-emerald-300 rounded-xl flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                   <span>{autoFilterMessage}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setAutoFilterMessage("")}
-                  className="text-emerald-600 hover:text-emerald-900 text-xs font-bold px-1"
+                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-200 text-xs font-bold px-1"
                 >
                   ✕
                 </button>
@@ -539,16 +539,16 @@ export default function SellProduct() {
 
             {/* Mismatch Recommendation Alert */}
             {mismatchWarning && (
-              <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
+              <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
                 <div className="flex items-start sm:items-center gap-2.5">
-                  <div className="p-1.5 bg-amber-100 rounded-lg text-amber-700 flex-shrink-0 mt-0.5 sm:mt-0">
+                  <div className="p-1.5 bg-amber-100 dark:bg-amber-900/60 rounded-lg text-amber-700 dark:text-amber-300 flex-shrink-0 mt-0.5 sm:mt-0">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="font-bold text-amber-900">
+                    <p className="font-bold text-amber-900 dark:text-amber-200">
                       Auto-Filter Recommendation: This item looks like <span className="underline decoration-amber-400 font-black">{mismatchWarning.category}</span> {mismatchWarning.subcategory ? `(${mismatchWarning.subcategory})` : ""}
                     </p>
-                    <p className="text-amber-700 text-[11px] mt-0.5">
+                    <p className="text-amber-700 dark:text-amber-300 text-[11px] mt-0.5">
                       You currently selected <strong>"{formData.category}"</strong>. Matched keywords: {mismatchWarning.matchedKeywords?.join(", ")}
                     </p>
                   </div>
@@ -565,7 +565,7 @@ export default function SellProduct() {
                   <button
                     type="button"
                     onClick={() => setKeepUserCategory(true)}
-                    className="px-2.5 py-1.5 text-slate-500 hover:text-slate-700 font-semibold text-xs"
+                    className="px-2.5 py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-semibold text-xs"
                   >
                     Keep Mine
                   </button>
@@ -576,7 +576,7 @@ export default function SellProduct() {
 
           {/* Condition */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
               Condition *
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
@@ -588,7 +588,7 @@ export default function SellProduct() {
                   className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
                     formData.condition === cond
                       ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
-                      : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                      : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
                   }`}
                 >
                   {cond}
@@ -599,7 +599,7 @@ export default function SellProduct() {
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               Description *
             </label>
             <textarea
@@ -610,14 +610,14 @@ export default function SellProduct() {
               placeholder="Describe condition, battery health, semester course relevance, accessories included, reason for selling..."
               required
               maxLength={3000}
-              className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:bg-white"
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:bg-white dark:focus:bg-slate-800 outline-none"
             ></textarea>
           </div>
 
           {/* Brand, Model, Purchase Year */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Brand
               </label>
               <input
@@ -626,11 +626,11 @@ export default function SellProduct() {
                 value={formData.brand}
                 onChange={handleInputChange}
                 placeholder="e.g. Apple, Casio, Hero"
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Model
               </label>
               <input
@@ -639,11 +639,11 @@ export default function SellProduct() {
                 value={formData.model}
                 onChange={handleInputChange}
                 placeholder="e.g. Classwiz 991EX"
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Purchase Year
               </label>
               <input
@@ -653,21 +653,21 @@ export default function SellProduct() {
                 max={new Date().getFullYear()}
                 value={formData.purchaseYear}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Pricing & Campus Handover */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-xs space-y-5">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-xs space-y-5">
+          <h2 className="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
             Pricing & Handover
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Selling Price (₹) *
               </label>
               <input
@@ -678,12 +678,12 @@ export default function SellProduct() {
                 onChange={handleInputChange}
                 placeholder="e.g. 1200"
                 required
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Original Retail Price (₹)
               </label>
               <input
@@ -692,21 +692,21 @@ export default function SellProduct() {
                 value={formData.originalPrice}
                 onChange={handleInputChange}
                 placeholder="e.g. 2500 (shows discount %)"
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 outline-none"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Preferred Campus Handover Location
               </label>
               <select
                 name="location"
                 value={formData.location}
                 onChange={handleInputChange}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-medium"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white font-medium outline-none"
               >
                 <option value="Main Campus">Main Campus</option>
                 <option value="Hostel">Hostel Block</option>
@@ -720,7 +720,7 @@ export default function SellProduct() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Tags (Comma separated)
               </label>
               <input
@@ -729,7 +729,7 @@ export default function SellProduct() {
                 value={formData.tags}
                 onChange={handleInputChange}
                 placeholder="textbook, cse, first-year, electronics"
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900"
+                className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white outline-none"
               />
             </div>
           </div>
@@ -745,8 +745,8 @@ export default function SellProduct() {
                 className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
               />
               <div>
-                <span className="text-sm font-bold text-slate-800">Allow Price Negotiation</span>
-                <p className="text-xs text-slate-500">
+                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Allow Price Negotiation</span>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Allows students to submit price offers via in-app bidding
                 </p>
               </div>
@@ -759,14 +759,14 @@ export default function SellProduct() {
           <button
             type="button"
             onClick={() => navigate(isEditMode ? `/products/${id}` : "/dashboard")}
-            className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors"
+            className="w-full sm:w-auto px-6 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={submitting || uploading}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
           >
             {uploading ? (
               <span>Optimizing Photos...</span>

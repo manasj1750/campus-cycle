@@ -87,21 +87,21 @@ export default function FilterSidebar({
 
       {/* Condition */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">
           Condition
         </label>
         <div className="space-y-1.5">
           {conditions.map((cond) => (
             <label
               key={cond}
-              className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer hover:text-slate-900"
+              className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 cursor-pointer hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <input
                 type="radio"
                 name="condition"
                 checked={selectedCondition === cond}
                 onChange={() => onConditionChange(selectedCondition === cond ? "" : cond)}
-                className="text-emerald-600 focus:ring-emerald-500 rounded"
+                className="text-emerald-600 focus:ring-emerald-500 rounded cursor-pointer"
               />
               <span>{cond}</span>
             </label>
@@ -111,13 +111,13 @@ export default function FilterSidebar({
 
       {/* Campus Location */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">
           Campus Location
         </label>
         <select
           value={selectedLocation}
           onChange={(e) => onLocationChange(e.target.value)}
-          className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:ring-emerald-500 focus:border-emerald-500"
+          className="w-full text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-200 focus:ring-emerald-500 focus:border-emerald-500 cursor-pointer"
         >
           {campusLocations.map((loc) => (
             <option key={loc} value={loc}>
@@ -129,7 +129,7 @@ export default function FilterSidebar({
 
       {/* Price Range */}
       <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2.5">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">
           Max Price: ₹{Number(priceRange).toLocaleString("en-IN")}
         </label>
         <input
@@ -141,7 +141,7 @@ export default function FilterSidebar({
           onChange={(e) => onPriceChange(e.target.value)}
           className="w-full accent-emerald-600 cursor-pointer"
         />
-        <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+        <div className="flex justify-between text-[10px] text-slate-400 dark:text-slate-500 mt-1">
           <span>₹100</span>
           <span>₹60,000+</span>
         </div>

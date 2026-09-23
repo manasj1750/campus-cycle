@@ -385,19 +385,19 @@ export default function ProductDetails() {
           )}
 
           {/* Description Block */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4 mt-8">
-            <h3 className="font-bold text-slate-900 text-lg">Product Description</h3>
-            <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4 mt-8 transition-colors">
+            <h3 className="font-bold text-slate-900 dark:text-white text-lg">Product Description</h3>
+            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
               {product.description}
             </p>
 
             {/* Tags */}
             {product.tags && product.tags.length > 0 && (
-              <div className="pt-4 border-t border-slate-100 flex flex-wrap gap-2">
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-2">
                 {product.tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-lg font-medium"
+                    className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-1 rounded-lg font-medium"
                   >
                     #{tag}
                   </span>
@@ -407,13 +407,13 @@ export default function ProductDetails() {
           </div>
 
           {/* Safety Recommendation Banner */}
-          <div className="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 flex items-start gap-3.5">
-            <ShieldCheck className="w-6 h-6 text-emerald-700 flex-shrink-0 mt-0.5" />
+          <div className="bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/70 rounded-2xl p-5 flex items-start gap-3.5 transition-colors">
+            <ShieldCheck className="w-6 h-6 text-emerald-700 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <h4 className="font-bold text-slate-900 text-sm">
+              <h4 className="font-bold text-slate-900 dark:text-white text-sm">
                 Campus Safety Protocol
               </h4>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 "Safety Tip: Meet sellers in a public campus location (Central Library, Student Center, Cafeteria) and inspect the product in person before completing the exchange."
               </p>
             </div>
@@ -423,66 +423,66 @@ export default function ProductDetails() {
         {/* Right Col: Details, Price & Seller (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
           
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-sm space-y-6">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-7 shadow-sm space-y-6 transition-colors">
             
             {/* Category & Condition tags */}
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/50 dark:border-emerald-800/50 px-3 py-1 rounded-lg">
                 {product.category} {product.subcategory ? `• ${product.subcategory}` : ""}
               </span>
-              <span className="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-md">
+              <span className="text-xs font-bold text-teal-800 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800/60 px-2.5 py-0.5 rounded-md">
                 Condition: {product.condition}
               </span>
             </div>
 
             {/* Title */}
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-snug">
               {product.title}
             </h1>
 
             {/* Pricing Section */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-baseline justify-between">
+            <div className="bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 border border-slate-100 dark:border-slate-700 flex items-baseline justify-between">
               <div>
-                <span className="text-3xl font-black text-slate-900">
+                <span className="text-3xl font-black text-slate-900 dark:text-white">
                   ₹{product.price.toLocaleString("en-IN")}
                 </span>
                 {product.originalPrice > product.price && (
-                  <span className="text-sm text-slate-400 line-through ml-2.5 font-medium">
+                  <span className="text-sm text-slate-400 dark:text-slate-500 line-through ml-2.5 font-medium">
                     ₹{product.originalPrice.toLocaleString("en-IN")}
                   </span>
                 )}
               </div>
               {discount && (
-                <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-1 rounded-lg">
+                <span className="text-xs font-black text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-1 rounded-lg">
                   {discount}% SAVED
                 </span>
               )}
             </div>
 
             {/* Meta specs list */}
-            <div className="grid grid-cols-2 gap-3 text-xs text-slate-600 border-y border-slate-100 py-4">
+            <div className="grid grid-cols-2 gap-3 text-xs text-slate-600 dark:text-slate-300 border-y border-slate-100 dark:border-slate-800 py-4">
               <div>
-                <span className="text-slate-400 block">Campus Location</span>
-                <span className="font-semibold text-slate-800 flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-slate-400 dark:text-slate-500 block">Campus Location</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1 mt-0.5">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   {product.location || "Main Campus"}
                 </span>
               </div>
               {product.brand && (
                 <div>
-                  <span className="text-slate-400 block">Brand</span>
-                  <span className="font-semibold text-slate-800 mt-0.5 block">{product.brand}</span>
+                  <span className="text-slate-400 dark:text-slate-500 block">Brand</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">{product.brand}</span>
                 </div>
               )}
               {product.purchaseYear && (
                 <div>
-                  <span className="text-slate-400 block">Purchase Year</span>
-                  <span className="font-semibold text-slate-800 mt-0.5 block">{product.purchaseYear}</span>
+                  <span className="text-slate-400 dark:text-slate-500 block">Purchase Year</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">{product.purchaseYear}</span>
                 </div>
               )}
               <div>
-                <span className="text-slate-400 block">Listed On</span>
-                <span className="font-semibold text-slate-800 mt-0.5 block">
+                <span className="text-slate-400 dark:text-slate-500 block">Listed On</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5 block">
                   {new Date(product.createdAt).toLocaleDateString()}
                 </span>
               </div>
@@ -491,7 +491,7 @@ export default function ProductDetails() {
             {/* Main Action Buttons */}
             <div className="space-y-3 pt-2">
               {product.status === "SOLD" ? (
-                <div className="w-full py-3.5 bg-slate-100 text-slate-500 font-bold text-center rounded-2xl text-sm">
+                <div className="w-full py-3.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold text-center rounded-2xl text-sm">
                   This item has already been sold
                 </div>
               ) : canEdit ? (
@@ -505,7 +505,7 @@ export default function ProductDetails() {
                   </Link>
                   <Link
                     to="/dashboard"
-                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all"
+                    className="w-full py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all"
                   >
                     <span>Manage in My Dashboard</span>
                   </Link>
@@ -514,7 +514,7 @@ export default function ProductDetails() {
                 <>
                   <button
                     onClick={handleContactSeller}
-                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-2xl shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                    className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-2xl shadow-md shadow-emerald-600/30 hover:shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span>Contact Seller</span>
@@ -523,7 +523,7 @@ export default function ProductDetails() {
                   {product.isNegotiable && (
                     <button
                       onClick={() => setOfferModalOpen(true)}
-                      className="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-sm rounded-2xl border border-emerald-200 transition-all flex items-center justify-center gap-2"
+                      className="w-full py-3 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-bold text-sm rounded-2xl border border-emerald-200 dark:border-emerald-800/80 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Tag className="w-4 h-4" />
                       <span>Make an Offer</span>
@@ -536,10 +536,10 @@ export default function ProductDetails() {
               <div className="flex items-center gap-2 pt-2">
                 <button
                   onClick={() => toggleWishlist(product)}
-                  className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                  className={`flex-1 py-2.5 rounded-xl border text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                     isSaved
-                      ? "border-rose-300 bg-rose-50 text-rose-600"
-                      : "border-slate-200 text-slate-700 hover:bg-slate-50"
+                      ? "border-rose-300 bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400"
+                      : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
                   }`}
                 >
                   <Heart className={`w-3.5 h-3.5 ${isSaved ? "fill-current" : ""}`} />
@@ -548,7 +548,7 @@ export default function ProductDetails() {
 
                 <button
                   onClick={handleShare}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold flex items-center gap-1.5"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Share2 className="w-3.5 h-3.5" />
                   <span>Share</span>
@@ -556,7 +556,7 @@ export default function ProductDetails() {
 
                 <button
                   onClick={() => setReportModalOpen(true)}
-                  className="px-3 py-2.5 rounded-xl border border-slate-200 text-slate-400 hover:text-rose-600 hover:bg-rose-50 text-xs transition-colors"
+                  className="px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-xs transition-colors cursor-pointer"
                   title="Report Listing"
                 >
                   <Flag className="w-3.5 h-3.5" />
@@ -568,12 +568,12 @@ export default function ProductDetails() {
 
           {/* Seller Profile Card */}
           {product.seller && (
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4 transition-colors">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                   Seller Information
                 </span>
-                <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1">
+                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Campus Verified
                 </span>
               </div>
@@ -586,18 +586,18 @@ export default function ProductDetails() {
                     className="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-500/20"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 font-black text-base flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-black text-base flex items-center justify-center">
                     {product.seller.name?.charAt(0) || "S"}
                   </div>
                 )}
                 <div>
-                  <h4 className="font-bold text-slate-900 text-sm sm:text-base">
+                  <h4 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">
                     {product.seller.name}
                   </h4>
-                  <p className="text-xs text-slate-500 truncate max-w-[220px]">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[220px]">
                     {product.seller.department} • {product.seller.year}
                   </p>
-                  <p className="text-[11px] text-slate-400 truncate max-w-[220px]">
+                  <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate max-w-[220px]">
                     {product.seller.college}
                   </p>
                 </div>
@@ -608,14 +608,14 @@ export default function ProductDetails() {
                   rating={product.seller.avgRating || 5.0}
                   totalReviews={product.seller.totalReviews || 1}
                 />
-                <span className="text-slate-500">
+                <span className="text-slate-500 dark:text-slate-400">
                   {product.seller.listingCount || 1} active listings
                 </span>
               </div>
 
               <Link
                 to={`/profile/${product.seller._id}`}
-                className="block text-center text-xs font-bold text-emerald-600 hover:text-emerald-700 pt-2 hover:underline"
+                className="block text-center text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 pt-2 hover:underline"
               >
                 View Seller's Full Profile →
               </Link>
@@ -628,8 +628,8 @@ export default function ProductDetails() {
 
       {/* SIMILAR PRODUCTS SECTION */}
       {similarProducts.length > 0 && (
-        <section className="pt-8 border-t border-slate-200">
-          <h3 className="text-xl font-black text-slate-900 mb-6">
+        <section className="pt-8 border-t border-slate-200 dark:border-slate-800">
+          <h3 className="text-xl font-black text-slate-900 dark:text-white mb-6">
             Similar Items in {product.category}
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
@@ -643,32 +643,32 @@ export default function ProductDetails() {
       {/* MAKE OFFER MODAL */}
       {offerModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 relative">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 relative">
             <button
               onClick={() => setOfferModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-emerald-600">
+            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
               <Tag className="w-5 h-5" />
-              <h3 className="font-bold text-slate-900 text-lg">Make an Offer</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-lg">Make an Offer</h3>
             </div>
 
-            <p className="text-xs text-slate-500">
-              Listing Price: <span className="font-bold text-slate-900">₹{product.price}</span>.
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Listing Price: <span className="font-bold text-slate-900 dark:text-white">₹{product.price}</span>.
               Send a fair offer to the student seller.
             </p>
 
             {offerSuccess ? (
-              <div className="p-4 bg-emerald-50 text-emerald-800 rounded-2xl text-sm font-semibold text-center">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl text-sm font-semibold text-center">
                 {offerSuccess}
               </div>
             ) : (
               <form onSubmit={handleSendOffer} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
                     Your Offer Amount (₹)
                   </label>
                   <input
@@ -678,12 +678,12 @@ export default function ProductDetails() {
                     value={offerAmount}
                     onChange={(e) => setOfferAmount(e.target.value)}
                     required
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold text-base focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-bold text-base focus:ring-2 focus:ring-emerald-500 outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
                     Note for Seller (Optional)
                   </label>
                   <textarea
@@ -691,7 +691,7 @@ export default function ProductDetails() {
                     value={offerMessage}
                     onChange={(e) => setOfferMessage(e.target.value)}
                     placeholder="e.g. Can meet tomorrow at the library and pay cash/UPI."
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-emerald-500 outline-none"
                   ></textarea>
                 </div>
 
@@ -699,7 +699,7 @@ export default function ProductDetails() {
                   <button
                     type="button"
                     onClick={() => setOfferModalOpen(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600"
+                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                   >
                     Cancel
                   </button>
@@ -720,37 +720,37 @@ export default function ProductDetails() {
       {/* REPORT MODAL */}
       {reportModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 relative">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 relative">
             <button
               onClick={() => setReportModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-rose-600">
+            <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
               <Flag className="w-5 h-5" />
-              <h3 className="font-bold text-slate-900 text-lg">Report Listing</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white text-lg">Report Listing</h3>
             </div>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Help keep CampusCycle safe. Reports are audited by the Social Responsibility Club administrators.
             </p>
 
             {reportSuccess ? (
-              <div className="p-4 bg-emerald-50 text-emerald-800 rounded-2xl text-sm font-semibold text-center">
+              <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl text-sm font-semibold text-center">
                 {reportSuccess}
               </div>
             ) : (
               <form onSubmit={handleSendReport} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
                     Reason
                   </label>
                   <select
                     value={reportReason}
                     onChange={(e) => setReportReason(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 font-semibold"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 font-semibold outline-none"
                   >
                     <option value="Scam">Scam or Fraudulent Claim</option>
                     <option value="Fake Product">Counterfeit / Fake Product</option>
@@ -764,7 +764,7 @@ export default function ProductDetails() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
                     Details
                   </label>
                   <textarea
@@ -773,7 +773,7 @@ export default function ProductDetails() {
                     value={reportDesc}
                     onChange={(e) => setReportDesc(e.target.value)}
                     placeholder="Provide details for campus moderators..."
-                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:ring-2 focus:ring-rose-500"
+                    className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-rose-500 outline-none"
                   ></textarea>
                 </div>
 
@@ -781,7 +781,7 @@ export default function ProductDetails() {
                   <button
                     type="button"
                     onClick={() => setReportModalOpen(false)}
-                    className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600"
+                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                   >
                     Cancel
                   </button>
